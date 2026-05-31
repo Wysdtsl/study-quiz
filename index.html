@@ -913,11 +913,16 @@ async function sendChat() {
   const accessCode = document.getElementById('chat-access-code').value.trim();
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+
     const resp = await fetch(CHAT_WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accessCode, message: msg, history: chatHistory })
+      body: JSON.stringify({ accessCode, message: msg, history: chatHistory }),
+      signal: controller.signal
     });
+    clearTimeout(timeout);
 
     const data = await resp.json();
     waitDiv.remove();
