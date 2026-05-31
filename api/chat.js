@@ -1,11 +1,9 @@
-// 学习伙伴 AI 聊天代理 - Vercel Serverless Function
-// 环境变量: DEEPSEEK_API_KEY, ACCESS_CODE
+// Vercel Serverless Function — 代理 AI 聊天请求
+// 访问路径: /api/chat
 
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-const ACCESS_CODE = process.env.ACCESS_CODE;
+const DEEPSEEK_API = 'https://api.deepseek.com/v1/chat/completions';
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -15,20 +13,18 @@ export default async function handler(req, res) {
 
   const { accessCode, message, history } = req.body || {};
 
-  if (accessCode !== ACCESS_CODE) {
+  if (accessCode !== process.env.ACCESS_CODE)
     return res.status(403).json({ error: '访问码错误' });
-  }
 
-  if (!message || !message.trim()) {
+  if (!message || !message.trim())
     return res.status(400).json({ error: '消息不能为空' });
-  }
 
   try {
-    const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    const resp = await fetch(DEEPSEEK_API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
         model: 'deepseek-v4-flash',
