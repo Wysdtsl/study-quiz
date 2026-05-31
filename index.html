@@ -1093,7 +1093,8 @@ function addMsg(role, text, isThinking, useMd) {
   const div = document.createElement('div');
   div.className = 'chat-msg ' + role;
   const content = useMd ? renderMd(text) : text;
-  let html = `<div class="chat-bbl${isThinking ? ' thinking' : ''}">${content}</div>`;
+  const raw = text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  let html = `<div class="chat-bbl${isThinking ? ' thinking' : ''}" data-raw="${raw}">${content}</div>`;
   if (role === 'ai' && !isThinking) html += `<span class="copy-btn" onclick="copyMsg(this)">复制</span>`;
   div.innerHTML = html;
   document.getElementById('chat-msgs').appendChild(div);
@@ -1101,8 +1102,9 @@ function addMsg(role, text, isThinking, useMd) {
 }
 
 function copyMsg(el) {
-  const text = el.parentElement.querySelector('.chat-bbl').textContent;
-  navigator.clipboard.writeText(text).then(() => { el.textContent = '已复制'; setTimeout(() => { el.textContent = '复制'; }, 1500); }).catch(() => {});
+  const bbl = el.parentElement.querySelector('.chat-bbl');
+  const raw = bbl.getAttribute('data-raw') || bbl.textContent;
+  navigator.clipboard.writeText(raw).then(() => { el.textContent = '已复制'; setTimeout(() => { el.textContent = '复制'; }, 1500); }).catch(() => {});
 }
 
 async function sendChat() {
