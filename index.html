@@ -320,6 +320,7 @@
 
 <script>
 const STORAGE_PREFIX = 'quiz_progress_';
+const STATE_KEY = 'quiz_app_state';
 let data = null;
 let currentSubject = null;
 let currentSession = null;
@@ -335,6 +336,7 @@ async function loadData() {
     data = await res.json();
     renderSubjects();
     renderStats();
+    restoreState();
   } catch(e) {
     const el = document.getElementById('subject-list');
     el.textContent = '';
@@ -437,6 +439,43 @@ function quizWrongBank(subject) {
 
 // ── Subject & Session ──
 
+// ── State persistence ──
+function saveState(page, sid, date, idx) {
+  localStorage.setItem(STATE_KEY, JSON.stringify({ page, subjectId: sid, sessionDate: date, questionIndex: idx }));
+}
+function clearState() { localStorage.removeItem(STATE_KEY); }
+function restoreState() {
+  try {
+    const saved = localStorage.getItem(STATE_KEY);
+    if (!saved) return;
+    const s = JSON.parse(saved);
+    if (s.page === 'quiz' && s.subjectId && s.sessionDate) {
+      const sub = data.subjects.find(x => x.id === s.subjectId);
+      if (!sub) return;
+      currentSubject = sub;
+      const sess = sub.sessions.find(x => x.date === s.sessionDate);
+      if (!sess) return;
+      currentSession = sess;
+      loadProgress(s.subjectId, s.sessionDate);
+      currentIndex = Math.min(s.questionIndex || 0, sess.questions.length - 1);
+      sessionQuestions = null;
+      isAnswered = false;
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-quiz').classList.add('active');
+      document.getElementById('quiz-title').textContent = sub.name;
+      renderQuestion();
+    } else if (s.page === 'sessions' && s.subjectId) {
+      const sub = data.subjects.find(x => x.id === s.subjectId);
+      if (!sub) return;
+      currentSubject = sub;
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-sessions').classList.add('active');
+      document.getElementById('session-title').textContent = sub.name;
+      renderSessions();
+    }
+  } catch(e) {}
+}
+
 const ICON_CLS = ['blue','amber','green','red'];
 
 function renderSubjects() {
@@ -460,6 +499,7 @@ function selectSubject(sid) {
   document.getElementById('page-sessions').classList.add('active');
   document.getElementById('session-title').textContent = currentSubject.name;
   renderSessions();
+  saveState('sessions', sid);
 }
 
 function renderSessions() {
@@ -481,12 +521,14 @@ function selectSession(date) {
   document.getElementById('quiz-title').textContent = currentSubject.name;
   isAnswered = false;
   renderQuestion();
+  saveState('quiz', currentSubject.id, date, currentIndex);
 }
 
 function quitQuiz() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-sessions').classList.add('active');
   renderSessions(); renderStats();
+  saveState('sessions', currentSubject.id);
 }
 
 // ── Quiz ──
@@ -543,12 +585,12 @@ document.getElementById('btn-wrong').addEventListener('click', function() {
 
 function goNext() {
   const qs = sessionQuestions || currentSession.questions;
-  if (currentIndex < qs.length - 1) { currentIndex++; isAnswered = false; renderQuestion(); }
+  if (currentIndex < qs.length - 1) { currentIndex++; isAnswered = false; renderQuestion(); saveState('quiz', currentSubject.id, currentSession.date, currentIndex); }
   else renderQuestion();
 }
 
 document.getElementById('btn-next').addEventListener('click', goNext);
-document.getElementById('btn-prev').addEventListener('click', function() { if (currentIndex > 0) { currentIndex--; isAnswered = false; renderQuestion(); } });
+document.getElementById('btn-prev').addEventListener('click', function() { if (currentIndex > 0) { currentIndex--; isAnswered = false; renderQuestion(); saveState('quiz', currentSubject.id, currentSession.date, currentIndex); } });
 
 function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
@@ -579,8 +621,8 @@ document.getElementById('btn-retry-wrong').addEventListener('click', function() 
   currentSession = { date: currentSession.date + '-w', label: '错题重刷', questions: wrong }; sessionQuestions = null; answers = {}; currentIndex = 0; isAnswered = false; renderQuestion();
 });
 
-document.getElementById('back-home').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); });
-document.getElementById('back-home-wb').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); });
+document.getElementById('back-home').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
+document.getElementById('back-home-wb').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
 
 document.addEventListener('keydown', function(e) {
   const quiz = document.getElementById('page-quiz');
