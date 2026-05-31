@@ -1,0 +1,6 @@
+name = "study-quiz-chat"
+main = "worker.js"
+compatibility_date = "2025-05-01"
+
+[vars]
+WORKER_URL = "study-quiz-chat"
