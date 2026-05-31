@@ -227,6 +227,37 @@
   .toc-dot.wrong { background: var(--red-light); color: var(--red); }
   .toc-dot.current { box-shadow: 0 0 0 2px var(--ink-blue); }
 
+  /*━━━ Notes ━━━*/
+  .note-empty { text-align: center; padding: 60px 20px; color: var(--ink-muted); }
+  .note-empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .note-empty .t { font-size: 16px; }
+  .note-empty .s { font-size: 14px; margin-top: 4px; }
+  .note-item {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 10px;
+    border: 1px solid var(--border);
+  }
+  .note-item .title {
+    font-size: 15px; font-weight: 600; margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .note-item .title .del {
+    font-size: 12px; color: var(--ink-lighter); cursor: pointer; flex-shrink: 0;
+    padding: 2px 6px; border-radius: 6px;
+  }
+  .note-item .title .del:active { background: var(--red-light); color: var(--red); }
+  .note-item .body { font-size: 14px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; }
+  .note-item .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 8px; }
+  .note-form { margin-bottom: 16px; }
+  .note-form input, .note-form textarea {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; font-size: 15px; outline: none;
+    background: var(--surface); color: var(--ink); font-family: inherit;
+    margin-bottom: 8px;
+  }
+  .note-form input:focus, .note-form textarea:focus { border-color: var(--ink-blue); }
+  .note-form textarea { min-height: 100px; resize: vertical; }
+
   /*━━━ Chat bubble ━━━*/
   .chat-bubble {
     position: fixed; bottom: 20px; right: 20px; z-index: 90;
@@ -342,6 +373,7 @@
 
     <div class="home-actions">
       <button class="btn btn-out" onclick="showWrongBank()">复习全部错题</button>
+      <button class="btn btn-out" onclick="showNotes()">📝 知识点笔记</button>
       <div class="home-actions-row">
         <button class="btn btn-out" onclick="exportData()">导出答题记录</button>
         <button class="btn btn-out" onclick="document.getElementById('import-input').click()">导入答题记录</button>
@@ -417,6 +449,21 @@
       <div class="bar-end"></div>
     </div>
     <div id="wb-content"></div>
+  </div>
+
+  <!-- Notes page -->
+  <div id="page-notes" class="page padded">
+    <div class="bar">
+      <button class="bar-btn" id="back-home-notes">←</button>
+      <span class="bar-title">📝 知识点笔记</span>
+      <div class="bar-end"></div>
+    </div>
+    <div class="note-form">
+      <input type="text" id="note-title" placeholder="标题（可选）">
+      <textarea id="note-body" placeholder="粘贴知识点内容..."></textarea>
+      <button class="btn btn-primary" onclick="addNote()">保存笔记</button>
+    </div>
+    <div id="note-list"></div>
   </div>
 
   <!-- Chat bubble & panel -->
@@ -764,6 +811,7 @@ document.getElementById('btn-retry-wrong').addEventListener('click', function() 
 
 document.getElementById('back-home').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
 document.getElementById('back-home-wb').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
+document.getElementById('back-home-notes').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); });
 
 document.addEventListener('keydown', function(e) {
   const quiz = document.getElementById('page-quiz');
@@ -809,6 +857,49 @@ function jumpTo(i) {
   currentIndex = i; isAnswered = false;
   document.getElementById('toc-overlay').classList.remove('show');
   renderQuestion();
+}
+
+// ── Notes ──
+const NOTES_KEY = 'study_notes';
+
+function getNotes() { try { return JSON.parse(localStorage.getItem(NOTES_KEY) || '[]'); } catch(e) { return []; } }
+function saveNotes(notes) { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); }
+
+function showNotes() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-notes').classList.add('active');
+  renderNotes();
+}
+
+function renderNotes() {
+  const notes = getNotes();
+  const el = document.getElementById('note-list');
+  document.getElementById('note-title').value = '';
+  document.getElementById('note-body').value = '';
+  if (notes.length === 0) {
+    el.innerHTML = '<div class="note-empty"><div class="icon">📝</div><div class="t">还没有笔记</div><div class="s">在聊天中获取知识点后粘贴到这里</div></div>';
+    return;
+  }
+  el.innerHTML = notes.slice().reverse().map((n, i) =>
+    `<div class="note-item"><div class="title"><span>${escapeHtml(n.title || '无标题')}</span><span class="del" onclick="deleteNote(${notes.length - 1 - i})">删除</span></div><div class="body">${escapeHtml(n.body)}</div><div class="meta">${n.date}</div></div>`
+  ).join('');
+}
+
+function addNote() {
+  const title = document.getElementById('note-title').value.trim();
+  const body = document.getElementById('note-body').value.trim();
+  if (!body) { alert('内容不能为空'); return; }
+  const notes = getNotes();
+  notes.push({ title: title || '无标题', body, date: new Date().toISOString().slice(0, 10) });
+  saveNotes(notes);
+  renderNotes();
+}
+
+function deleteNote(idx) {
+  const notes = getNotes();
+  notes.splice(idx, 1);
+  saveNotes(notes);
+  renderNotes();
 }
 
 // Remove wrong answer
@@ -944,7 +1035,7 @@ async function sendChat() {
     const data = await resp.json();
     const reply = data.choices?.[0]?.message?.content || '';
 
-    addMsg('ai', reply, false);
+    addMsg('ai', escapeHtml(reply), false);
     chatHistory.push({ role: 'user', content: msg });
     chatHistory.push({ role: 'assistant', content: reply });
 
