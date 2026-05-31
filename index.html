@@ -803,7 +803,7 @@ function renderQuestion() {
     ansBtns.classList.remove('hidden'); isAnswered = false;
   }
   document.getElementById('btn-prev').disabled = currentIndex === 0;
-  document.getElementById('btn-next').disabled = false;
+  document.getElementById('btn-next').disabled = currentIndex >= (sessionQuestions || currentSession.questions).length - 1;
   document.getElementById('question-area').classList.remove('hidden');
   document.getElementById('result-area').classList.add('hidden');
 }
