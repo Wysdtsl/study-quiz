@@ -232,31 +232,40 @@
   .note-empty .icon { font-size: 48px; margin-bottom: 12px; }
   .note-empty .t { font-size: 16px; }
   .note-empty .s { font-size: 14px; margin-top: 4px; }
-  .note-item {
+  /* List view */
+  .note-entry {
     background: var(--surface); border-radius: var(--radius);
-    padding: 16px; margin-bottom: 10px;
+    padding: 14px 16px; margin-bottom: 8px; cursor: pointer;
     border: 1px solid var(--border);
+    transition: border-color .15s;
   }
-  .note-item .title {
-    font-size: 15px; font-weight: 600; margin-bottom: 6px;
-    display: flex; justify-content: space-between; align-items: flex-start;
+  .note-entry:active { border-color: var(--ink-lighter); }
+  .note-entry .t { font-size: 15px; font-weight: 600; }
+  .note-entry .m { font-size: 12px; color: var(--ink-lighter); margin-top: 2px; }
+  /* Detail view */
+  .note-detail { display: none; }
+  .note-detail.show { display: block; }
+  .note-detail .head {
+    font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-top: 4px;
   }
-  .note-item .title .del {
-    font-size: 12px; color: var(--ink-lighter); cursor: pointer; flex-shrink: 0;
-    padding: 2px 6px; border-radius: 6px;
+  .note-detail .head .del {
+    font-size: 13px; font-weight: 400; color: var(--ink-lighter); cursor: pointer;
+    margin-left: 10px;
   }
-  .note-item .title .del:active { background: var(--red-light); color: var(--red); }
-  .note-item .body { font-size: 14px; line-height: 1.7; color: var(--ink); }
-  .note-item .body table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 13px; }
-  .note-item .body th, .note-item .body td { border: 1px solid var(--border); padding: 5px 8px; text-align: left; }
-  .note-item .body th { background: var(--ink-blue-light); font-weight: 600; }
-  .note-item .body strong { font-weight: 700; }
-  .note-item .body ul { margin: 4px 0; padding-left: 16px; list-style: disc; }
-  .note-item .body ol { margin: 4px 0; padding-left: 16px; }
-  .note-item .body li { margin-bottom: 2px; }
-  .note-item .body blockquote { border-left: 3px solid var(--ink-blue); padding: 4px 10px; margin: 6px 0; background: var(--ink-blue-light); border-radius: 6px; font-size: 13px; }
-  .note-item .body code { background: var(--surface2); padding: 1px 4px; border-radius: 3px; font-size: 13px; }
-  .note-item .body .md-h { font-weight: 700; margin: 6px 0 2px; }
+  .note-detail .body {
+    font-size: 15px; line-height: 1.8; color: var(--ink);
+  }
+  .note-detail .body table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14px; }
+  .note-detail .body th, .note-detail .body td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+  .note-detail .body th { background: var(--ink-blue-light); font-weight: 600; }
+  .note-detail .body strong { font-weight: 700; }
+  .note-detail .body ul { margin: 4px 0; padding-left: 18px; list-style: disc; }
+  .note-detail .body ol { margin: 4px 0; padding-left: 18px; }
+  .note-detail .body li { margin-bottom: 3px; }
+  .note-detail .body blockquote { border-left: 3px solid var(--ink-blue); padding: 6px 12px; margin: 8px 0; background: var(--ink-blue-light); border-radius: 6px; }
+  .note-detail .body code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 14px; }
+  .note-detail .body .md-h { font-weight: 700; margin: 10px 0 4px; font-size: 16px; }
+  .note-detail .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 16px; }
   .note-item .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 8px; }
   .note-form { margin-bottom: 16px; }
   .note-form input, .note-form textarea {
@@ -497,15 +506,24 @@
   <div id="page-notes" class="page padded">
     <div class="bar">
       <button class="bar-btn" id="back-home-notes">←</button>
-      <span class="bar-title">📝 知识点笔记</span>
+      <span class="bar-title" id="notes-bar-title">📝 知识点笔记</span>
       <div class="bar-end"></div>
     </div>
-    <div class="note-form">
-      <input type="text" id="note-title" placeholder="标题（可选）">
-      <textarea id="note-body" placeholder="粘贴知识点内容..."></textarea>
-      <button class="btn btn-primary" onclick="addNote()">保存笔记</button>
+
+    <div id="notes-list-view">
+      <div class="note-form">
+        <input type="text" id="note-title" placeholder="标题（可选）">
+        <textarea id="note-body" placeholder="粘贴知识点内容..."></textarea>
+        <button class="btn btn-primary" onclick="addNote()">保存笔记</button>
+      </div>
+      <div id="note-list"></div>
     </div>
-    <div id="note-list"></div>
+
+    <div id="notes-detail-view" class="note-detail">
+      <div class="head"><span id="note-detail-title"></span></div>
+      <div class="body" id="note-detail-body"></div>
+      <div class="meta" id="note-detail-meta"></div>
+    </div>
   </div>
 
   <!-- Chat bubble & panel -->
@@ -853,7 +871,13 @@ document.getElementById('btn-retry-wrong').addEventListener('click', function() 
 
 document.getElementById('back-home').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
 document.getElementById('back-home-wb').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
-document.getElementById('back-home-notes').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); });
+document.getElementById('back-home-notes').addEventListener('click', function() {
+  const dv = document.getElementById('notes-detail-view');
+  if (dv.classList.contains('show')) { showNotes(); return; }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-home').classList.add('active');
+  renderSubjects(); renderStats();
+});
 
 document.addEventListener('keydown', function(e) {
   const quiz = document.getElementById('page-quiz');
@@ -910,6 +934,9 @@ function saveNotes(notes) { localStorage.setItem(NOTES_KEY, JSON.stringify(notes
 function showNotes() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-notes').classList.add('active');
+  document.getElementById('notes-detail-view').classList.remove('show');
+  document.getElementById('notes-list-view').style.display = 'block';
+  document.getElementById('notes-bar-title').textContent = '📝 知识点笔记';
   renderNotes();
 }
 
@@ -922,10 +949,25 @@ function renderNotes() {
     el.innerHTML = '<div class="note-empty"><div class="icon">📝</div><div class="t">还没有笔记</div><div class="s">在聊天中获取知识点后粘贴到这里</div></div>';
     return;
   }
-  el.innerHTML = notes.slice().reverse().map((n, i) =>
-    `<div class="note-item"><div class="title"><span>${escapeHtml(n.title || '无标题')}</span><span class="del" onclick="deleteNote(${notes.length - 1 - i})">删除</span></div><div class="body">${renderMd(n.body)}</div><div class="meta">${n.date}</div></div>`
+  el.innerHTML = notes.map((n, i) =>
+    `<div class="note-entry" onclick="showNoteDetail(${i})"><div class="t">${escapeHtml(n.title || '无标题')}</div><div class="m">${n.date}</div></div>`
   ).join('');
 }
+
+function showNoteDetail(idx) {
+  const notes = getNotes();
+  const n = notes[idx];
+  if (!n) return;
+  document.getElementById('notes-list-view').style.display = 'none';
+  const dv = document.getElementById('notes-detail-view');
+  dv.classList.add('show');
+  document.getElementById('notes-bar-title').textContent = '📝 笔记详情';
+  document.getElementById('note-detail-title').innerHTML = escapeHtml(n.title || '无标题') +
+    ' <span class="del" onclick="deleteNote(' + idx + ')">删除</span>';
+  document.getElementById('note-detail-body').innerHTML = renderMd(n.body);
+  document.getElementById('note-detail-meta').textContent = n.date;
+}
+
 
 function addNote() {
   const title = document.getElementById('note-title').value.trim();
@@ -938,10 +980,11 @@ function addNote() {
 }
 
 function deleteNote(idx) {
+  if (!confirm('确定删除此笔记？')) return;
   const notes = getNotes();
   notes.splice(idx, 1);
   saveNotes(notes);
-  renderNotes();
+  showNotes();
 }
 
 // Remove wrong answer
