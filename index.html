@@ -4,336 +4,340 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>学习伙伴</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  /*━━━ Material You 3 Theme ━━━*/
+  /*━━━ Ink & Paper ━━━*/
   :root {
-    --bg: #f5f5f5;
-    --surface: #ffffff;
-    --surface2: #f0f0f0;
-    --on-surface: #1f1f1f;
-    --on-surface-variant: #646464;
-    --outline: #e0e0e0;
-    --primary: #2563eb;
-    --on-primary: #ffffff;
-    --primary-container: #dbeafe;
-    --on-primary-container: #1e40af;
-    --secondary: #7c3aed;
-    --secondary-container: #ede9fe;
-    --tertiary: #059669;
-    --tertiary-container: #d1fae5;
-    --error: #dc2626;
-    --error-container: #fee2e2;
-    --green: #16a34a;
-    --green-container: #dcfce7;
-    --amber: #d97706;
-    --amber-container: #fef3c7;
-    --radius-sm: 12px;
-    --radius-md: 16px;
-    --radius-lg: 20px;
-    --elevation-1: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
-    --elevation-2: 0 3px 6px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.06);
-    --elevation-3: 0 8px 16px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.06);
-    --transition: .2s cubic-bezier(.4,0,.2,1);
+    --bg: #f5f2ee;
+    --surface: #fffcf8;
+    --surface2: #ece7e0;
+    --ink: #2c2a28;
+    --ink-muted: #8a837c;
+    --ink-lighter: #b5aea7;
+    --border: #e5dfd7;
+    --ink-blue: #2c3e5c;
+    --ink-blue-light: #e5eaf0;
+    --ink-blue-bright: #3b5a82;
+    --amber: #c98d3a;
+    --amber-light: #f5ecdc;
+    --green: #4a7c62;
+    --green-light: #e4efe9;
+    --red: #b5514a;
+    --red-light: #f2e3e1;
+    --radius: 14px;
+    --radius-sm: 10px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0f0f0f;
-      --surface: #1c1c1e;
-      --surface2: #2c2c2e;
-      --on-surface: #f2f2f2;
-      --on-surface-variant: #a1a1a6;
-      --outline: #38383a;
-      --primary: #60a5fa;
-      --on-primary: #0a0a0a;
-      --primary-container: #1e3a5f;
-      --on-primary-container: #93c5fd;
-      --secondary: #a78bfa;
-      --secondary-container: #3b2f6e;
-      --tertiary: #34d399;
-      --tertiary-container: #064e3b;
-      --error: #f87171;
-      --error-container: #7f1d1d;
-      --green: #4ade80;
-      --green-container: #14532d;
-      --amber: #fbbf24;
-      --amber-container: #713f12;
-      --elevation-1: 0 1px 3px rgba(0,0,0,.3), 0 1px 2px rgba(0,0,0,.2);
-      --elevation-2: 0 4px 8px rgba(0,0,0,.4), 0 1px 3px rgba(0,0,0,.3);
-      --elevation-3: 0 8px 16px rgba(0,0,0,.5), 0 2px 4px rgba(0,0,0,.3);
+      --bg: #181714;
+      --surface: #24221e;
+      --surface2: #2f2d28;
+      --ink: #e8e2da;
+      --ink-muted: #8f8980;
+      --ink-lighter: #5f5a52;
+      --border: #36332e;
+      --ink-blue: #7c9cc6;
+      --ink-blue-light: #2a3340;
+      --ink-blue-bright: #a0b8d6;
+      --amber: #d4a24e;
+      --amber-light: #3a3224;
+      --green: #6ca883;
+      --green-light: #28382e;
+      --red: #d06a60;
+      --red-light: #3d2825;
     }
   }
 
-  /*━━━ Reset ━━━*/
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    font-family: "Noto Sans SC", -apple-system, system-ui, sans-serif;
     background: var(--bg);
-    color: var(--on-surface);
+    color: var(--ink);
     min-height: 100dvh;
-    line-height: 1.6;
+    line-height: 1.65;
+    -webkit-tap-highlight-color: transparent;
   }
+  .num { font-family: "Outfit", sans-serif; }
 
   /*━━━ App Bar ━━━*/
-  .appbar {
-    display: flex; align-items: center; gap: 8px;
-    padding: 12px 4px 4px; min-height: 56px;
+  .bar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 14px 6px 6px; min-height: 56px;
     position: sticky; top: 0; z-index: 10;
     background: var(--bg);
   }
-  .appbar .back {
-    width: 44px; height: 44px; display: flex; align-items: center;
+  .bar-btn {
+    width: 40px; height: 40px; display: flex; align-items: center;
     justify-content: center; flex-shrink: 0;
-    background: none; border: none; border-radius: 50%;
-    color: var(--on-surface); font-size: 22px; cursor: pointer;
-    transition: background var(--transition);
-    -webkit-tap-highlight-color: transparent;
+    background: none; border: none; border-radius: 12px;
+    color: var(--ink); font-size: 22px; cursor: pointer;
+    transition: background .15s;
   }
-  .appbar .back:active { background: var(--surface2); }
-  .appbar .title { font-size: 20px; font-weight: 600; flex: 1; }
-  .appbar .spacer { width: 44px; flex-shrink: 0; }
+  .bar-btn:active { background: var(--surface2); }
+  .bar-title { font-size: 18px; font-weight: 600; flex: 1; letter-spacing: -.01em; }
+  .bar-end { width: 40px; flex-shrink: 0; }
 
-  /*━━━ Page container ━━━*/
-  .page { display: none; padding: 0 16px 24px; }
+  /*━━━ Pages ━━━*/
+  .page { display: none; padding: 0 18px 24px; }
   .page.active { display: block; }
-  .page-home { max-width: 600px; margin: 0 auto; }
-  .page-sub { max-width: 600px; margin: 0 auto; }
+  .padded { max-width: 560px; margin: 0 auto; }
 
-  /*━━━ Subject cards ━━━*/
-  .subtitle {
-    font-size: 14px; color: var(--on-surface-variant);
-    padding: 4px 4px 12px;
+  /*━━━ Animations ━━━*/
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .card-grid { display: flex; flex-direction: column; gap: 12px; }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  .card, .row { animation: slideUp .35s ease-out both; }
+  .card:nth-child(2) { animation-delay: .05s; }
+  .card:nth-child(3) { animation-delay: .1s; }
+  .card:nth-child(4) { animation-delay: .15s; }
+  .card:nth-child(5) { animation-delay: .2s; }
+
+  /*━━━ Home ━━━*/
+  .hello {
+    font-family: "Outfit", sans-serif;
+    font-size: 26px; font-weight: 700; padding: 10px 4px 2px;
+    letter-spacing: -.02em;
+  }
+  .hello-sub {
+    font-size: 14px; color: var(--ink-muted); padding: 0 4px 16px;
+  }
 
   .card {
-    background: var(--surface); border-radius: var(--radius-md);
-    padding: 18px 20px; cursor: pointer;
-    box-shadow: var(--elevation-1); transition: box-shadow var(--transition);
-    -webkit-tap-highlight-color: transparent;
+    background: var(--surface); border-radius: var(--radius);
+    padding: 16px 18px; cursor: pointer;
+    border: 1px solid var(--border);
+    transition: border-color .15s, transform .1s;
   }
-  .card:active { box-shadow: var(--elevation-2); }
+  .card:active { transform: scale(.985); }
   .card-row { display: flex; align-items: center; gap: 14px; }
   .card-icon {
-    width: 48px; height: 48px; border-radius: 14px;
+    width: 44px; height: 44px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 22px; flex-shrink: 0;
+    font-size: 20px; flex-shrink: 0;
   }
-  .card-icon.blue { background: var(--primary-container); }
-  .card-icon.purple { background: var(--secondary-container); }
-  .card-icon.green { background: var(--tertiary-container); }
-  .card-icon.amber { background: var(--amber-container); }
-
+  .card-icon.blue { background: var(--ink-blue-light); }
+  .card-icon.amber { background: var(--amber-light); }
+  .card-icon.green { background: var(--green-light); }
+  .card-icon.red { background: var(--red-light); }
   .card-body { flex: 1; min-width: 0; }
   .card-name { font-size: 16px; font-weight: 600; }
-  .card-meta { font-size: 13px; color: var(--on-surface-variant); margin-top: 2px; }
+  .card-meta { font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
 
-  .chip {
+  .stamp {
     display: flex; flex-direction: column; align-items: center;
-    padding: 5px 12px; border-radius: 10px; margin-top: 4px;
-    flex-shrink: 0; min-width: 56px; line-height: 1.3;
+    padding: 6px 12px; border-radius: var(--radius-sm); flex-shrink: 0;
+    min-width: 52px;
   }
-  .chip-progress { font-size: 15px; font-weight: 700; }
-  .chip-pct { font-size: 11px; font-weight: 500; opacity: .8; }
-  .chip-new { background: var(--primary-container); color: var(--on-primary-container); }
-  .chip-doing { background: var(--amber-container); color: var(--amber); }
-  .chip-done { background: var(--green-container); color: var(--green); }
+  .stamp-num { font-family: "Outfit", sans-serif; font-size: 16px; font-weight: 700; line-height: 1.2; }
+  .stamp-lbl { font-size: 10px; font-weight: 600; opacity: .75; line-height: 1.2; }
+  .stamp-new { background: var(--ink-blue-light); color: var(--ink-blue); }
+  .stamp-doing { background: var(--amber-light); color: var(--amber); }
+  .stamp-done { background: var(--green-light); color: var(--green); }
 
   /*━━━ Session list ━━━*/
-  .session-card {
-    background: var(--surface); border-radius: var(--radius-md);
-    padding: 16px 18px; cursor: pointer;
-    box-shadow: var(--elevation-1); transition: box-shadow var(--transition);
-    -webkit-tap-highlight-color: transparent;
+  .row {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 15px 18px; cursor: pointer;
+    border: 1px solid var(--border);
+    transition: border-color .15s, transform .1s;
   }
-  .session-card:active { box-shadow: var(--elevation-2); }
-  .session-date { font-size: 15px; font-weight: 600; }
-  .session-label { font-size: 13px; color: var(--on-surface-variant); margin-top: 2px; }
-  .session-progress { font-size: 12px; color: var(--primary); margin-top: 8px; }
+  .row:active { transform: scale(.985); }
+  .row-date { font-size: 14px; font-weight: 600; }
+  .row-meta { font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
+  .row-stat { font-size: 12px; color: var(--ink-blue); margin-top: 8px; }
 
-  .progress-bar {
+  .track {
     height: 4px; background: var(--surface2); border-radius: 4px;
     margin-top: 10px; overflow: hidden;
   }
-  .progress-fill {
+  .track-fill {
     height: 100%; border-radius: 4px;
-    background: var(--primary); transition: width .4s cubic-bezier(.4,0,.2,1);
+    background: var(--ink-blue); transition: width .5s cubic-bezier(.4,0,.2,1);
   }
 
-  /*━━━ Quiz header ━━━*/
-  .quiz-header {
+  /*━━━ Quiz ━━━*/
+  .quiz-head {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 0 16px; margin-bottom: 12px;
-    border-bottom: 1px solid var(--outline);
+    padding: 14px 0; margin-bottom: 6px;
+    border-bottom: 1px solid var(--border);
   }
-  .quiz-header .info { font-size: 13px; color: var(--on-surface-variant); }
-  .quiz-header .section {
-    font-size: 12px; font-weight: 500;
-    background: var(--primary-container); color: var(--on-primary-container);
+  .quiz-head .pos {
+    font-family: "Outfit", sans-serif;
+    font-size: 13px; font-weight: 500; color: var(--ink-muted);
+  }
+  .quiz-head .tag {
+    font-size: 11px; font-weight: 600;
+    background: var(--ink-blue-light); color: var(--ink-blue);
     padding: 3px 10px; border-radius: 8px;
   }
 
-  /*━━━ Question ━━━*/
-  .q-number { font-size: 13px; color: var(--on-surface-variant); margin-bottom: 10px; }
-  .q-text {
+  .qn { font-size: 13px; color: var(--ink-lighter); margin-bottom: 10px; font-family: "Outfit", sans-serif; }
+  .q {
     font-size: 18px; font-weight: 600; line-height: 1.7;
-    margin-bottom: 28px;
+    margin-bottom: 28px; letter-spacing: .01em;
   }
 
-  /*━━━ Answer ━━━*/
-  .answer-area { display: none; }
-  .answer-area.show { display: block; }
+  /*━━━ Reveal ━━━*/
+  .reveal { display: none; }
+  .reveal.show { display: block; animation: fadeIn .25s ease-out; }
 
-  .answer-box {
-    background: var(--tertiary-container); border-radius: var(--radius-md);
-    padding: 16px; margin-bottom: 12px;
+  .ans {
+    background: var(--green-light); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 10px;
+    border-left: 3px solid var(--green);
   }
-  .answer-box .label {
-    font-size: 12px; font-weight: 600; letter-spacing: .5px;
-    color: var(--tertiary); text-transform: uppercase; margin-bottom: 6px;
-  }
-  .answer-box .content { font-size: 15px; line-height: 1.7; }
+  .ans .hl { font-size: 11px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .ans .body { font-size: 15px; line-height: 1.7; }
 
-  .tips-box {
-    background: var(--amber-container); border-radius: var(--radius-md);
+  .tip {
+    background: var(--amber-light); border-radius: var(--radius);
     padding: 14px 16px; margin-bottom: 24px;
+    border-left: 3px solid var(--amber);
   }
-  .tips-box .label {
-    font-size: 12px; font-weight: 600; letter-spacing: .5px;
-    color: var(--amber); text-transform: uppercase; margin-bottom: 4px;
-  }
-  .tips-box .content { font-size: 14px; line-height: 1.6; }
+  .tip .hl { font-size: 11px; font-weight: 700; color: var(--amber); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .tip .body { font-size: 14px; line-height: 1.6; }
 
   /*━━━ Buttons ━━━*/
-  .btn-group { display: flex; gap: 10px; }
+  .g { display: flex; gap: 10px; }
 
   .btn {
     flex: 1; border: none; border-radius: var(--radius-sm);
     padding: 14px; font-size: 15px; font-weight: 600;
-    cursor: pointer; transition: transform .1s, opacity .15s;
-    -webkit-tap-highlight-color: transparent;
+    cursor: pointer; transition: transform .1s;
+    font-family: inherit;
   }
-  .btn:active { transform: scale(.97); }
+  .btn:active { transform: scale(.96); }
 
-  .btn-filled { background: var(--primary); color: var(--on-primary);
-    box-shadow: var(--elevation-1); }
-  .btn-text { background: transparent; color: var(--primary); }
-  .btn-green { background: var(--green); color: #fff; }
-  .btn-red { background: var(--error); color: #fff; }
-  .btn-outline {
-    background: transparent; border: 1.5px solid var(--outline);
-    color: var(--on-surface);
+  .btn-primary { background: var(--ink-blue); color: #fff; }
+  .btn-correct { background: var(--green); color: #fff; }
+  .btn-wrong { background: var(--red); color: #fff; }
+  .btn-out {
+    background: transparent; border: 1.5px solid var(--border);
+    color: var(--ink);
   }
 
-  .btn-nav {
-    flex: 1; background: var(--surface); color: var(--on-surface);
-    border: none; border-radius: var(--radius-sm);
-    padding: 14px; font-size: 15px; font-weight: 500;
-    cursor: pointer; box-shadow: var(--elevation-1);
-    transition: opacity .15s, box-shadow var(--transition);
-    -webkit-tap-highlight-color: transparent;
+  .nav-btn {
+    flex: 1; background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 13px; font-size: 14px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+    transition: border-color .15s;
   }
-  .btn-nav:active { box-shadow: var(--elevation-2); }
-  .btn-nav:disabled { opacity: .35; }
+  .nav-btn:active { border-color: var(--ink-lighter); }
+  .nav-btn:disabled { opacity: .3; }
+
+  .mt { margin-top: 24px; }
 
   /*━━━ Result ━━━*/
-  .result-box {
-    text-align: center; padding: 40px 16px; margin-bottom: 12px;
+  .result {
+    text-align: center; padding: 40px 10px; margin-bottom: 8px;
   }
-  .result-box .score {
-    font-size: 56px; font-weight: 700; color: var(--primary);
+  .result .big {
+    font-family: "Outfit", sans-serif;
+    font-size: 56px; font-weight: 700; color: var(--ink-blue);
     line-height: 1;
   }
-  .result-box .score-sub {
-    font-size: 15px; color: var(--on-surface-variant);
+  .result .sub {
+    font-size: 15px; color: var(--ink-muted);
     margin: 10px 0 28px;
   }
 
-  .wrong-item {
-    background: var(--surface); border-radius: var(--radius-md);
+  .err {
+    background: var(--surface); border-radius: var(--radius);
     padding: 16px; margin-bottom: 10px;
-    box-shadow: var(--elevation-1);
+    border: 1px solid var(--border);
   }
-  .wrong-item .q { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
-  .wrong-item .a { font-size: 14px; color: var(--on-surface-variant); }
+  .err .q { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+  .err .a { font-size: 14px; color: var(--ink-muted); }
 
-  /*━━━ Utilities ━━━*/
+  .slug { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+
+  /*━━━ Utils ━━━*/
   .hidden { display: none !important; }
-  .mt-24 { margin-top: 24px; }
+  .tc { justify-content: center; }
+
+  .gap { gap: 10px; }
 </style>
 </head>
 <body>
 
 <div id="app">
-  <!-- Page 1: Subjects -->
-  <div id="page-home" class="page page-home active">
-    <div class="appbar"><div class="title">学习伙伴</div></div>
-    <div class="subtitle">选择一个科目开始答题</div>
-    <div class="card-grid" id="subject-list"></div>
+  <!-- Home -->
+  <div id="page-home" class="page padded active">
+    <div class="hello">学习伙伴</div>
+    <div class="hello-sub">选择一个科目开始答题</div>
+    <div id="subject-list"></div>
   </div>
 
-  <!-- Page 2: Sessions -->
-  <div id="page-sessions" class="page page-sub">
-    <div class="appbar">
-      <button class="back" id="back-home">‹</button>
-      <span class="title" id="session-title">地理</span>
-      <div class="spacer"></div>
+  <!-- Sessions -->
+  <div id="page-sessions" class="page padded">
+    <div class="bar">
+      <button class="bar-btn" id="back-home">←</button>
+      <span class="bar-title" id="session-title">地理</span>
+      <div class="bar-end"></div>
     </div>
-    <div id="session-list" class="card-grid"></div>
+    <div id="session-list"></div>
   </div>
 
-  <!-- Page 3: Quiz -->
-  <div id="page-quiz" class="page page-sub">
-    <div class="appbar">
-      <button class="back" id="back-sessions">‹</button>
-      <span class="title" id="quiz-title">地理</span>
-      <div class="spacer"></div>
+  <!-- Quiz -->
+  <div id="page-quiz" class="page padded">
+    <div class="bar">
+      <button class="bar-btn" id="back-sessions">←</button>
+      <span class="bar-title" id="quiz-title">地理</span>
+      <div class="bar-end"></div>
     </div>
 
-    <div class="quiz-header">
-      <span class="info" id="quiz-progress">第 1/43 题</span>
-      <span class="section" id="quiz-section">行政区划</span>
+    <div class="quiz-head">
+      <span class="pos" id="quiz-progress">1/43</span>
+      <span class="tag" id="quiz-section">行政区划</span>
     </div>
 
     <div id="question-area">
-      <div class="q-number" id="q-number">#1</div>
-      <div class="q-text" id="q-text">问题加载中...</div>
+      <div class="qn" id="q-number">#1</div>
+      <div class="q" id="q-text">问题加载中...</div>
 
-      <button class="btn btn-filled" id="btn-show-answer">显示答案</button>
+      <button class="btn btn-primary" id="btn-show-answer">查看答案</button>
 
-      <div class="answer-area" id="answer-area">
-        <div class="answer-box">
-          <div class="label">正确答案</div>
-          <div class="content" id="answer-text"></div>
+      <div class="reveal" id="answer-area">
+        <div class="ans">
+          <div class="hl">正确答案</div>
+          <div class="body" id="answer-text"></div>
         </div>
-        <div class="tips-box">
-          <div class="label">记忆提示</div>
-          <div class="content" id="tips-text"></div>
+        <div class="tip">
+          <div class="hl">记忆提示</div>
+          <div class="body" id="tips-text"></div>
         </div>
-        <div class="btn-group">
-          <button class="btn btn-green" id="btn-correct">答对了</button>
-          <button class="btn btn-red" id="btn-wrong">答错了</button>
+        <div class="g">
+          <button class="btn btn-correct" id="btn-correct">答对了</button>
+          <button class="btn btn-wrong" id="btn-wrong">答错了</button>
         </div>
       </div>
 
-      <div class="mt-24">
-        <div class="btn-group">
-          <button class="btn-nav" id="btn-prev">‹ 上一题</button>
-          <button class="btn-nav" id="btn-next">下一题 ›</button>
+      <div class="mt">
+        <div class="g">
+          <button class="nav-btn" id="btn-prev">← 上一题</button>
+          <button class="nav-btn" id="btn-next">下一题 →</button>
         </div>
       </div>
     </div>
 
     <div id="result-area" class="hidden">
-      <div class="result-box">
-        <div class="score" id="result-score">0%</div>
-        <div class="score-sub" id="result-detail">答对 0/0 题</div>
-        <div class="btn-group" style="justify-content:center;gap:10px;">
-          <button class="btn btn-filled" id="btn-retry-wrong" style="flex:0 1 auto;padding:12px 20px;">重刷错题</button>
-          <button class="btn btn-outline" id="btn-retry-all" style="flex:0 1 auto;padding:12px 20px;">全部重来</button>
+      <div class="result">
+        <div class="big" id="result-score">0%</div>
+        <div class="sub" id="result-detail">答对 0/0 题</div>
+        <div class="g tc">
+          <button class="btn btn-primary" id="btn-retry-wrong" style="flex:0 1 auto;padding:12px 20px;">重刷错题</button>
+          <button class="btn btn-out" id="btn-retry-all" style="flex:0 1 auto;padding:12px 20px;">全部重来</button>
         </div>
       </div>
-      <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">错题本</h3>
+      <div class="slug">错题本</div>
       <div id="wrong-list"></div>
     </div>
   </div>
@@ -357,93 +361,58 @@ async function loadData() {
   } catch(e) {
     const el = document.getElementById('subject-list');
     el.textContent = '';
-    const div = document.createElement('div');
-    div.style.cssText = 'color:var(--error);text-align:center;padding:40px 0;';
-    div.textContent = '题库加载失败 (' + e.message + ')';
-    el.appendChild(div);
+    const d = document.createElement('div');
+    d.style.cssText = 'color:var(--red);text-align:center;padding:40px 0;';
+    d.textContent = '题库加载失败 (' + e.message + ')';
+    el.appendChild(d);
   }
 }
 
-function getProgressKey(subjectId, date) {
-  return STORAGE_PREFIX + subjectId + '_' + date;
-}
+function getProgressKey(s, d) { return STORAGE_PREFIX + s + '_' + d; }
 
-function loadProgress(subjectId, date) {
-  const key = getProgressKey(subjectId, date);
+function loadProgress(sid, date) {
+  const key = getProgressKey(sid, date);
   try {
     const saved = localStorage.getItem(key);
-    if (saved) {
-      const p = JSON.parse(saved);
-      answers = p.answers || {};
-      currentIndex = p.currentIndex || 0;
-      return;
-    }
+    if (saved) { const p = JSON.parse(saved); answers = p.answers || {}; currentIndex = p.currentIndex || 0; return; }
   } catch(e) {}
-  answers = {};
-  currentIndex = 0;
+  answers = {}; currentIndex = 0;
 }
 
-function saveProgress(subjectId, date) {
-  const key = getProgressKey(subjectId, date);
-  localStorage.setItem(key, JSON.stringify({ answers, currentIndex }));
-}
+function saveProgress(sid, date) { localStorage.setItem(getProgressKey(sid, date), JSON.stringify({ answers, currentIndex })); }
 
-function getStats(subjectId, date, questions) {
-  const key = getProgressKey(subjectId, date);
+function getStats(sid, date, questions) {
+  const key = getProgressKey(sid, date);
   try {
     const saved = localStorage.getItem(key);
-    if (saved) {
-      const p = JSON.parse(saved);
-      const ans = p.answers || {};
-      const total = Object.keys(ans).length;
-      const correct = Object.values(ans).filter(v => v === 'correct').length;
-      return { done: total, correct, total, all: questions.length };
-    }
+    if (saved) { const p = JSON.parse(saved); const ans = p.answers || {}; const total = Object.keys(ans).length; const correct = Object.values(ans).filter(v => v === 'correct').length; return { done: total, correct, total, all: questions.length }; }
   } catch(e) {}
   return { done: 0, correct: 0, total: 0, all: questions.length };
 }
 
-const ICONS = ['blue','purple','green','amber'];
+const ICON_CLS = ['blue','amber','green','red'];
 
 function renderSubjects() {
   const el = document.getElementById('subject-list');
   el.innerHTML = data.subjects.map((s, i) => {
     const allQ = s.sessions.reduce((a, sess) => a + sess.questions.length, 0);
     let totalDone = 0, totalCorrect = 0;
-    s.sessions.forEach(sess => {
-      const st = getStats(s.id, sess.date, sess.questions);
-      totalDone += st.done;
-      totalCorrect += st.correct;
-    });
-    const isComplete = totalDone > 0 && totalDone === allQ;
-    const status = totalDone === 0 ? 'new' : isComplete ? 'done' : 'doing';
-
-    let chipHtml;
+    s.sessions.forEach(sess => { const st = getStats(s.id, sess.date, sess.questions); totalDone += st.done; totalCorrect += st.correct; });
+    const done = totalDone === allQ;
+    const st = totalDone === 0 ? 'new' : done ? 'done' : 'doing';
+    let stamp;
     if (totalDone === 0) {
-      chipHtml = `<span class="chip chip-${status}"><span class="chip-progress">0/${allQ}</span><span class="chip-pct">未开始</span></span>`;
+      stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">0</span><span class="stamp-lbl">${allQ}</span></span>`;
     } else {
       const pct = Math.round(totalCorrect / totalDone * 100);
-      chipHtml = `<span class="chip chip-${status}"><span class="chip-progress">${totalDone}/${allQ}</span><span class="chip-pct">正确率 ${pct}%</span></span>`;
+      stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">${totalDone}</span><span class="stamp-lbl">${allQ} · ${pct}%</span></span>`;
     }
-
-    const iconCls = ICONS[i % ICONS.length];
-    return `
-      <div class="card" onclick="selectSubject('${s.id}')">
-        <div class="card-row">
-          <div class="card-icon ${iconCls}">${s.icon || '📖'}</div>
-          <div class="card-body">
-            <div class="card-name">${s.name}</div>
-            <div class="card-meta">${s.sessions.length} 个学习日 · ${allQ} 题</div>
-            ${chipHtml}
-          </div>
-        </div>
-      </div>
-    `;
+    return `<div class="card" onclick="selectSubject('${s.id}')"><div class="card-row"><div class="card-icon ${ICON_CLS[i%4]}">${s.icon || '📖'}</div><div class="card-body"><div class="card-name">${s.name}</div><div class="card-meta">${s.sessions.length} 天 · ${allQ} 题</div></div>${stamp}</div></div>`;
   }).join('');
 }
 
-function selectSubject(subjectId) {
-  currentSubject = data.subjects.find(s => s.id === subjectId);
+function selectSubject(sid) {
+  currentSubject = data.subjects.find(s => s.id === sid);
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-sessions').classList.add('active');
   document.getElementById('session-title').textContent = currentSubject.name;
@@ -455,14 +424,7 @@ function renderSessions() {
   el.innerHTML = currentSubject.sessions.map(sess => {
     const st = getStats(currentSubject.id, sess.date, sess.questions);
     const pct = st.all > 0 ? Math.round(st.done / st.all * 100) : 0;
-    return `
-      <div class="session-card" onclick="selectSession('${sess.date}')">
-        <div class="session-date">${sess.date}</div>
-        <div class="session-label">${sess.label || ''} · ${sess.questions.length} 题</div>
-        <div class="session-progress">已答 ${st.done}/${st.all} · 正确 ${st.correct}/${st.done}</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-      </div>
-    `;
+    return `<div class="row" onclick="selectSession('${sess.date}')"><div class="row-date">${sess.date}</div><div class="row-meta">${sess.label || ''} · ${sess.questions.length} 题</div><div class="row-stat">已答 ${st.done}/${st.all} · 正确 ${st.correct}/${st.done}</div><div class="track"><div class="track-fill" style="width:${pct}%"></div></div></div>`;
   }).join('');
 }
 
@@ -478,13 +440,9 @@ function selectSession(date) {
 }
 
 function renderQuestion() {
-  if (!currentSession || currentIndex >= currentSession.questions.length) {
-    showResult();
-    return;
-  }
+  if (!currentSession || currentIndex >= currentSession.questions.length) { showResult(); return; }
   const q = currentSession.questions[currentIndex];
-  document.getElementById('quiz-progress').textContent =
-    `第 ${currentIndex + 1}/${currentSession.questions.length} 题`;
+  document.getElementById('quiz-progress').textContent = `${currentIndex + 1}/${currentSession.questions.length}`;
   document.getElementById('quiz-section').textContent = q.section || '';
   document.getElementById('q-number').textContent = `#${currentIndex + 1}`;
   document.getElementById('q-text').textContent = q.question;
@@ -493,17 +451,11 @@ function renderQuestion() {
 
   const area = document.getElementById('answer-area');
   const showBtn = document.getElementById('btn-show-answer');
-
   if (answers[q.id]) {
-    area.classList.add('show');
-    showBtn.classList.add('hidden');
-    isAnswered = true;
+    area.classList.add('show'); showBtn.classList.add('hidden'); isAnswered = true;
   } else {
-    area.classList.remove('show');
-    showBtn.classList.remove('hidden');
-    isAnswered = false;
+    area.classList.remove('show'); showBtn.classList.remove('hidden'); isAnswered = false;
   }
-
   document.getElementById('btn-prev').disabled = currentIndex === 0;
   document.getElementById('btn-next').disabled = false;
   document.getElementById('question-area').classList.remove('hidden');
@@ -511,8 +463,7 @@ function renderQuestion() {
 }
 
 document.getElementById('btn-show-answer').addEventListener('click', function() {
-  const q = currentSession.questions[currentIndex];
-  if (answers[q.id]) return;
+  if (answers[currentSession.questions[currentIndex].id]) return;
   document.getElementById('answer-area').classList.add('show');
   this.classList.add('hidden');
   isAnswered = true;
@@ -522,114 +473,72 @@ document.getElementById('btn-correct').addEventListener('click', function() {
   if (!isAnswered) return;
   answers[currentSession.questions[currentIndex].id] = 'correct';
   saveProgress(currentSubject.id, currentSession.date);
-  setTimeout(() => goNext(), 300);
+  setTimeout(goNext, 300);
 });
 
 document.getElementById('btn-wrong').addEventListener('click', function() {
   if (!isAnswered) return;
   answers[currentSession.questions[currentIndex].id] = 'wrong';
   saveProgress(currentSubject.id, currentSession.date);
-  setTimeout(() => goNext(), 300);
+  setTimeout(goNext, 300);
 });
 
 function goNext() {
-  if (currentIndex < currentSession.questions.length - 1) {
-    currentIndex++;
-    isAnswered = false;
-    renderQuestion();
-  } else {
-    renderQuestion();
-  }
+  if (currentIndex < currentSession.questions.length - 1) { currentIndex++; isAnswered = false; renderQuestion(); }
+  else { renderQuestion(); }
 }
 
 document.getElementById('btn-next').addEventListener('click', goNext);
 
 document.getElementById('btn-prev').addEventListener('click', function() {
-  if (currentIndex > 0) {
-    currentIndex--;
-    isAnswered = false;
-    renderQuestion();
-  }
+  if (currentIndex > 0) { currentIndex--; isAnswered = false; renderQuestion(); }
 });
 
 function showResult() {
   document.getElementById('question-area').classList.add('hidden');
   document.getElementById('result-area').classList.remove('hidden');
-
   const all = currentSession.questions;
-  let correct = 0, wrong = 0;
-  const wrongList = [];
-  all.forEach(q => {
-    if (answers[q.id] === 'correct') correct++;
-    else if (answers[q.id] === 'wrong') { wrong++; wrongList.push(q); }
-  });
+  let correct = 0, wrong = 0; const wrongList = [];
+  all.forEach(q => { if (answers[q.id] === 'correct') correct++; else if (answers[q.id] === 'wrong') { wrong++; wrongList.push(q); } });
   const done = correct + wrong;
   const pct = done > 0 ? Math.round(correct / done * 100) : 0;
   document.getElementById('result-score').textContent = pct + '%';
-  document.getElementById('result-detail').textContent =
-    `答对 ${correct}/${done} 题（共 ${all.length} 题，未答 ${all.length - done} 题）`;
-
+  document.getElementById('result-detail').textContent = `答对 ${correct}/${done} 题（共 ${all.length} 题，未答 ${all.length - done} 题）`;
   const wl = document.getElementById('wrong-list');
   if (wrongList.length === 0) {
     wl.innerHTML = '<div style="color:var(--green);font-size:15px;text-align:center;padding:8px 0;">全都答对了！</div>';
   } else {
-    wl.innerHTML = wrongList.map(q => `
-      <div class="wrong-item">
-        <div class="q">${q.question}</div>
-        <div class="a">正确答案：${q.answer}</div>
-      </div>
-    `).join('');
+    wl.innerHTML = wrongList.map(q => `<div class="err"><div class="q">${q.question}</div><div class="a">正确答案：${q.answer}</div></div>`).join('');
   }
-
   document.getElementById('btn-retry-wrong').classList.toggle('hidden', wrongList.length === 0);
   window._wrongList = wrongList;
 }
 
-document.getElementById('btn-retry-all').addEventListener('click', function() {
-  answers = {};
-  currentIndex = 0;
-  saveProgress(currentSubject.id, currentSession.date);
-  isAnswered = false;
-  renderQuestion();
-});
+document.getElementById('btn-retry-all').addEventListener('click', function() { answers = {}; currentIndex = 0; saveProgress(currentSubject.id, currentSession.date); isAnswered = false; renderQuestion(); });
 
 document.getElementById('btn-retry-wrong').addEventListener('click', function() {
   const wrong = window._wrongList || [];
   if (wrong.length === 0) return;
-  currentSession = {
-    date: currentSession.date + '-wrong',
-    label: '错题重刷',
-    questions: wrong
-  };
-  answers = {};
-  currentIndex = 0;
-  isAnswered = false;
-  renderQuestion();
+  currentSession = { date: currentSession.date + '-w', label: '错题重刷', questions: wrong };
+  answers = {}; currentIndex = 0; isAnswered = false; renderQuestion();
 });
 
 document.getElementById('back-home').addEventListener('click', function() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-home').classList.add('active');
-  renderSubjects();
+  document.getElementById('page-home').classList.add('active'); renderSubjects();
 });
 
 document.getElementById('back-sessions').addEventListener('click', function() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-sessions').classList.add('active');
-  renderSessions();
+  document.getElementById('page-sessions').classList.add('active'); renderSessions();
 });
 
 document.addEventListener('keydown', function(e) {
   const quiz = document.getElementById('page-quiz');
   if (!quiz.classList.contains('active')) return;
-  if (e.key === 'ArrowRight' && !document.getElementById('btn-next').disabled) {
-    goNext();
-  } else if (e.key === 'ArrowLeft' && !document.getElementById('btn-prev').disabled) {
-    document.getElementById('btn-prev').click();
-  } else if (e.key === ' ' && !isAnswered) {
-    e.preventDefault();
-    document.getElementById('btn-show-answer').click();
-  }
+  if (e.key === 'ArrowRight' && !document.getElementById('btn-next').disabled) { goNext(); }
+  else if (e.key === 'ArrowLeft' && !document.getElementById('btn-prev').disabled) { document.getElementById('btn-prev').click(); }
+  else if (e.key === ' ' && !isAnswered) { e.preventDefault(); document.getElementById('btn-show-answer').click(); }
 });
 
 loadData();
