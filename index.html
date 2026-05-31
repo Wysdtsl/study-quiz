@@ -237,7 +237,7 @@
       <div class="reveal" id="answer-area">
         <div class="ans"><div class="hl">正确答案</div><div class="body" id="answer-text"></div></div>
         <div class="tip"><div class="hl">记忆提示</div><div class="body" id="tips-text"></div></div>
-        <div class="g"><button class="btn btn-correct" id="btn-correct">答对了</button><button class="btn btn-wrong" id="btn-wrong">答错了</button></div>
+        <div class="g" id="btn-group-answer"><button class="btn btn-correct" id="btn-correct">答对了</button><button class="btn btn-wrong" id="btn-wrong">答错了</button></div>
       </div>
       <div class="mt"><div class="g"><button class="nav-btn" id="btn-prev">← 上一题</button><button class="nav-btn" id="btn-next">下一题 →</button></div></div>
     </div>
@@ -367,7 +367,7 @@ function renderWrongBank() {
 
   el.innerHTML = Object.entries(groups).map(([subject, items]) =>
     `<div class="wb-group"><div class="wb-subject">${subject} <span class="c">${items.length} 题</span></div>` +
-    items.map(w => `<div class="wb-item"><div class="wb-q">${w.question}</div><div class="wb-a">${w.answer}</div><div class="wb-src">${w.date}</div></div>`).join('') +
+    items.map(w => `<div class="wb-item"><div class="wb-q">${w.question}</div><div class="wb-a">${w.answer}</div><div class="wb-src">${w.date} <span class="num" style="color:var(--ink-blue);text-decoration:underline;margin-left:8px;" onclick="removeWrongAnswer('${w.subjectId}','${w.sessionDate}','${w.id}')">移出</span></div></div>`).join('') +
     `<button class="btn btn-primary" onclick="quizWrongBank('${subject}')">复习这${items.length}题</button></div>`
   ).join('');
 }
@@ -446,14 +446,21 @@ function renderQuestion() {
   const q = qs[currentIndex];
   document.getElementById('quiz-progress').textContent = `${currentIndex + 1}/${qs.length}`;
   document.getElementById('quiz-section').textContent = q.section || '';
-  document.getElementById('q-number').textContent = '#' + (currentIndex + 1);
+  const statusIcon = answers[q.id] ? (answers[q.id] === 'correct' ? ' ✅' : ' ❌') : '';
+  document.getElementById('q-number').textContent = '#' + (currentIndex + 1) + statusIcon;
   document.getElementById('q-text').textContent = q.question;
   document.getElementById('answer-text').textContent = q.answer;
   document.getElementById('tips-text').textContent = q.tips || '无';
   const area = document.getElementById('answer-area');
   const showBtn = document.getElementById('btn-show-answer');
-  if (answers[q.id]) { area.classList.add('show'); showBtn.classList.add('hidden'); isAnswered = true; }
-  else { area.classList.remove('show'); showBtn.classList.remove('hidden'); isAnswered = false; }
+  const ansBtns = document.getElementById('btn-group-answer');
+  if (answers[q.id]) {
+    area.classList.add('show'); showBtn.classList.add('hidden');
+    ansBtns.classList.add('hidden'); isAnswered = true;
+  } else {
+    area.classList.remove('show'); showBtn.classList.remove('hidden');
+    ansBtns.classList.remove('hidden'); isAnswered = false;
+  }
   document.getElementById('btn-prev').disabled = currentIndex === 0;
   document.getElementById('btn-next').disabled = false;
   document.getElementById('question-area').classList.remove('hidden');
@@ -531,6 +538,20 @@ document.addEventListener('keydown', function(e) {
   else if (e.key === 'ArrowLeft' && !document.getElementById('btn-prev').disabled) document.getElementById('btn-prev').click();
   else if (e.key === ' ' && !isAnswered) { e.preventDefault(); document.getElementById('btn-show-answer').click(); }
 });
+
+// Remove wrong answer
+function removeWrongAnswer(subjectId, sessionDate, questionId) {
+  const key = getProgressKey(subjectId, sessionDate);
+  try {
+    const saved = localStorage.getItem(key);
+    if (!saved) return;
+    const p = JSON.parse(saved);
+    delete p.answers[questionId];
+    localStorage.setItem(key, JSON.stringify(p));
+    renderWrongBank();
+    renderStats();
+  } catch(e) {}
+}
 
 // Export / Import
 function exportData() {
