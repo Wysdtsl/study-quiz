@@ -250,12 +250,13 @@ let isAnswered = false;
 
 async function loadData() {
   try {
-    const res = await fetch('./questions.json?_=' + Date.now());
+    const res = await fetch('/study-quiz/questions.json?_=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
     renderSubjects();
   } catch(e) {
     document.getElementById('subject-list').innerHTML =
-      '<div style="color:var(--red);">题库加载失败，请检查 questions.json 是否存在</div>';
+      '<div style="color:var(--red);">题库加载失败 (' + e.message + ')</div>';
   }
 }
 
