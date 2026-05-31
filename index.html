@@ -246,7 +246,17 @@
     padding: 2px 6px; border-radius: 6px;
   }
   .note-item .title .del:active { background: var(--red-light); color: var(--red); }
-  .note-item .body { font-size: 14px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; }
+  .note-item .body { font-size: 14px; line-height: 1.7; color: var(--ink); }
+  .note-item .body table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 13px; }
+  .note-item .body th, .note-item .body td { border: 1px solid var(--border); padding: 5px 8px; text-align: left; }
+  .note-item .body th { background: var(--ink-blue-light); font-weight: 600; }
+  .note-item .body strong { font-weight: 700; }
+  .note-item .body ul { margin: 4px 0; padding-left: 16px; list-style: disc; }
+  .note-item .body ol { margin: 4px 0; padding-left: 16px; }
+  .note-item .body li { margin-bottom: 2px; }
+  .note-item .body blockquote { border-left: 3px solid var(--ink-blue); padding: 4px 10px; margin: 6px 0; background: var(--ink-blue-light); border-radius: 6px; font-size: 13px; }
+  .note-item .body code { background: var(--surface2); padding: 1px 4px; border-radius: 3px; font-size: 13px; }
+  .note-item .body .md-h { font-weight: 700; margin: 6px 0 2px; }
   .note-item .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 8px; }
   .note-form { margin-bottom: 16px; }
   .note-form input, .note-form textarea {
@@ -902,7 +912,7 @@ function renderNotes() {
     return;
   }
   el.innerHTML = notes.slice().reverse().map((n, i) =>
-    `<div class="note-item"><div class="title"><span>${escapeHtml(n.title || '无标题')}</span><span class="del" onclick="deleteNote(${notes.length - 1 - i})">删除</span></div><div class="body">${escapeHtml(n.body)}</div><div class="meta">${n.date}</div></div>`
+    `<div class="note-item"><div class="title"><span>${escapeHtml(n.title || '无标题')}</span><span class="del" onclick="deleteNote(${notes.length - 1 - i})">删除</span></div><div class="body">${renderMd(n.body)}</div><div class="meta">${n.date}</div></div>`
   ).join('');
 }
 
@@ -996,7 +1006,7 @@ function saveKey() {
 }
 
 function renderMd(s) {
-  let h = s;
+  let h = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   // Bold
   h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   // Inline code
