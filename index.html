@@ -457,7 +457,7 @@ function renderSessions() {
   el.innerHTML = currentSubject.sessions.map(sess => {
     const st = getStats(currentSubject.id, sess.date, sess.questions);
     const pct = st.all > 0 ? Math.round(st.done / st.all * 100) : 0;
-    return `<div class="row" onclick="selectSession('${sess.date}')"><div class="row-date">${sess.date}</div><div class="row-meta">${sess.label || ''} · ${sess.questions.length} 题</div><div class="row-stat">已答 ${st.done}/${st.all} · 正确 ${st.correct}/${st.done}</div><div class="track"><div class="track-fill" style="width:${pct}%"></div></div></div>`;
+    return `<div class="row" onclick="selectSession('${sess.date}')"><div class="row-date">${sess.date}</div><div class="row-meta">${sess.label || ''} · ${sess.questions.length} 题 <span class="num" style="color:var(--ink-lighter);text-decoration:underline;margin-left:6px;font-size:12px;" onclick="event.stopPropagation();resetSession('${currentSubject.id}','${sess.date}')">重置</span></div><div class="row-stat">已答 ${st.done}/${st.all} · 正确 ${st.correct}/${st.done}</div><div class="track"><div class="track-fill" style="width:${pct}%"></div></div></div>`;
   }).join('');
 }
 
@@ -579,6 +579,13 @@ document.addEventListener('keydown', function(e) {
   else if (e.key === 'ArrowLeft' && !document.getElementById('btn-prev').disabled) document.getElementById('btn-prev').click();
   else if (e.key === ' ' && !isAnswered) { e.preventDefault(); document.getElementById('btn-show-answer').click(); }
 });
+
+// ── Reset ──
+function resetSession(subjectId, date) {
+  if (!confirm('确定重置该日所有答题记录？')) return;
+  localStorage.removeItem(getProgressKey(subjectId, date));
+  renderSessions(); renderStats();
+}
 
 // ── TOC ──
 
