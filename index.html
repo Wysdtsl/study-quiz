@@ -324,11 +324,22 @@
     background: var(--ink-blue); color: #fff;
     border-bottom-right-radius: 4px;
   }
+  .chat-msg.ai {
+    flex-direction: column; align-items: flex-start;
+  }
   .chat-msg.ai .chat-bbl {
-    background: var(--surface2); color: var(--ink);
-    border-bottom-left-radius: 4px;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--ink-blue);
+    border-radius: 4px 12px 12px 4px;
     line-height: 1.75;
   }
+  .chat-msg.ai .copy-btn {
+    font-size: 12px; color: var(--ink-lighter); cursor: pointer;
+    padding: 4px 8px; margin-top: 2px; border-radius: 6px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .chat-msg.ai .copy-btn:active { background: var(--surface2); color: var(--ink-muted); }
   .chat-msg.ai .chat-bbl strong { font-weight: 700; color: var(--ink); }
   .chat-msg.ai .chat-bbl ul { margin: 4px 0; padding-left: 18px; list-style: disc; }
   .chat-msg.ai .chat-bbl ol { margin: 4px 0; padding-left: 18px; }
@@ -1039,9 +1050,16 @@ function addMsg(role, text, isThinking, useMd) {
   const div = document.createElement('div');
   div.className = 'chat-msg ' + role;
   const content = useMd ? renderMd(text) : text;
-  div.innerHTML = `<div class="chat-bbl${isThinking ? ' thinking' : ''}">${content}</div>`;
+  let html = `<div class="chat-bbl${isThinking ? ' thinking' : ''}">${content}</div>`;
+  if (role === 'ai' && !isThinking) html += `<span class="copy-btn" onclick="copyMsg(this)">复制</span>`;
+  div.innerHTML = html;
   document.getElementById('chat-msgs').appendChild(div);
   document.getElementById('chat-msgs').scrollTop = div.scrollHeight;
+}
+
+function copyMsg(el) {
+  const text = el.parentElement.querySelector('.chat-bbl').textContent;
+  navigator.clipboard.writeText(text).then(() => { el.textContent = '已复制'; setTimeout(() => { el.textContent = '复制'; }, 1500); }).catch(() => {});
 }
 
 async function sendChat() {
