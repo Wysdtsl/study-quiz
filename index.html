@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>学习伙伴</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --accent: #38bdf8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    line-height: 1.6;
+  }
+  .container { max-width: 600px; margin: 0 auto; padding: 16px; }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 0; margin-bottom: 8px;
+  }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header .back {
+    background: none; border: none; color: var(--accent);
+    font-size: 16px; cursor: pointer; padding: 4px 0;
+  }
+
+  /* Subject cards */
+  .subjects { display: flex; flex-direction: column; gap: 12px; }
+  .subject-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 18px 20px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .subject-card:active { background: var(--surface2); }
+  .subject-card .icon { font-size: 28px; margin-bottom: 4px; }
+  .subject-card .name { font-size: 18px; font-weight: 600; }
+  .subject-card .meta { font-size: 13px; color: var(--text2); margin-top: 4px; }
+  .subject-card .stat {
+    display: inline-block; font-size: 12px;
+    padding: 2px 8px; border-radius: 10px; margin-top: 6px;
+  }
+  .stat.new { background: var(--accent); color: #0f172a; }
+  .stat.doing { background: var(--amber); color: #0f172a; }
+
+  /* Session list */
+  .session-list { display: flex; flex-direction: column; gap: 10px; }
+  .session-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 16px 18px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .session-card:active { background: var(--surface2); }
+  .session-card .date { font-size: 15px; font-weight: 600; }
+  .session-card .label { font-size: 13px; color: var(--text2); }
+  .session-card .progress {
+    font-size: 12px; color: var(--accent); margin-top: 6px;
+  }
+  .session-card .bar {
+    height: 4px; background: var(--surface2); border-radius: 2px;
+    margin-top: 8px; overflow: hidden;
+  }
+  .session-card .bar-fill {
+    height: 100%; background: var(--accent); border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  /* Quiz screen */
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 0 16px; border-bottom: 1px solid var(--surface2);
+    margin-bottom: 16px;
+  }
+  .quiz-header .info { font-size: 13px; color: var(--text2); }
+  .quiz-header .section { font-size: 12px; color: var(--accent); }
+
+  .q-number {
+    font-size: 13px; color: var(--text2); margin-bottom: 8px;
+  }
+  .q-text {
+    font-size: 18px; font-weight: 600; line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  /* Answer area */
+  .answer-area { display: none; }
+  .answer-area.show { display: block; }
+  .answer-box {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 16px;
+  }
+  .answer-box .label {
+    font-size: 12px; color: var(--accent); font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .answer-box .content { font-size: 15px; line-height: 1.7; }
+  .tips-box {
+    background: var(--surface2); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 20px;
+  }
+  .tips-box .label {
+    font-size: 12px; color: var(--amber); font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .tips-box .content { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+  /* Buttons */
+  .btn-group { display: flex; gap: 10px; margin-top: 4px; }
+  .btn {
+    flex: 1; padding: 14px; border: none; border-radius: var(--radius);
+    font-size: 16px; font-weight: 600; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn:active { opacity: 0.7; }
+  .btn-primary { background: var(--accent); color: #0f172a; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-outline {
+    background: transparent; border: 1.5px solid var(--surface2);
+    color: var(--text);
+  }
+  .btn-nav {
+    background: var(--surface); border: none; border-radius: var(--radius);
+    color: var(--text); padding: 14px; font-size: 15px; font-weight: 500;
+    cursor: pointer; flex: 1;
+  }
+  .btn-nav:disabled { opacity: 0.4; }
+
+  /* Result */
+  .result-summary {
+    text-align: center; padding: 40px 0;
+  }
+  .result-summary .score {
+    font-size: 56px; font-weight: 700; color: var(--accent);
+  }
+  .result-summary .detail { font-size: 15px; color: var(--text2); margin: 8px 0 24px; }
+
+  .wrong-item {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 10px;
+  }
+  .wrong-item .q { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+  .wrong-item .a { font-size: 14px; color: var(--text2); }
+
+  /* Page states */
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-footer { margin-top: 20px; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <!-- Page 1: Subject List -->
+  <div id="page-home" class="page active">
+    <div class="header"><h1>📚 学习伙伴</h1></div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:16px;">
+      选择一个科目开始答题
+    </div>
+    <div class="subjects" id="subject-list"></div>
+  </div>
+
+  <!-- Page 2: Session List -->
+  <div id="page-sessions" class="page">
+    <div class="header">
+      <button class="back" id="back-home">← 返回</button>
+      <h1 id="session-title">地理</h1>
+    </div>
+    <div class="session-list" id="session-list"></div>
+  </div>
+
+  <!-- Page 3: Quiz -->
+  <div id="page-quiz" class="page">
+    <div class="header">
+      <button class="back" id="back-sessions">← 返回</button>
+      <h1 id="quiz-title">地理</h1>
+    </div>
+    <div class="quiz-header">
+      <span class="info" id="quiz-progress">第 1/43 题</span>
+      <span class="section" id="quiz-section">行政区划</span>
+    </div>
+
+    <div id="question-area">
+      <div class="q-number" id="q-number">#1</div>
+      <div class="q-text" id="q-text">问题加载中...</div>
+
+      <button class="btn btn-primary" id="btn-show-answer">显示答案</button>
+
+      <div class="answer-area" id="answer-area">
+        <div class="answer-box">
+          <div class="label">✅ 正确答案</div>
+          <div class="content" id="answer-text"></div>
+        </div>
+        <div class="tips-box">
+          <div class="label">💡 记忆提示</div>
+          <div class="content" id="tips-text"></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-green" id="btn-correct">答对了 👍</button>
+          <button class="btn btn-red" id="btn-wrong">答错了 👎</button>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <div class="btn-group">
+          <button class="btn-nav" id="btn-prev">← 上一题</button>
+          <button class="btn-nav" id="btn-next">下一题 →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="result-area" class="hidden">
+      <div class="result-summary">
+        <div class="score" id="result-score">0%</div>
+        <div class="detail" id="result-detail">答对 0/0 题</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" id="btn-retry-wrong">重刷错题</button>
+          <button class="btn btn-outline" id="btn-retry-all">全部重来</button>
+        </div>
+      </div>
+      <h3 style="font-size:16px;margin-bottom:12px;">❌ 错题本</h3>
+      <div id="wrong-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_PREFIX = 'quiz_progress_';
+let data = null;
+let currentSubject = null;
+let currentSession = null;
+let currentIndex = 0;
+let answers = {};
+let isAnswered = false;
+
+async function loadData() {
+  try {
+    const res = await fetch('./questions.json?_=' + Date.now());
+    data = await res.json();
+    renderSubjects();
+  } catch(e) {
+    document.getElementById('subject-list').innerHTML =
+      '<div style="color:var(--red);">题库加载失败，请检查 questions.json 是否存在</div>';
+  }
+}
+
+function getProgressKey(subjectId, date) {
+  return STORAGE_PREFIX + subjectId + '_' + date;
+}
+
+function loadProgress(subjectId, date) {
+  const key = getProgressKey(subjectId, date);
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const p = JSON.parse(saved);
+      answers = p.answers || {};
+      currentIndex = p.currentIndex || 0;
+      return;
+    }
+  } catch(e) {}
+  answers = {};
+  currentIndex = 0;
+}
+
+function saveProgress(subjectId, date) {
+  const key = getProgressKey(subjectId, date);
+  localStorage.setItem(key, JSON.stringify({
+    answers: answers,
+    currentIndex: currentIndex
+  }));
+}
+
+function getStats(subjectId, date, questions) {
+  const key = getProgressKey(subjectId, date);
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const p = JSON.parse(saved);
+      const ans = p.answers || {};
+      const total = Object.keys(ans).length;
+      const correct = Object.values(ans).filter(v => v === 'correct').length;
+      const done = total;
+      return { done, correct, total, all: questions.length };
+    }
+  } catch(e) {}
+  return { done: 0, correct: 0, total: 0, all: questions.length };
+}
+
+// --- Renderers ---
+
+function renderSubjects() {
+  const el = document.getElementById('subject-list');
+  el.innerHTML = data.subjects.map(s => {
+    const allQ = s.sessions.reduce((a, sess) => a + sess.questions.length, 0);
+    let totalDone = 0, totalCorrect = 0;
+    s.sessions.forEach(sess => {
+      const st = getStats(s.id, sess.date, sess.questions);
+      totalDone += st.done;
+      totalCorrect += st.correct;
+    });
+    const status = totalDone === 0 ? 'new' : 'doing';
+    const statusText = totalDone === 0 ? '未开始' : `已答 ${totalDone}/${allQ}`;
+    return `
+      <div class="subject-card" onclick="selectSubject('${s.id}')">
+        <div class="icon">${s.icon || '📖'}</div>
+        <div class="name">${s.name}</div>
+        <div class="meta">${s.sessions.length} 个学习日 · ${allQ} 题</div>
+        <span class="stat ${status}">${statusText}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectSubject(subjectId) {
+  currentSubject = data.subjects.find(s => s.id === subjectId);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-sessions').classList.add('active');
+  document.getElementById('session-title').textContent = currentSubject.name;
+  renderSessions();
+}
+
+function renderSessions() {
+  const el = document.getElementById('session-list');
+  el.innerHTML = currentSubject.sessions.map(sess => {
+    const st = getStats(currentSubject.id, sess.date, sess.questions);
+    const pct = st.all > 0 ? Math.round(st.done / st.all * 100) : 0;
+    return `
+      <div class="session-card" onclick="selectSession('${sess.date}')">
+        <div class="date">${sess.date}</div>
+        <div class="label">${sess.label || ''} · ${sess.questions.length} 题</div>
+        <div class="progress">已答 ${st.done}/${st.all} · 正确 ${st.correct}/${st.done}</div>
+        <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectSession(date) {
+  currentSession = currentSubject.sessions.find(s => s.date === date);
+  loadProgress(currentSubject.id, date);
+  currentIndex = Math.min(currentIndex, currentSession.questions.length - 1);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-quiz').classList.add('active');
+  document.getElementById('quiz-title').textContent = currentSubject.name;
+  isAnswered = false;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (!currentSession || currentIndex >= currentSession.questions.length) {
+    showResult();
+    return;
+  }
+  const q = currentSession.questions[currentIndex];
+  document.getElementById('quiz-progress').textContent =
+    `第 ${currentIndex + 1}/${currentSession.questions.length} 题`;
+  document.getElementById('quiz-section').textContent = q.section || '';
+  document.getElementById('q-number').textContent = `#${currentIndex + 1}`;
+  document.getElementById('q-text').textContent = q.question;
+  document.getElementById('answer-text').textContent = q.answer;
+  document.getElementById('tips-text').textContent = q.tips || '无';
+
+  const area = document.getElementById('answer-area');
+  const showBtn = document.getElementById('btn-show-answer');
+
+  if (answers[q.id]) {
+    area.classList.add('show');
+    showBtn.classList.add('hidden');
+    isAnswered = true;
+  } else {
+    area.classList.remove('show');
+    showBtn.classList.remove('hidden');
+    isAnswered = false;
+  }
+
+  document.getElementById('btn-prev').disabled = currentIndex === 0;
+  document.getElementById('btn-next').disabled = false;
+
+  document.getElementById('question-area').classList.remove('hidden');
+  document.getElementById('result-area').classList.add('hidden');
+}
+
+document.getElementById('btn-show-answer').addEventListener('click', function() {
+  const q = currentSession.questions[currentIndex];
+  if (answers[q.id]) return;
+  document.getElementById('answer-area').classList.add('show');
+  this.classList.add('hidden');
+  isAnswered = true;
+});
+
+document.getElementById('btn-correct').addEventListener('click', function() {
+  if (!isAnswered) return;
+  const q = currentSession.questions[currentIndex];
+  answers[q.id] = 'correct';
+  saveProgress(currentSubject.id, currentSession.date);
+  setTimeout(() => goNext(), 400);
+});
+
+document.getElementById('btn-wrong').addEventListener('click', function() {
+  if (!isAnswered) return;
+  const q = currentSession.questions[currentIndex];
+  answers[q.id] = 'wrong';
+  saveProgress(currentSubject.id, currentSession.date);
+  setTimeout(() => goNext(), 400);
+});
+
+function goNext() {
+  if (currentIndex < currentSession.questions.length - 1) {
+    currentIndex++;
+    isAnswered = false;
+    renderQuestion();
+  } else {
+    renderQuestion(); // will show result
+  }
+}
+
+document.getElementById('btn-next').addEventListener('click', goNext);
+
+document.getElementById('btn-prev').addEventListener('click', function() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    isAnswered = false;
+    renderQuestion();
+  }
+});
+
+function showResult() {
+  document.getElementById('question-area').classList.add('hidden');
+  document.getElementById('result-area').classList.remove('hidden');
+
+  const all = currentSession.questions;
+  let correct = 0, wrong = 0;
+  const wrongList = [];
+  all.forEach(q => {
+    if (answers[q.id] === 'correct') correct++;
+    else if (answers[q.id] === 'wrong') { wrong++; wrongList.push(q); }
+  });
+  const done = correct + wrong;
+  const pct = done > 0 ? Math.round(correct / done * 100) : 0;
+  document.getElementById('result-score').textContent = pct + '%';
+  document.getElementById('result-detail').textContent =
+    `答对 ${correct}/${done} 题（共 ${all.length} 题，${all.length - done} 题未答）`;
+
+  const wl = document.getElementById('wrong-list');
+  if (wrongList.length === 0) {
+    wl.innerHTML = '<div style="color:var(--green);font-size:15px;">🎉 没有错题！</div>';
+  } else {
+    wl.innerHTML = wrongList.map(q => `
+      <div class="wrong-item">
+        <div class="q">${q.question}</div>
+        <div class="a">✅ ${q.answer}</div>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('btn-retry-wrong').classList.toggle('hidden', wrongList.length === 0);
+  window._wrongList = wrongList;
+}
+
+document.getElementById('btn-retry-all').addEventListener('click', function() {
+  answers = {};
+  currentIndex = 0;
+  saveProgress(currentSubject.id, currentSession.date);
+  isAnswered = false;
+  renderQuestion();
+});
+
+document.getElementById('btn-retry-wrong').addEventListener('click', function() {
+  const wrong = window._wrongList || [];
+  if (wrong.length === 0) return;
+  currentSession = {
+    date: currentSession.date + ' 错题',
+    label: '错题重刷',
+    questions: wrong
+  };
+  answers = {};
+  currentIndex = 0;
+  isAnswered = false;
+  renderQuestion();
+});
+
+// Navigation
+document.getElementById('back-home').addEventListener('click', function() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-home').classList.add('active');
+  renderSubjects();
+});
+
+document.getElementById('back-sessions').addEventListener('click', function() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-sessions').classList.add('active');
+  renderSessions();
+});
+
+// Keyboard support
+document.addEventListener('keydown', function(e) {
+  const quiz = document.getElementById('page-quiz');
+  if (!quiz.classList.contains('active')) return;
+  if (e.key === 'ArrowRight' && !document.getElementById('btn-next').disabled) {
+    goNext();
+  } else if (e.key === 'ArrowLeft' && !document.getElementById('btn-prev').disabled) {
+    document.getElementById('btn-prev').click();
+  } else if (e.key === ' ' && !isAnswered) {
+    e.preventDefault();
+    document.getElementById('btn-show-answer').click();
+  }
+});
+
+loadData();
+</script>
+</body>
+</html>
