@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  /*━━━ Ink & Paper ━━━*/
   :root {
     --bg: #f5f2ee;
     --surface: #fffcf8;
@@ -60,9 +59,7 @@
     line-height: 1.65;
     -webkit-tap-highlight-color: transparent;
   }
-  .num { font-family: "Outfit", sans-serif; }
 
-  /*━━━ App Bar ━━━*/
   .bar {
     display: flex; align-items: center; gap: 6px;
     padding: 14px 6px 6px; min-height: 56px;
@@ -80,48 +77,38 @@
   .bar-title { font-size: 18px; font-weight: 600; flex: 1; letter-spacing: -.01em; }
   .bar-end { width: 40px; flex-shrink: 0; }
 
-  /*━━━ Pages ━━━*/
   .page { display: none; padding: 0 18px 24px; }
   .page.active { display: block; }
   .padded { max-width: 560px; margin: 0 auto; }
 
-  /*━━━ Animations ━━━*/
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; } to { opacity: 1; }
-  }
-  .card, .row { animation: slideUp .35s ease-out both; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .card, .row, .stat-card { animation: slideUp .35s ease-out both; }
   .card:nth-child(2) { animation-delay: .05s; }
   .card:nth-child(3) { animation-delay: .1s; }
   .card:nth-child(4) { animation-delay: .15s; }
   .card:nth-child(5) { animation-delay: .2s; }
 
-  /*━━━ Home ━━━*/
-  .hello {
-    font-family: "Outfit", sans-serif;
-    font-size: 26px; font-weight: 700; padding: 10px 4px 2px;
-    letter-spacing: -.02em;
-  }
-  .hello-sub {
-    font-size: 14px; color: var(--ink-muted); padding: 0 4px 16px;
-  }
+  /* Stats */
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: var(--surface); border-radius: var(--radius); padding: 14px 10px; text-align: center; border: 1px solid var(--border); }
+  .stat-card .v { font-family: "Outfit", sans-serif; font-size: 22px; font-weight: 700; line-height: 1.2; }
+  .stat-card .l { font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
+  .stat-blue .v { color: var(--ink-blue); }
+  .stat-amber .v { color: var(--amber); }
+  .stat-green .v { color: var(--green); }
 
-  .card {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 16px 18px; cursor: pointer;
-    border: 1px solid var(--border);
-    transition: border-color .15s, transform .1s;
-  }
+  .hello { font-family: "Outfit", sans-serif; font-size: 26px; font-weight: 700; padding: 10px 4px 2px; letter-spacing: -.02em; }
+  .hello-sub { font-size: 14px; color: var(--ink-muted); padding: 0 4px 16px; }
+
+  /* Home actions */
+  .home-actions { margin-bottom: 16px; }
+  .home-actions .btn { width: 100%; padding: 12px; }
+
+  .card { background: var(--surface); border-radius: var(--radius); padding: 16px 18px; cursor: pointer; border: 1px solid var(--border); transition: border-color .15s, transform .1s; }
   .card:active { transform: scale(.985); }
   .card-row { display: flex; align-items: center; gap: 14px; }
-  .card-icon {
-    width: 44px; height: 44px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
-  }
+  .card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
   .card-icon.blue { background: var(--ink-blue-light); }
   .card-icon.amber { background: var(--amber-light); }
   .card-icon.green { background: var(--green-light); }
@@ -130,140 +117,72 @@
   .card-name { font-size: 16px; font-weight: 600; }
   .card-meta { font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
 
-  .stamp {
-    display: flex; flex-direction: column; align-items: center;
-    padding: 6px 12px; border-radius: var(--radius-sm); flex-shrink: 0;
-    min-width: 52px;
-  }
+  .stamp { display: flex; flex-direction: column; align-items: center; padding: 6px 12px; border-radius: var(--radius-sm); flex-shrink: 0; min-width: 52px; }
   .stamp-num { font-family: "Outfit", sans-serif; font-size: 16px; font-weight: 700; line-height: 1.2; }
   .stamp-lbl { font-size: 10px; font-weight: 600; opacity: .75; line-height: 1.2; }
   .stamp-new { background: var(--ink-blue-light); color: var(--ink-blue); }
   .stamp-doing { background: var(--amber-light); color: var(--amber); }
   .stamp-done { background: var(--green-light); color: var(--green); }
 
-  /*━━━ Session list ━━━*/
-  .row {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 15px 18px; cursor: pointer;
-    border: 1px solid var(--border);
-    transition: border-color .15s, transform .1s;
-  }
+  .row { background: var(--surface); border-radius: var(--radius); padding: 15px 18px; cursor: pointer; border: 1px solid var(--border); transition: border-color .15s, transform .1s; }
   .row:active { transform: scale(.985); }
   .row-date { font-size: 14px; font-weight: 600; }
   .row-meta { font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
   .row-stat { font-size: 12px; color: var(--ink-blue); margin-top: 8px; }
+  .track { height: 4px; background: var(--surface2); border-radius: 4px; margin-top: 10px; overflow: hidden; }
+  .track-fill { height: 100%; border-radius: 4px; background: var(--ink-blue); transition: width .5s cubic-bezier(.4,0,.2,1); }
 
-  .track {
-    height: 4px; background: var(--surface2); border-radius: 4px;
-    margin-top: 10px; overflow: hidden;
-  }
-  .track-fill {
-    height: 100%; border-radius: 4px;
-    background: var(--ink-blue); transition: width .5s cubic-bezier(.4,0,.2,1);
-  }
-
-  /*━━━ Quiz ━━━*/
-  .quiz-head {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 0; margin-bottom: 6px;
-    border-bottom: 1px solid var(--border);
-  }
-  .quiz-head .pos {
-    font-family: "Outfit", sans-serif;
-    font-size: 13px; font-weight: 500; color: var(--ink-muted);
-  }
-  .quiz-head .tag {
-    font-size: 11px; font-weight: 600;
-    background: var(--ink-blue-light); color: var(--ink-blue);
-    padding: 3px 10px; border-radius: 8px;
-  }
-
+  .quiz-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .quiz-head .pos { font-family: "Outfit", sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); }
+  .quiz-head .tag { font-size: 11px; font-weight: 600; background: var(--ink-blue-light); color: var(--ink-blue); padding: 3px 10px; border-radius: 8px; }
   .qn { font-size: 13px; color: var(--ink-lighter); margin-bottom: 10px; font-family: "Outfit", sans-serif; }
-  .q {
-    font-size: 18px; font-weight: 600; line-height: 1.7;
-    margin-bottom: 28px; letter-spacing: .01em;
-  }
-
-  /*━━━ Reveal ━━━*/
+  .q { font-size: 18px; font-weight: 600; line-height: 1.7; margin-bottom: 28px; letter-spacing: .01em; }
   .reveal { display: none; }
   .reveal.show { display: block; animation: fadeIn .25s ease-out; }
-
-  .ans {
-    background: var(--green-light); border-radius: var(--radius);
-    padding: 16px; margin-bottom: 10px;
-    border-left: 3px solid var(--green);
-  }
+  .ans { background: var(--green-light); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; border-left: 3px solid var(--green); }
   .ans .hl { font-size: 11px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
   .ans .body { font-size: 15px; line-height: 1.7; }
-
-  .tip {
-    background: var(--amber-light); border-radius: var(--radius);
-    padding: 14px 16px; margin-bottom: 24px;
-    border-left: 3px solid var(--amber);
-  }
+  .tip { background: var(--amber-light); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 24px; border-left: 3px solid var(--amber); }
   .tip .hl { font-size: 11px; font-weight: 700; color: var(--amber); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
   .tip .body { font-size: 14px; line-height: 1.6; }
 
-  /*━━━ Buttons ━━━*/
   .g { display: flex; gap: 10px; }
-
-  .btn {
-    flex: 1; border: none; border-radius: var(--radius-sm);
-    padding: 14px; font-size: 15px; font-weight: 600;
-    cursor: pointer; transition: transform .1s;
-    font-family: inherit;
-  }
+  .btn { flex: 1; border: none; border-radius: var(--radius-sm); padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform .1s; font-family: inherit; }
   .btn:active { transform: scale(.96); }
-
   .btn-primary { background: var(--ink-blue); color: #fff; }
   .btn-correct { background: var(--green); color: #fff; }
   .btn-wrong { background: var(--red); color: #fff; }
-  .btn-out {
-    background: transparent; border: 1.5px solid var(--border);
-    color: var(--ink);
-  }
-
-  .nav-btn {
-    flex: 1; background: var(--surface); color: var(--ink);
-    border: 1px solid var(--border); border-radius: var(--radius-sm);
-    padding: 13px; font-size: 14px; font-weight: 500;
-    cursor: pointer; font-family: inherit;
-    transition: border-color .15s;
-  }
+  .btn-out { background: transparent; border: 1.5px solid var(--border); color: var(--ink); }
+  .btn-amber { background: var(--amber); color: #fff; }
+  .nav-btn { flex: 1; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 13px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: border-color .15s; }
   .nav-btn:active { border-color: var(--ink-lighter); }
   .nav-btn:disabled { opacity: .3; }
-
   .mt { margin-top: 24px; }
 
-  /*━━━ Result ━━━*/
-  .result {
-    text-align: center; padding: 40px 10px; margin-bottom: 8px;
-  }
-  .result .big {
-    font-family: "Outfit", sans-serif;
-    font-size: 56px; font-weight: 700; color: var(--ink-blue);
-    line-height: 1;
-  }
-  .result .sub {
-    font-size: 15px; color: var(--ink-muted);
-    margin: 10px 0 28px;
-  }
+  .result { text-align: center; padding: 40px 10px; margin-bottom: 8px; }
+  .result .big { font-family: "Outfit", sans-serif; font-size: 56px; font-weight: 700; color: var(--ink-blue); line-height: 1; }
+  .result .sub { font-size: 15px; color: var(--ink-muted); margin: 10px 0 28px; }
 
-  .err {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 16px; margin-bottom: 10px;
-    border: 1px solid var(--border);
-  }
+  .err { background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; border: 1px solid var(--border); }
   .err .q { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
   .err .a { font-size: 14px; color: var(--ink-muted); }
-
   .slug { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
 
-  /*━━━ Utils ━━━*/
+  /* Wrong bank */
+  .wb-empty { text-align: center; padding: 60px 20px; color: var(--ink-muted); }
+  .wb-empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .wb-empty .t { font-size: 16px; }
+  .wb-group { margin-bottom: 16px; }
+  .wb-subject { font-size: 14px; font-weight: 600; padding: 10px 4px 6px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+  .wb-subject .c { font-family: "Outfit", sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-muted); margin-left: 6px; }
+  .wb-item { background: var(--surface); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border); }
+  .wb-item .wb-q { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .wb-item .wb-a { font-size: 13px; color: var(--ink-muted); }
+  .wb-item .wb-src { font-size: 11px; color: var(--ink-lighter); margin-top: 4px; }
+  .wb-group .btn { margin-top: 8px; }
+
   .hidden { display: none !important; }
   .tc { justify-content: center; }
-
-  .gap { gap: 10px; }
 </style>
 </head>
 <body>
@@ -273,6 +192,13 @@
   <div id="page-home" class="page padded active">
     <div class="hello">学习伙伴</div>
     <div class="hello-sub">选择一个科目开始答题</div>
+
+    <div class="stats" id="stats-bar"></div>
+
+    <div class="home-actions">
+      <button class="btn btn-out" onclick="showWrongBank()">复习全部错题</button>
+    </div>
+
     <div id="subject-list"></div>
   </div>
 
@@ -289,57 +215,48 @@
   <!-- Quiz -->
   <div id="page-quiz" class="page padded">
     <div class="bar">
-      <button class="bar-btn" id="back-sessions">←</button>
+      <button class="bar-btn" onclick="quitQuiz()">←</button>
       <span class="bar-title" id="quiz-title">地理</span>
       <div class="bar-end"></div>
     </div>
-
     <div class="quiz-head">
       <span class="pos" id="quiz-progress">1/43</span>
       <span class="tag" id="quiz-section">行政区划</span>
     </div>
-
     <div id="question-area">
       <div class="qn" id="q-number">#1</div>
       <div class="q" id="q-text">问题加载中...</div>
-
       <button class="btn btn-primary" id="btn-show-answer">查看答案</button>
-
       <div class="reveal" id="answer-area">
-        <div class="ans">
-          <div class="hl">正确答案</div>
-          <div class="body" id="answer-text"></div>
-        </div>
-        <div class="tip">
-          <div class="hl">记忆提示</div>
-          <div class="body" id="tips-text"></div>
-        </div>
-        <div class="g">
-          <button class="btn btn-correct" id="btn-correct">答对了</button>
-          <button class="btn btn-wrong" id="btn-wrong">答错了</button>
-        </div>
+        <div class="ans"><div class="hl">正确答案</div><div class="body" id="answer-text"></div></div>
+        <div class="tip"><div class="hl">记忆提示</div><div class="body" id="tips-text"></div></div>
+        <div class="g"><button class="btn btn-correct" id="btn-correct">答对了</button><button class="btn btn-wrong" id="btn-wrong">答错了</button></div>
       </div>
-
-      <div class="mt">
-        <div class="g">
-          <button class="nav-btn" id="btn-prev">← 上一题</button>
-          <button class="nav-btn" id="btn-next">下一题 →</button>
-        </div>
-      </div>
+      <div class="mt"><div class="g"><button class="nav-btn" id="btn-prev">← 上一题</button><button class="nav-btn" id="btn-next">下一题 →</button></div></div>
     </div>
-
     <div id="result-area" class="hidden">
       <div class="result">
         <div class="big" id="result-score">0%</div>
         <div class="sub" id="result-detail">答对 0/0 题</div>
         <div class="g tc">
           <button class="btn btn-primary" id="btn-retry-wrong" style="flex:0 1 auto;padding:12px 20px;">重刷错题</button>
+          <button class="btn btn-amber" id="btn-retry-shuffle" style="flex:0 1 auto;padding:12px 20px;">乱序重来</button>
           <button class="btn btn-out" id="btn-retry-all" style="flex:0 1 auto;padding:12px 20px;">全部重来</button>
         </div>
       </div>
       <div class="slug">错题本</div>
       <div id="wrong-list"></div>
     </div>
+  </div>
+
+  <!-- Wrong Bank -->
+  <div id="page-wrongbank" class="page padded">
+    <div class="bar">
+      <button class="bar-btn" id="back-home-wb">←</button>
+      <span class="bar-title">复习错题</span>
+      <div class="bar-end"></div>
+    </div>
+    <div id="wb-content"></div>
   </div>
 </div>
 
@@ -351,6 +268,7 @@ let currentSession = null;
 let currentIndex = 0;
 let answers = {};
 let isAnswered = false;
+let sessionQuestions = null;
 
 async function loadData() {
   try {
@@ -358,12 +276,13 @@ async function loadData() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
     renderSubjects();
+    renderStats();
   } catch(e) {
     const el = document.getElementById('subject-list');
     el.textContent = '';
     const d = document.createElement('div');
-    d.style.cssText = 'color:var(--red);text-align:center;padding:40px 0;';
     d.textContent = '题库加载失败 (' + e.message + ')';
+    d.style.cssText = 'color:var(--red);text-align:center;padding:40px 0;';
     el.appendChild(d);
   }
 }
@@ -390,6 +309,76 @@ function getStats(sid, date, questions) {
   return { done: 0, correct: 0, total: 0, all: questions.length };
 }
 
+// ── Stats ──
+
+function renderStats() {
+  let totalQ = 0, totalDone = 0, totalCorrect = 0;
+  data.subjects.forEach(s => s.sessions.forEach(sess => {
+    const st = getStats(s.id, sess.date, sess.questions);
+    totalQ += st.all; totalDone += st.done; totalCorrect += st.correct;
+  }));
+  const pct = totalDone > 0 ? Math.round(totalCorrect / totalDone * 100) : 0;
+  document.getElementById('stats-bar').innerHTML =
+    `<div class="stat-card stat-blue"><div class="v">${totalQ}</div><div class="l">总题数</div></div>` +
+    `<div class="stat-card stat-amber"><div class="v">${totalDone}</div><div class="l">已答题</div></div>` +
+    `<div class="stat-card stat-green"><div class="v">${pct}%</div><div class="l">正确率</div></div>`;
+}
+
+// ── Wrong Bank ──
+
+function getAllWrongAnswers() {
+  const result = [];
+  data.subjects.forEach(s => s.sessions.forEach(sess => {
+    const key = getProgressKey(s.id, sess.date);
+    try {
+      const saved = localStorage.getItem(key);
+      if (!saved) return;
+      const p = JSON.parse(saved); const ans = p.answers || {};
+      sess.questions.forEach(q => {
+        if (ans[q.id] === 'wrong') result.push({ ...q, subject: s.name, subjectId: s.id, sessionDate: sess.date, date: sess.date });
+      });
+    } catch(e) {}
+  }));
+  return result;
+}
+
+function showWrongBank() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-wrongbank').classList.add('active');
+  renderWrongBank();
+}
+
+function renderWrongBank() {
+  const wrongs = getAllWrongAnswers();
+  const el = document.getElementById('wb-content');
+  if (wrongs.length === 0) {
+    el.innerHTML = '<div class="wb-empty"><div class="icon">🎉</div><div class="t">没有错题</div><div class="s">继续保持！</div></div>';
+    return;
+  }
+  const groups = {};
+  wrongs.forEach(w => { if (!groups[w.subject]) groups[w.subject] = []; groups[w.subject].push(w); });
+
+  el.innerHTML = Object.entries(groups).map(([subject, items]) =>
+    `<div class="wb-group"><div class="wb-subject">${subject} <span class="c">${items.length} 题</span></div>` +
+    items.map(w => `<div class="wb-item"><div class="wb-q">${w.question}</div><div class="wb-a">${w.answer}</div><div class="wb-src">${w.date}</div></div>`).join('') +
+    `<button class="btn btn-primary" onclick="quizWrongBank('${subject}')">复习这${items.length}题</button></div>`
+  ).join('');
+}
+
+function quizWrongBank(subject) {
+  const wrongs = getAllWrongAnswers().filter(w => w.subject === subject);
+  if (wrongs.length === 0) return;
+  currentSubject = data.subjects.find(s => s.name === subject);
+  currentSession = { date: 'wrong-bank', label: '错题复习', questions: wrongs };
+  answers = {}; currentIndex = 0; sessionQuestions = null; isAnswered = false;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-quiz').classList.add('active');
+  document.getElementById('quiz-title').textContent = subject + ' 错题';
+  renderQuestion();
+}
+
+// ── Subject & Session ──
+
 const ICON_CLS = ['blue','amber','green','red'];
 
 function renderSubjects() {
@@ -401,12 +390,8 @@ function renderSubjects() {
     const done = totalDone === allQ;
     const st = totalDone === 0 ? 'new' : done ? 'done' : 'doing';
     let stamp;
-    if (totalDone === 0) {
-      stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">0</span><span class="stamp-lbl">${allQ}</span></span>`;
-    } else {
-      const pct = Math.round(totalCorrect / totalDone * 100);
-      stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">${totalDone}</span><span class="stamp-lbl">${allQ} · ${pct}%</span></span>`;
-    }
+    if (totalDone === 0) stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">0</span><span class="stamp-lbl">${allQ}</span></span>`;
+    else { const pct = Math.round(totalCorrect / totalDone * 100); stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">${totalDone}</span><span class="stamp-lbl">${allQ} · ${pct}%</span></span>`; }
     return `<div class="card" onclick="selectSubject('${s.id}')"><div class="card-row"><div class="card-icon ${ICON_CLS[i%4]}">${s.icon || '📖'}</div><div class="card-body"><div class="card-name">${s.name}</div><div class="card-meta">${s.sessions.length} 天 · ${allQ} 题</div></div>${stamp}</div></div>`;
   }).join('');
 }
@@ -432,6 +417,7 @@ function selectSession(date) {
   currentSession = currentSubject.sessions.find(s => s.date === date);
   loadProgress(currentSubject.id, date);
   currentIndex = Math.min(currentIndex, currentSession.questions.length - 1);
+  sessionQuestions = null;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-quiz').classList.add('active');
   document.getElementById('quiz-title').textContent = currentSubject.name;
@@ -439,23 +425,28 @@ function selectSession(date) {
   renderQuestion();
 }
 
+function quitQuiz() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-sessions').classList.add('active');
+  renderSessions(); renderStats();
+}
+
+// ── Quiz ──
+
 function renderQuestion() {
-  if (!currentSession || currentIndex >= currentSession.questions.length) { showResult(); return; }
-  const q = currentSession.questions[currentIndex];
-  document.getElementById('quiz-progress').textContent = `${currentIndex + 1}/${currentSession.questions.length}`;
+  const qs = sessionQuestions || currentSession.questions;
+  if (!currentSession || currentIndex >= qs.length) { showResult(); return; }
+  const q = qs[currentIndex];
+  document.getElementById('quiz-progress').textContent = `${currentIndex + 1}/${qs.length}`;
   document.getElementById('quiz-section').textContent = q.section || '';
-  document.getElementById('q-number').textContent = `#${currentIndex + 1}`;
+  document.getElementById('q-number').textContent = '#' + (currentIndex + 1);
   document.getElementById('q-text').textContent = q.question;
   document.getElementById('answer-text').textContent = q.answer;
   document.getElementById('tips-text').textContent = q.tips || '无';
-
   const area = document.getElementById('answer-area');
   const showBtn = document.getElementById('btn-show-answer');
-  if (answers[q.id]) {
-    area.classList.add('show'); showBtn.classList.add('hidden'); isAnswered = true;
-  } else {
-    area.classList.remove('show'); showBtn.classList.remove('hidden'); isAnswered = false;
-  }
+  if (answers[q.id]) { area.classList.add('show'); showBtn.classList.add('hidden'); isAnswered = true; }
+  else { area.classList.remove('show'); showBtn.classList.remove('hidden'); isAnswered = false; }
   document.getElementById('btn-prev').disabled = currentIndex === 0;
   document.getElementById('btn-next').disabled = false;
   document.getElementById('question-area').classList.remove('hidden');
@@ -463,81 +454,74 @@ function renderQuestion() {
 }
 
 document.getElementById('btn-show-answer').addEventListener('click', function() {
-  if (answers[currentSession.questions[currentIndex].id]) return;
+  const qs = sessionQuestions || currentSession.questions;
+  if (answers[qs[currentIndex].id]) return;
   document.getElementById('answer-area').classList.add('show');
-  this.classList.add('hidden');
-  isAnswered = true;
+  this.classList.add('hidden'); isAnswered = true;
 });
 
 document.getElementById('btn-correct').addEventListener('click', function() {
   if (!isAnswered) return;
-  answers[currentSession.questions[currentIndex].id] = 'correct';
+  const qs = sessionQuestions || currentSession.questions;
+  answers[qs[currentIndex].id] = 'correct';
   saveProgress(currentSubject.id, currentSession.date);
   setTimeout(goNext, 300);
 });
 
 document.getElementById('btn-wrong').addEventListener('click', function() {
   if (!isAnswered) return;
-  answers[currentSession.questions[currentIndex].id] = 'wrong';
+  const qs = sessionQuestions || currentSession.questions;
+  answers[qs[currentIndex].id] = 'wrong';
   saveProgress(currentSubject.id, currentSession.date);
   setTimeout(goNext, 300);
 });
 
 function goNext() {
-  if (currentIndex < currentSession.questions.length - 1) { currentIndex++; isAnswered = false; renderQuestion(); }
-  else { renderQuestion(); }
+  const qs = sessionQuestions || currentSession.questions;
+  if (currentIndex < qs.length - 1) { currentIndex++; isAnswered = false; renderQuestion(); }
+  else renderQuestion();
 }
 
 document.getElementById('btn-next').addEventListener('click', goNext);
+document.getElementById('btn-prev').addEventListener('click', function() { if (currentIndex > 0) { currentIndex--; isAnswered = false; renderQuestion(); } });
 
-document.getElementById('btn-prev').addEventListener('click', function() {
-  if (currentIndex > 0) { currentIndex--; isAnswered = false; renderQuestion(); }
-});
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+// ── Result ──
 
 function showResult() {
   document.getElementById('question-area').classList.add('hidden');
   document.getElementById('result-area').classList.remove('hidden');
-  const all = currentSession.questions;
+  const qs = sessionQuestions || currentSession.questions;
   let correct = 0, wrong = 0; const wrongList = [];
-  all.forEach(q => { if (answers[q.id] === 'correct') correct++; else if (answers[q.id] === 'wrong') { wrong++; wrongList.push(q); } });
+  qs.forEach(q => { if (answers[q.id] === 'correct') correct++; else if (answers[q.id] === 'wrong') { wrong++; wrongList.push(q); } });
   const done = correct + wrong;
   const pct = done > 0 ? Math.round(correct / done * 100) : 0;
   document.getElementById('result-score').textContent = pct + '%';
-  document.getElementById('result-detail').textContent = `答对 ${correct}/${done} 题（共 ${all.length} 题，未答 ${all.length - done} 题）`;
+  document.getElementById('result-detail').textContent = `答对 ${correct}/${done} 题（共 ${qs.length} 题，未答 ${qs.length - done} 题）`;
   const wl = document.getElementById('wrong-list');
-  if (wrongList.length === 0) {
-    wl.innerHTML = '<div style="color:var(--green);font-size:15px;text-align:center;padding:8px 0;">全都答对了！</div>';
-  } else {
-    wl.innerHTML = wrongList.map(q => `<div class="err"><div class="q">${q.question}</div><div class="a">正确答案：${q.answer}</div></div>`).join('');
-  }
+  if (wrongList.length === 0) wl.innerHTML = '<div style="color:var(--green);font-size:15px;text-align:center;padding:8px 0;">全都答对了！</div>';
+  else wl.innerHTML = wrongList.map(q => `<div class="err"><div class="q">${q.question}</div><div class="a">正确答案：${q.answer}</div></div>`).join('');
   document.getElementById('btn-retry-wrong').classList.toggle('hidden', wrongList.length === 0);
   window._wrongList = wrongList;
+  renderStats();
 }
 
-document.getElementById('btn-retry-all').addEventListener('click', function() { answers = {}; currentIndex = 0; saveProgress(currentSubject.id, currentSession.date); isAnswered = false; renderQuestion(); });
-
+document.getElementById('btn-retry-all').addEventListener('click', function() { sessionQuestions = null; answers = {}; currentIndex = 0; saveProgress(currentSubject.id, currentSession.date); isAnswered = false; renderQuestion(); });
+document.getElementById('btn-retry-shuffle').addEventListener('click', function() { sessionQuestions = shuffle(currentSession.questions); answers = {}; currentIndex = 0; saveProgress(currentSubject.id, currentSession.date); isAnswered = false; renderQuestion(); });
 document.getElementById('btn-retry-wrong').addEventListener('click', function() {
-  const wrong = window._wrongList || [];
-  if (wrong.length === 0) return;
-  currentSession = { date: currentSession.date + '-w', label: '错题重刷', questions: wrong };
-  answers = {}; currentIndex = 0; isAnswered = false; renderQuestion();
+  const wrong = window._wrongList || []; if (wrong.length === 0) return;
+  currentSession = { date: currentSession.date + '-w', label: '错题重刷', questions: wrong }; sessionQuestions = null; answers = {}; currentIndex = 0; isAnswered = false; renderQuestion();
 });
 
-document.getElementById('back-home').addEventListener('click', function() {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-home').classList.add('active'); renderSubjects();
-});
-
-document.getElementById('back-sessions').addEventListener('click', function() {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-sessions').classList.add('active'); renderSessions();
-});
+document.getElementById('back-home').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); });
+document.getElementById('back-home-wb').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); });
 
 document.addEventListener('keydown', function(e) {
   const quiz = document.getElementById('page-quiz');
   if (!quiz.classList.contains('active')) return;
-  if (e.key === 'ArrowRight' && !document.getElementById('btn-next').disabled) { goNext(); }
-  else if (e.key === 'ArrowLeft' && !document.getElementById('btn-prev').disabled) { document.getElementById('btn-prev').click(); }
+  if (e.key === 'ArrowRight' && !document.getElementById('btn-next').disabled) goNext();
+  else if (e.key === 'ArrowLeft' && !document.getElementById('btn-prev').disabled) document.getElementById('btn-prev').click();
   else if (e.key === ' ' && !isAnswered) { e.preventDefault(); document.getElementById('btn-show-answer').click(); }
 });
 
