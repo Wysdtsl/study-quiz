@@ -183,6 +183,37 @@
   .wb-item .wb-src { font-size: 11px; color: var(--ink-lighter); margin-top: 4px; }
   .wb-group .btn { margin-top: 8px; }
 
+  /*━━━ TOC overlay ━━━*/
+  .toc-overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.35);
+  }
+  .toc-overlay.show { display: block; }
+  .toc-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    max-height: 55vh; background: var(--surface);
+    border-radius: 20px 20px 0 0; padding: 20px 20px 28px;
+    animation: slideUp .25s ease-out;
+    overflow-y: auto;
+  }
+  .toc-handle {
+    width: 36px; height: 4px; border-radius: 2px;
+    background: var(--ink-lighter); margin: 0 auto 16px;
+  }
+  .toc-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+  .toc-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .toc-dot {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Outfit", sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: transform .1s;
+  }
+  .toc-dot:active { transform: scale(.9); }
+  .toc-dot.blank { background: var(--surface2); color: var(--ink-muted); }
+  .toc-dot.correct { background: var(--green-light); color: var(--green); }
+  .toc-dot.wrong { background: var(--red-light); color: var(--red); }
+  .toc-dot.current { box-shadow: 0 0 0 2px var(--ink-blue); }
+
   .hidden { display: none !important; }
   .tc { justify-content: center; }
 </style>
@@ -228,6 +259,7 @@
     </div>
     <div class="quiz-head">
       <span class="pos" id="quiz-progress">1/43</span>
+      <span class="tag" style="cursor:pointer;" onclick="toggleToc()">目录 ▾</span>
       <span class="tag" id="quiz-section">行政区划</span>
     </div>
     <div id="question-area">
@@ -253,6 +285,15 @@
       </div>
       <div class="slug">错题本</div>
       <div id="wrong-list"></div>
+    </div>
+
+    <!-- TOC -->
+    <div class="toc-overlay" id="toc-overlay" onclick="closeToc(event)">
+      <div class="toc-sheet" onclick="event.stopPropagation()">
+        <div class="toc-handle"></div>
+        <div class="toc-title">题目目录</div>
+        <div class="toc-grid" id="toc-grid"></div>
+      </div>
     </div>
   </div>
 
@@ -538,6 +579,37 @@ document.addEventListener('keydown', function(e) {
   else if (e.key === 'ArrowLeft' && !document.getElementById('btn-prev').disabled) document.getElementById('btn-prev').click();
   else if (e.key === ' ' && !isAnswered) { e.preventDefault(); document.getElementById('btn-show-answer').click(); }
 });
+
+// ── TOC ──
+
+function renderToc() {
+  const qs = sessionQuestions || currentSession.questions;
+  const grid = document.getElementById('toc-grid');
+  grid.innerHTML = qs.map((q, i) => {
+    const status = answers[q.id];
+    let cls = 'blank';
+    if (status === 'correct') cls = 'correct';
+    else if (status === 'wrong') cls = 'wrong';
+    if (i === currentIndex) cls += ' current';
+    return `<div class="toc-dot ${cls}" onclick="jumpTo(${i})">${i + 1}</div>`;
+  }).join('');
+}
+
+function toggleToc() {
+  const ov = document.getElementById('toc-overlay');
+  ov.classList.toggle('show');
+  if (ov.classList.contains('show')) renderToc();
+}
+
+function closeToc(e) {
+  if (e.target === e.currentTarget) document.getElementById('toc-overlay').classList.remove('show');
+}
+
+function jumpTo(i) {
+  currentIndex = i; isAnswered = false;
+  document.getElementById('toc-overlay').classList.remove('show');
+  renderQuestion();
+}
 
 // Remove wrong answer
 function removeWrongAnswer(subjectId, sessionDate, questionId) {
