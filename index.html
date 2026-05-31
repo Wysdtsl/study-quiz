@@ -311,27 +311,20 @@
 
   /*━━━ Access code screen ━━━*/
   .chat-lock {
-    padding: 32px 24px; text-align: center;
+    padding: 24px 20px 32px; text-align: center;
   }
-  .chat-lock .icon { font-size: 36px; margin-bottom: 10px; }
-  .chat-lock .t { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-  .chat-lock .s { font-size: 13px; color: var(--ink-muted); margin-bottom: 20px; }
+  .chat-lock .icon { font-size: 36px; margin-bottom: 8px; }
+  .chat-lock .t { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+  .chat-lock .f { margin-bottom: 12px; }
+  .chat-lock label { display: block; font-size: 13px; color: var(--ink-muted); text-align: left; margin-bottom: 4px; }
   .chat-lock input {
-    width: 100%; max-width: 240px;
-    border: 1.5px solid var(--border); border-radius: 12px;
-    padding: 12px 14px; font-size: 16px; text-align: center;
-    outline: none; background: var(--surface); color: var(--ink);
-    font-family: inherit;
+    width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; font-size: 15px; outline: none;
+    background: var(--surface); color: var(--ink); font-family: inherit;
   }
   .chat-lock input:focus { border-color: var(--ink-blue); }
-  .chat-lock .err { color: var(--red); font-size: 13px; margin-top: 8px; display: none; }
-  .chat-lock .btn-unlock {
-    display: block; margin: 14px auto 0;
-    background: var(--ink-blue); color: #fff; border: none;
-    border-radius: 12px; padding: 12px 32px; font-size: 15px;
-    font-weight: 600; cursor: pointer;
-  }
-  .chat-lock .btn-unlock:active { transform: scale(.96); }
+  .chat-lock .hint { font-size: 12px; color: var(--ink-lighter); margin-top: 4px; text-align: left; }
+  .chat-lock .btn-primary { width: 100%; margin-top: 14px; }
 
   .hidden { display: none !important; }
   .tc { justify-content: center; }
@@ -437,12 +430,14 @@
 
     <div id="chat-lock">
       <div class="chat-lock">
-        <div class="icon">🔐</div>
-        <div class="t">需要访问码</div>
-        <div class="s">请输入访问码解锁学习助手</div>
-        <input type="password" id="chat-access-code" placeholder="输入访问码" onkeydown="if(event.key==='Enter')unlockChat()">
-        <div class="err" id="chat-code-err">访问码错误</div>
-        <button class="btn-unlock" onclick="unlockChat()">解锁</button>
+        <div class="icon">🔑</div>
+        <div class="t">配置 AI 密钥</div>
+        <div class="f">
+          <label>DeepSeek API Key</label>
+          <input type="password" id="chat-api-key" placeholder="sk-..." onkeydown="if(event.key==='Enter')saveKey()">
+          <div class="hint">只存在你手机本地，不会上传</div>
+        </div>
+        <button class="btn btn-primary" onclick="saveKey()">保存并开始</button>
       </div>
     </div>
 
@@ -854,18 +849,19 @@ function importData(event) {
   reader.readAsText(file); event.target.value = '';
 }
 
-// ── Chat ──
-const CHAT_WORKER = 'https://study-quiz-ruby.vercel.app/api/chat';
-const CHAT_LOCKED_KEY = 'chat_unlocked';
+// ── Chat (Direct DeepSeek) ──
+const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
+const API_KEY_STORAGE = 'chat_api_key';
 
 let chatHistory = [];
+let chatApiKey = '';
 
 function toggleChat() {
   const panel = document.getElementById('chat-panel');
   panel.classList.toggle('open');
   if (panel.classList.contains('open')) {
-    const unlocked = localStorage.getItem(CHAT_LOCKED_KEY);
-    if (unlocked === 'true') {
+    try { const raw = localStorage.getItem(API_KEY_STORAGE); if (raw) chatApiKey = atob(raw); } catch(e) {}
+    if (chatApiKey) {
       document.getElementById('chat-lock').style.display = 'none';
       document.getElementById('chat-main').style.display = 'flex';
       document.getElementById('chat-input').disabled = false;
@@ -875,11 +871,11 @@ function toggleChat() {
   }
 }
 
-function unlockChat() {
-  const code = document.getElementById('chat-access-code').value.trim();
-  if (!code) return;
-  // 先本地存标记，Worker 也会验证
-  localStorage.setItem(CHAT_LOCKED_KEY, 'true');
+function saveKey() {
+  const key = document.getElementById('chat-api-key').value.trim();
+  if (!key || !key.startsWith('sk-')) { alert('请输入有效的 DeepSeek API Key（sk-开头）'); return; }
+  chatApiKey = key;
+  localStorage.setItem(API_KEY_STORAGE, btoa(key));
   document.getElementById('chat-lock').style.display = 'none';
   document.getElementById('chat-main').style.display = 'flex';
   document.getElementById('chat-input').disabled = false;
@@ -888,13 +884,12 @@ function unlockChat() {
 }
 
 function addMsg(role, text, isThinking) {
-  const container = document.getElementById('chat-msgs');
   document.getElementById('chat-empty').style.display = 'none';
   const div = document.createElement('div');
   div.className = 'chat-msg ' + role;
   div.innerHTML = `<div class="chat-bbl${isThinking ? ' thinking' : ''}">${text}</div>`;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
+  document.getElementById('chat-msgs').appendChild(div);
+  document.getElementById('chat-msgs').scrollTop = div.scrollHeight;
 }
 
 async function sendChat() {
@@ -903,50 +898,59 @@ async function sendChat() {
   const msg = input.value.trim();
   if (!msg) return;
 
-  input.value = '';
-  input.disabled = true; sendBtn.disabled = true;
+  input.value = ''; input.disabled = true; sendBtn.disabled = true;
   addMsg('user', escapeHtml(msg));
 
-  // 显示等待
   const waitDiv = document.createElement('div');
   waitDiv.className = 'chat-msg ai';
   waitDiv.innerHTML = '<div class="chat-bbl thinking">思考中...</div>';
   document.getElementById('chat-msgs').appendChild(waitDiv);
 
-  const accessCode = document.getElementById('chat-access-code').value.trim();
-
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
+    const t = setTimeout(() => controller.abort(), 25000);
 
-    const resp = await fetch(CHAT_WORKER, {
+    const resp = await fetch(DEEPSEEK_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accessCode, message: msg, history: chatHistory }),
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
+      body: JSON.stringify({
+        model: 'deepseek-v4-flash',
+        messages: [
+          { role: 'system', content: '你是一个学习伙伴，帮助用户理解和记忆考试知识。回答简洁准确，直击重点。易混点主动指出。不要闲聊。不知道就说不知道。' },
+          ...chatHistory.slice(-10),
+          { role: 'user', content: msg }
+        ],
+        max_tokens: 1024,
+        temperature: 0.3
+      }),
       signal: controller.signal
     });
-    clearTimeout(timeout);
-
-    const data = await resp.json();
+    clearTimeout(t);
     waitDiv.remove();
 
-    if (data.error) {
-      if (data.error.includes('访问码')) {
-        localStorage.removeItem(CHAT_LOCKED_KEY);
+    if (!resp.ok) {
+      const err = await resp.text();
+      if (resp.status === 401) {
+        chatApiKey = ''; localStorage.removeItem(API_KEY_STORAGE);
         document.getElementById('chat-main').style.display = 'none';
         document.getElementById('chat-lock').style.display = 'block';
-        document.getElementById('chat-code-err').style.display = 'block';
+        addMsg('ai', '⚠️ API Key 无效，请重新配置', false);
+      } else {
+        addMsg('ai', '⚠️ 请求失败 (' + resp.status + ')', false);
       }
-      addMsg('ai', '⚠️ ' + escapeHtml(data.error), false);
-    } else if (data.reply) {
-      addMsg('ai', escapeHtml(data.reply), false);
-      chatHistory.push({ role: 'user', content: msg });
-      chatHistory.push({ role: 'assistant', content: data.reply });
-      if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+      input.disabled = false; sendBtn.disabled = false; return;
     }
+
+    const data = await resp.json();
+    const reply = data.choices?.[0]?.message?.content || '';
+
+    addMsg('ai', reply, false);
+    chatHistory.push({ role: 'user', content: msg });
+    chatHistory.push({ role: 'assistant', content: reply });
+
   } catch(e) {
     waitDiv.remove();
-    addMsg('ai', '⚠️ 网络错误，请稍后重试', false);
+    addMsg('ai', '⚠️ 网络超时，请检查网络连接后重试', false);
   }
 
   input.disabled = false; sendBtn.disabled = false;
