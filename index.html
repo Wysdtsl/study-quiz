@@ -135,6 +135,7 @@
   }
   .chip-new { background: var(--primary-container); color: var(--on-primary-container); }
   .chip-doing { background: var(--amber-container); color: var(--amber); }
+  .chip-done { background: var(--green-container); color: var(--green); }
 
   /*━━━ Session list ━━━*/
   .session-card {
@@ -412,8 +413,11 @@ function renderSubjects() {
       totalDone += st.done;
       totalCorrect += st.correct;
     });
-    const status = totalDone === 0 ? 'new' : 'doing';
-    const statusText = totalDone === 0 ? '未开始' : `答对 ${totalCorrect}/${totalDone}`;
+    const isComplete = totalDone > 0 && totalDone === allQ;
+    const status = totalDone === 0 ? 'new' : isComplete ? 'done' : 'doing';
+    const statusText = totalDone === 0 ? '未开始'
+      : isComplete ? `已完成 ${totalCorrect}/${totalDone}`
+      : `答对 ${totalCorrect}/${totalDone}`;
     const iconCls = ICONS[i % ICONS.length];
     return `
       <div class="card" onclick="selectSubject('${s.id}')">
