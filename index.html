@@ -232,7 +232,7 @@
 
 <div id="app">
   <!-- Home -->
-  <div id="page-home" class="page padded active">
+  <div id="page-home" class="page padded">
     <div class="hello">学习伙伴</div>
     <div class="hello-sub">选择一个科目开始答题</div>
 
@@ -447,14 +447,14 @@ function clearState() { localStorage.removeItem(STATE_KEY); }
 function restoreState() {
   try {
     const saved = localStorage.getItem(STATE_KEY);
-    if (!saved) return;
+    if (!saved) { showHome(); return; }
     const s = JSON.parse(saved);
     if (s.page === 'quiz' && s.subjectId && s.sessionDate) {
       const sub = data.subjects.find(x => x.id === s.subjectId);
-      if (!sub) return;
+      if (!sub) { showHome(); return; }
       currentSubject = sub;
       const sess = sub.sessions.find(x => x.date === s.sessionDate);
-      if (!sess) return;
+      if (!sess) { showHome(); return; }
       currentSession = sess;
       loadProgress(s.subjectId, s.sessionDate);
       currentIndex = Math.min(s.questionIndex || 0, sess.questions.length - 1);
@@ -466,14 +466,20 @@ function restoreState() {
       renderQuestion();
     } else if (s.page === 'sessions' && s.subjectId) {
       const sub = data.subjects.find(x => x.id === s.subjectId);
-      if (!sub) return;
+      if (!sub) { showHome(); return; }
       currentSubject = sub;
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById('page-sessions').classList.add('active');
       document.getElementById('session-title').textContent = sub.name;
       renderSessions();
-    }
-  } catch(e) {}
+    } else { showHome(); }
+  } catch(e) { showHome(); }
+}
+
+function showHome() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-home').classList.add('active');
+  renderSubjects(); renderStats();
 }
 
 const ICON_CLS = ['blue','amber','green','red'];
