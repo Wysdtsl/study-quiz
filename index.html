@@ -129,10 +129,12 @@
   .card-meta { font-size: 13px; color: var(--on-surface-variant); margin-top: 2px; }
 
   .chip {
-    display: inline-block; font-size: 12px; font-weight: 500;
-    padding: 3px 10px; border-radius: 8px; margin-top: 6px;
-    flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 5px 12px; border-radius: 10px; margin-top: 4px;
+    flex-shrink: 0; min-width: 56px; line-height: 1.3;
   }
+  .chip-progress { font-size: 15px; font-weight: 700; }
+  .chip-pct { font-size: 11px; font-weight: 500; opacity: .8; }
   .chip-new { background: var(--primary-container); color: var(--on-primary-container); }
   .chip-doing { background: var(--amber-container); color: var(--amber); }
   .chip-done { background: var(--green-container); color: var(--green); }
@@ -415,9 +417,15 @@ function renderSubjects() {
     });
     const isComplete = totalDone > 0 && totalDone === allQ;
     const status = totalDone === 0 ? 'new' : isComplete ? 'done' : 'doing';
-    const statusText = totalDone === 0 ? '未开始'
-      : isComplete ? `已完成 ${totalCorrect}/${totalDone}`
-      : `答对 ${totalCorrect}/${totalDone}`;
+
+    let chipHtml;
+    if (totalDone === 0) {
+      chipHtml = `<span class="chip chip-${status}"><span class="chip-progress">0/${allQ}</span><span class="chip-pct">未开始</span></span>`;
+    } else {
+      const pct = Math.round(totalCorrect / totalDone * 100);
+      chipHtml = `<span class="chip chip-${status}"><span class="chip-progress">${totalDone}/${allQ}</span><span class="chip-pct">正确率 ${pct}%</span></span>`;
+    }
+
     const iconCls = ICONS[i % ICONS.length];
     return `
       <div class="card" onclick="selectSubject('${s.id}')">
@@ -426,7 +434,7 @@ function renderSubjects() {
           <div class="card-body">
             <div class="card-name">${s.name}</div>
             <div class="card-meta">${s.sessions.length} 个学习日 · ${allQ} 题</div>
-            <span class="chip chip-${status}">${statusText}</span>
+            ${chipHtml}
           </div>
         </div>
       </div>
