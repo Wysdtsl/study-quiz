@@ -917,6 +917,7 @@ let mapInstance = null;
 let mapMarkers = [];
 
 const FIXED_LOCATIONS = [
+  // 海峡 & 运河
   { name: '马六甲海峡', lat: 2, lng: 102 },
   { name: '苏伊士运河', lat: 30.5, lng: 32.5 },
   { name: '巴拿马运河', lat: 9, lng: -79.5 },
@@ -928,6 +929,29 @@ const FIXED_LOCATIONS = [
   { name: '土耳其海峡', lat: 40.5, lng: 27 },
   { name: '台湾海峡', lat: 24.5, lng: 119.5 },
   { name: '琼州海峡', lat: 20.5, lng: 110.5 },
+  { name: '麦哲伦海峡', lat: -53, lng: -71 },
+  { name: '曼德海峡', lat: 13, lng: 43.3 },
+  { name: '莫桑比克海峡', lat: -19, lng: 39 },
+  // 海 & 湾
+  { name: '红海', lat: 22, lng: 38 },
+  { name: '地中海', lat: 35, lng: 18 },
+  { name: '加勒比海', lat: 15, lng: -75 },
+  { name: '波斯湾', lat: 27, lng: 52 },
+  { name: '孟加拉湾', lat: 15, lng: 90 },
+  { name: '几内亚湾', lat: 3, lng: 5 },
+  { name: '比斯开湾', lat: 45, lng: -5 },
+  // 世界之最
+  { name: '珠穆朗玛峰(世界最高峰)', lat: 27.99, lng: 86.93 },
+  { name: '马里亚纳海沟(海洋最深处)', lat: 11.3, lng: 142.2 },
+  { name: '死海(陆地最低点)', lat: 31.5, lng: 35.5 },
+  { name: '贝加尔湖(最深淡水湖)', lat: 53.5, lng: 108 },
+  { name: '尼罗河(世界最长河)', lat: 15.5, lng: 33 },
+  { name: '亚马孙河(流量最大河)', lat: -2, lng: -55 },
+  { name: '撒哈拉沙漠(最大热沙漠)', lat: 25, lng: 10 },
+  { name: '格陵兰岛(最大岛)', lat: 72, lng: -40 },
+  { name: '里海(最大咸水湖)', lat: 42, lng: 50 },
+  { name: '维多利亚瀑布', lat: -17.93, lng: 25.86 },
+  { name: '安赫尔瀑布(最高瀑布)', lat: 5.96, lng: -62.54 },
 ];
 
 function showMap() {
@@ -965,6 +989,29 @@ function initMap() {
     m.bindPopup('<div style="font-size:15px;font-weight:600;padding:4px;">' + loc.name + '</div><div style="font-size:13px;color:#666;">纬度:' + loc.lat.toFixed(1) + ' 经度:' + loc.lng.toFixed(1) + '</div>');
     mapMarkers.push(m);
   });
+
+  // ── 亚欧分界线（乌拉尔山—乌拉尔河—大高加索山） ──
+  const uralPoints = [];
+  for (let lat = 68; lat >= 48; lat -= 0.5) { uralPoints.push([lat, 60 + (lat - 68) * 0.15]); }
+  L.polyline(uralPoints, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance)
+    .bindPopup('亚欧分界线—乌拉尔山脉');
+
+  const caucasus = [[44.5, 39.5], [43.5, 41], [42.5, 43.5], [41.5, 46], [40.5, 48.5], [39.5, 50]];
+  L.polyline(caucasus, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance)
+    .bindPopup('亚欧分界线—大高加索山脉');
+
+  // ── 中国一级阶梯分界线（昆仑山—祁连山—横断山） ──
+  const step1 = [[36, 78], [35, 82], [35.5, 87], [36.5, 92], [37.5, 96], [37, 99],
+    [34, 100], [31, 99], [28, 100], [26, 100.5], [24, 99], [22, 97]];
+  L.polyline(step1, { color: '#e67e22', weight: 3, opacity: 0.9 }).addTo(mapInstance)
+    .bindPopup('第一阶梯(青藏高原)分界线');
+
+  // ── 中国二级阶梯分界线（大兴安岭—太行山—巫山—雪峰山） ──
+  const step2 = [[52, 122], [50, 122], [47, 121], [44, 120], [42, 119],
+    [40, 117], [38, 115], [36, 114], [34, 113], [32, 112], [30, 110],
+    [28, 109], [27, 110]];
+  L.polyline(step2, { color: '#2980b9', weight: 3, opacity: 0.9 }).addTo(mapInstance)
+    .bindPopup('第二阶梯分界线');
 }
 
 function searchMapLocation() {
