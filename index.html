@@ -277,6 +277,7 @@
   .map-topbar input { flex: 1; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; background: var(--surface); color: var(--ink); font-family: inherit; }
   .map-topbar input:focus { border-color: var(--ink-blue); }
   .map-topbar button { width: 40px; border: none; border-radius: 10px; background: var(--ink-blue); color: #fff; font-size: 16px; cursor: pointer; }
+  .map-label { background: rgba(255,255,255,.85); border: none; box-shadow: 0 1px 4px rgba(0,0,0,.15); border-radius: 4px; padding: 2px 6px; font-size: 12px; font-weight: 600; color: #333; }
   .note-item .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 8px; }
   .note-form { margin-bottom: 16px; }
   .note-form input, .note-form textarea {
@@ -993,25 +994,32 @@ function initMap() {
   // ── 亚欧分界线（乌拉尔山—乌拉尔河—大高加索山） ──
   const uralPoints = [];
   for (let lat = 68; lat >= 48; lat -= 0.5) { uralPoints.push([lat, 60 + (lat - 68) * 0.15]); }
-  L.polyline(uralPoints, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance)
-    .bindPopup('亚欧分界线—乌拉尔山脉');
+  const uralLine = L.polyline(uralPoints, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance);
+  uralLine.bindPopup('亚欧分界线—乌拉尔山脉').bindTooltip('乌拉尔山', { permanent: true, direction: 'right', offset: [5, 0], className: 'map-label' });
 
   const caucasus = [[44.5, 39.5], [43.5, 41], [42.5, 43.5], [41.5, 46], [40.5, 48.5], [39.5, 50]];
-  L.polyline(caucasus, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance)
-    .bindPopup('亚欧分界线—大高加索山脉');
+  const cauLine = L.polyline(caucasus, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance);
+  cauLine.bindPopup('亚欧分界线—大高加索山脉').bindTooltip('大高加索山', { permanent: true, direction: 'right', offset: [5, 0], className: 'map-label' });
 
   // ── 中国一级阶梯分界线（昆仑山—祁连山—横断山） ──
   const step1 = [[36, 78], [35, 82], [35.5, 87], [36.5, 92], [37.5, 96], [37, 99],
     [34, 100], [31, 99], [28, 100], [26, 100.5], [24, 99], [22, 97]];
-  L.polyline(step1, { color: '#e67e22', weight: 3, opacity: 0.9 }).addTo(mapInstance)
-    .bindPopup('第一阶梯(青藏高原)分界线');
+  const s1 = L.polyline(step1, { color: '#e67e22', weight: 3, opacity: 0.9 }).addTo(mapInstance);
+  s1.bindPopup('第一阶梯(青藏高原)分界线');
+  L.marker([36.5, 80]).addTo(mapInstance).bindTooltip('昆仑山', { permanent: true, className: 'map-label' });
+  L.marker([37.5, 97]).addTo(mapInstance).bindTooltip('祁连山', { permanent: true, className: 'map-label' });
+  L.marker([26, 100]).addTo(mapInstance).bindTooltip('横断山', { permanent: true, className: 'map-label' });
 
   // ── 中国二级阶梯分界线（大兴安岭—太行山—巫山—雪峰山） ──
   const step2 = [[52, 122], [50, 122], [47, 121], [44, 120], [42, 119],
     [40, 117], [38, 115], [36, 114], [34, 113], [32, 112], [30, 110],
     [28, 109], [27, 110]];
-  L.polyline(step2, { color: '#2980b9', weight: 3, opacity: 0.9 }).addTo(mapInstance)
-    .bindPopup('第二阶梯分界线');
+  const s2 = L.polyline(step2, { color: '#2980b9', weight: 3, opacity: 0.9 }).addTo(mapInstance);
+  s2.bindPopup('第二阶梯分界线');
+  L.marker([50, 122]).addTo(mapInstance).bindTooltip('大兴安岭', { permanent: true, className: 'map-label' });
+  L.marker([38, 114]).addTo(mapInstance).bindTooltip('太行山', { permanent: true, className: 'map-label' });
+  L.marker([30, 110]).addTo(mapInstance).bindTooltip('巫山', { permanent: true, className: 'map-label' });
+  L.marker([27.5, 110.5]).addTo(mapInstance).bindTooltip('雪峰山', { permanent: true, className: 'map-label' });
 }
 
 function searchMapLocation() {
@@ -1054,7 +1062,7 @@ function fallbackSearch(q) {
 document.getElementById('back-home-map').addEventListener('click', function() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-home').classList.add('active');
-  renderSubjects(); renderStats();
+  renderSubjects(); renderStats(); clearState();
 });
 
 document.getElementById('back-home-wb').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
