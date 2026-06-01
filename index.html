@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb">
 <style>
   :root {
     --bg: #f5f2ee;
@@ -266,6 +267,9 @@
   .note-detail .body code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 14px; }
   .note-detail .body .md-h { font-weight: 700; margin: 10px 0 4px; font-size: 16px; }
   .note-detail .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 16px; }
+
+  /*━━━ Map ━━━*/
+  #map-container { height: calc(100dvh - 100px); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
   .note-item .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 8px; }
   .note-form { margin-bottom: 16px; }
   .note-form input, .note-form textarea {
@@ -427,7 +431,7 @@
         <button class="btn btn-out" onclick="showWrongBank()">复习全部错题</button>
         <button class="btn btn-out" onclick="showNotes()">📝 笔记</button>
       </div>
-      <button class="btn btn-out" onclick="window.open('https://map.tianditu.gov.cn','_blank')">🗺️ 天地图</button>
+      <button class="btn btn-out" onclick="showMap()">🗺️ 世界地图</button>
       <div class="home-actions-row">
         <button class="btn btn-out" onclick="exportData()">导出答题记录</button>
         <button class="btn btn-out" onclick="document.getElementById('import-input').click()">导入答题记录</button>
@@ -504,6 +508,16 @@
       <div class="bar-end"></div>
     </div>
     <div id="wb-content"></div>
+  </div>
+
+  <!-- Map page -->
+  <div id="page-map" class="page" style="padding:0 0 24px;">
+    <div class="bar" style="padding:14px 18px 6px;">
+      <button class="bar-btn" id="back-home-map">←</button>
+      <span class="bar-title">🗺️ 世界地图</span>
+      <div class="bar-end"></div>
+    </div>
+    <div id="map-container"></div>
   </div>
 
   <!-- Notes page -->
@@ -878,6 +892,44 @@ document.getElementById('btn-retry-wrong').addEventListener('click', function() 
 });
 
 document.getElementById('back-home').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
+// ── Map ──
+let mapInstance = null;
+
+function showMap() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-map').classList.add('active');
+  if (!mapInstance) initMap();
+  setTimeout(() => { if (mapInstance) mapInstance.invalidateSize(); }, 200);
+}
+
+function initMap() {
+  mapInstance = L.map('map-container').setView([10, 95], 2);
+  L.tileLayer('https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+    attribution: '高德地图', maxZoom: 18, minZoom: 1
+  }).addTo(mapInstance);
+
+  // Key study locations
+  const markers = [
+    { name: '马六甲海峡', lat: 2, lng: 102 },
+    { name: '苏伊士运河', lat: 30.5, lng: 32.5 },
+    { name: '巴拿马运河', lat: 9, lng: -79.5 },
+    { name: '直布罗陀海峡', lat: 36, lng: -5.5 },
+    { name: '霍尔木兹海峡', lat: 26.5, lng: 56 },
+    { name: '好望角', lat: -34.5, lng: 18.5 },
+    { name: '白令海峡', lat: 65.5, lng: -169 },
+    { name: '德雷克海峡', lat: -58, lng: -70 },
+  ];
+  markers.forEach(m => {
+    L.marker([m.lat, m.lng]).addTo(mapInstance).bindPopup(m.name);
+  });
+}
+
+document.getElementById('back-home-map').addEventListener('click', function() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-home').classList.add('active');
+  renderSubjects(); renderStats();
+});
+
 document.getElementById('back-home-wb').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
 document.getElementById('back-home-notes').addEventListener('click', function() {
   const dv = document.getElementById('notes-detail-view');
@@ -1188,5 +1240,6 @@ function escapeHtml(s) {
 
 loadData();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO"></script>
 </body>
 </html>
