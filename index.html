@@ -963,27 +963,37 @@ function searchMapLocation() {
   const q = document.getElementById('map-search').value.trim();
   if (!q) return;
 
-  // 1. Search among fixed markers first (no network needed)
-  const match = FIXED_LOCATIONS.find(l => l.name.includes(q));
-  if (match) {
-    mapInstance.setView([match.lat, match.lng], 7);
-    return;
-  }
+  // Try fixed markers first (instant, no network)
+  const fix = FIXED_LOCATIONS.find(l => l.name.includes(q));
+  if (fix) { mapInstance.setView([fix.lat, fix.lng], 7); return; }
 
-  // 2. Try Nominatim geocoding (may fail in China)
-  fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) + '&limit=5&accept-language=zh')
-    .then(r => r.json())
-    .then(data => {
-      if (data && data.length > 0) {
-        const loc = data[0];
-        mapInstance.setView([loc.lat, loc.lon], 7);
-        L.marker([loc.lat, loc.lon]).addTo(mapInstance)
-          .bindPopup('<b>' + escapeHtml(q) + '</b>').openPopup();
-      } else {
-        alert('未找到该位置，试试：马六甲海峡、苏伊士运河、巴拿马运河等');
-      }
-    })
-    .catch(() => { alert('在线搜索不可用，试试输入：马六甲海峡、苏伊士运河、巴拿马运河'); });
+  // Try OpenStreetMap Nominatim (全球位置搜索，free）
+  const ctrl = new AbortController();
+  const tm = setTimeout(() => ctrl.abort(), 8000);
+  fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) + '&limit=3&accept-language=zh', {
+    headers: { 'User-Agent': 'StudyQuiz/1.0' },
+    signal: ctrl.signal
+  })
+  .then(r => r.json())
+  .then(data => {
+    clearTimeout(tm);
+    if (data && data.length > 0) {
+      const loc = data[0];
+      mapInstance.setView([loc.lat, loc.lon], 8);
+      L.marker([loc.lat, loc.lon]).addTo(mapInstance)
+        .bindPopup('<b>' + escapeHtml(q) + '</b><br><span style="font-size:12px;color:#666;">' + escapeHtml(loc.display_name || '') + '</span>')
+        .openPopup();
+    } else {
+      fallbackSearch(q);
+    }
+  })
+  .catch(() => { clearTimeout(tm); fallbackSearch(q); });
+}
+
+function fallbackSearch(q) {
+  if (confirm('在线定位不可用，是否在百度地图中查看「' + q + '」的位置？')) {
+    window.open('https://map.baidu.com/search/' + encodeURIComponent(q), '_blank');
+  }
 }
 
 document.getElementById('back-home-map').addEventListener('click', function() {
