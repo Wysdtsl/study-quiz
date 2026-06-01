@@ -920,7 +920,6 @@ const FIXED_LOCATIONS = [
   { name: '德雷克海峡', lat: -58, lng: -70 },
   { name: '土耳其海峡', lat: 40.5, lng: 27 },
   { name: '台湾海峡', lat: 24.5, lng: 119.5 },
-  { name: '马六甲海峡', lat: 2, lng: 102 },
   { name: '琼州海峡', lat: 20.5, lng: 110.5 },
 ];
 
@@ -963,20 +962,28 @@ function initMap() {
 function searchMapLocation() {
   const q = document.getElementById('map-search').value.trim();
   if (!q) return;
-  // Use Nominatim geocoding (free, no key, works globally)
+
+  // 1. Search among fixed markers first (no network needed)
+  const match = FIXED_LOCATIONS.find(l => l.name.includes(q));
+  if (match) {
+    mapInstance.setView([match.lat, match.lng], 7);
+    return;
+  }
+
+  // 2. Try Nominatim geocoding (may fail in China)
   fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) + '&limit=5&accept-language=zh')
     .then(r => r.json())
     .then(data => {
       if (data && data.length > 0) {
         const loc = data[0];
         mapInstance.setView([loc.lat, loc.lon], 7);
-        const m = L.marker([loc.lat, loc.lon]).addTo(mapInstance);
-        m.bindPopup('<b>' + escapeHtml(q) + '</b><br>' + escapeHtml(loc.display_name)).openPopup();
+        L.marker([loc.lat, loc.lon]).addTo(mapInstance)
+          .bindPopup('<b>' + escapeHtml(q) + '</b>').openPopup();
       } else {
-        alert('未找到该位置，试试其他关键词');
+        alert('未找到该位置，试试：马六甲海峡、苏伊士运河、巴拿马运河等');
       }
     })
-    .catch(() => alert('搜索失败，请检查网络'));
+    .catch(() => { alert('在线搜索不可用，试试输入：马六甲海峡、苏伊士运河、巴拿马运河'); });
 }
 
 document.getElementById('back-home-map').addEventListener('click', function() {
