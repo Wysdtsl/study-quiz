@@ -994,12 +994,16 @@ function initMap() {
   // ── 亚欧分界线（乌拉尔山—乌拉尔河—大高加索山） ──
   const uralPoints = [];
   for (let lat = 68; lat >= 48; lat -= 0.5) { uralPoints.push([lat, 60 + (lat - 68) * 0.15]); }
-  const uralLine = L.polyline(uralPoints, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance);
-  uralLine.bindPopup('亚欧分界线—乌拉尔山脉').bindTooltip('乌拉尔山', { permanent: true, direction: 'right', offset: [5, 0], className: 'map-label' });
+  L.polyline(uralPoints, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance)
+    .bindPopup('亚欧分界线—乌拉尔山脉');
+  L.circleMarker([56, 62], { radius: 4, color: '#c0392b', fillColor: '#c0392b', fillOpacity: 1 })
+    .addTo(mapInstance).bindTooltip('乌拉尔山', { permanent: true, className: 'map-label' });
 
   const caucasus = [[44.5, 39.5], [43.5, 41], [42.5, 43.5], [41.5, 46], [40.5, 48.5], [39.5, 50]];
-  const cauLine = L.polyline(caucasus, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance);
-  cauLine.bindPopup('亚欧分界线—大高加索山脉').bindTooltip('大高加索山', { permanent: true, direction: 'right', offset: [5, 0], className: 'map-label' });
+  L.polyline(caucasus, { color: '#c0392b', weight: 2.5, dashArray: '6,6', opacity: 0.8 }).addTo(mapInstance)
+    .bindPopup('亚欧分界线—大高加索山脉');
+  L.circleMarker([42.5, 44], { radius: 4, color: '#c0392b', fillColor: '#c0392b', fillOpacity: 1 })
+    .addTo(mapInstance).bindTooltip('大高加索山', { permanent: true, className: 'map-label' });
 
   // ── 中国一级阶梯分界线（昆仑山—祁连山—横断山） ──
   const step1 = [[36, 78], [35, 82], [35.5, 87], [36.5, 92], [37.5, 96], [37, 99],
