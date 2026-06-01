@@ -460,6 +460,7 @@
     <div id="question-area">
       <div class="qn" id="q-number">#1</div>
       <div class="q" id="q-text">问题加载中...</div>
+      <div id="q-image" style="margin-bottom:20px;display:none;"><img style="width:100%;border-radius:12px;border:1px solid var(--border);" id="q-img-tag"></div>
       <button class="btn btn-primary" id="btn-show-answer">查看答案</button>
       <div class="reveal" id="answer-area">
         <div class="ans"><div class="hl">正确答案</div><div class="body" id="answer-text"></div></div>
@@ -790,6 +791,10 @@ function renderQuestion() {
   const statusIcon = answers[q.id] ? (answers[q.id] === 'correct' ? ' ✅' : ' ❌') : '';
   document.getElementById('q-number').textContent = '#' + (currentIndex + 1) + statusIcon;
   document.getElementById('q-text').textContent = q.question;
+  const imgDiv = document.getElementById('q-image');
+  const imgTag = document.getElementById('q-img-tag');
+  if (q.image) { imgTag.src = q.image; imgDiv.style.display = 'block'; }
+  else { imgDiv.style.display = 'none'; }
   document.getElementById('answer-text').textContent = q.answer;
   document.getElementById('tips-text').textContent = q.tips || '无';
   const area = document.getElementById('answer-area');
