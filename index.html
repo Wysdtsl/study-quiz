@@ -438,7 +438,7 @@
         <button class="btn btn-out" onclick="showWrongBank()">复习全部错题</button>
         <button class="btn btn-out" onclick="showNotes()">📝 笔记</button>
       </div>
-      <button class="btn btn-out" onclick="showMap()">🗺️ 世界地图</button>
+      <button class="btn btn-out" onclick="showMap()">世界地图</button>
       <div class="home-actions-row">
         <button class="btn btn-out" onclick="exportData()">导出答题记录</button>
         <button class="btn btn-out" onclick="document.getElementById('import-input').click()">导入答题记录</button>
@@ -521,7 +521,7 @@
   <div id="page-map" class="page">
     <div class="bar" style="flex-shrink:0;">
       <button class="bar-btn" id="back-home-map">←</button>
-      <span class="bar-title">🗺️ 世界地图</span>
+      <span class="bar-title">世界地图</span>
       <div class="bar-end"></div>
     </div>
     <div class="map-topbar">
@@ -677,6 +677,7 @@ function showWrongBank() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-wrongbank').classList.add('active');
   renderWrongBank();
+  saveState('wrongbank');
 }
 
 function renderWrongBank() {
@@ -743,6 +744,12 @@ function restoreState() {
       document.getElementById('page-sessions').classList.add('active');
       document.getElementById('session-title').textContent = sub.name;
       renderSessions();
+    } else if (s.page === 'wrongbank') {
+      showWrongBank();
+    } else if (s.page === 'notes') {
+      showNotes();
+    } else if (s.page === 'map') {
+      showMap();
     } else { showHome(); }
   } catch(e) { showHome(); }
 }
@@ -929,6 +936,7 @@ function showMap() {
   if (!mapInstance) initMap();
   else mapInstance.invalidateSize();
   setTimeout(() => document.getElementById('map-search').focus(), 400);
+  saveState('map');
 }
 
 function initMap() {
@@ -1070,6 +1078,7 @@ function showNotes() {
   document.getElementById('notes-list-view').style.display = 'block';
   document.getElementById('notes-bar-title').textContent = '📝 知识点笔记';
   renderNotes();
+  saveState('notes');
 }
 
 function renderNotes() {
