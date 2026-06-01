@@ -935,10 +935,20 @@ function showMap() {
 function initMap() {
   mapInstance = L.map('map-container', { zoomControl: true }).setView([20, 110], 3);
 
-  // 腾讯地图 tiles (国内CDN，速度快，有中文)
-  L.tileLayer('https://rt0.map.gtimg.com/tile?z={z}&x={x}&y={y}&type=vector&styleid=3', {
-    maxZoom: 18, minZoom: 1, attribution: '腾讯地图', tms: true
-  }).addTo(mapInstance);
+  // 多底图切换：优先用 ESRI 世界街图（绿底、清晰、各国内网基本都通）
+  const tileLayers = [
+    { name: '街图', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}' },
+    { name: '地形', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}' },
+    { name: '亮色', url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' },
+  ];
+  let activeIdx = 0;
+  function addLayer(idx) {
+    if (idx >= tileLayers.length) return; // all failed
+    const tile = L.tileLayer(tileLayers[idx].url, { maxZoom: 18, minZoom: 1 });
+    tile.on('tileerror', function() { mapInstance.removeLayer(tile); addLayer(idx + 1); });
+    tile.addTo(mapInstance);
+  }
+  addLayer(0);
 
   // Clickable markers
   const redIcon = L.divIcon({ className: '', html: '<span style="background:#c0392b;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.3);">📍</span>', iconSize: [30, 30], iconAnchor: [15, 15] });
