@@ -7,6 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>学习伙伴</title>
+<link rel="stylesheet" href="/study-quiz/lib/leaflet.min.css">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232c3e5c'/%3E%3Cpath d='M8 8h12c.55 0 1 .45 1 1v14c0 .55-.45 1-1 1H8c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1z' fill='%23fffcf8' stroke='%23fffcf8' stroke-width='.5'/%3E%3Cpath d='M11 11h6v2h-6zm0 4h6v2h-6zm0 4h4v2h-4z' fill='%232c3e5c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -268,16 +269,14 @@
   .note-detail .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 16px; }
 
   /*━━━ Map ━━━*/
-  #page-map { display: none; padding: 0 16px 24px; }
-  #page-map.active { display: block; }
-  .map-btn { display: block; width: 100%; padding: 14px; margin-bottom: 8px; text-align: left; font-size: 15px; font-weight: 500; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--ink); cursor: pointer; font-family: inherit; }
-  .map-btn:active { border-color: var(--ink-lighter); }
-  .map-btn .s { font-size: 12px; color: var(--ink-muted); display: block; margin-top: 2px; }
-  .map-section-title { font-size: 13px; font-weight: 600; color: var(--ink-muted); margin: 16px 0 8px 4px; }
-  .map-search { display: flex; gap: 8px; margin-bottom: 16px; }
-  .map-search input { flex: 1; border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 15px; outline: none; background: var(--surface); color: var(--ink); font-family: inherit; }
-  .map-search input:focus { border-color: var(--ink-blue); }
-  .map-search button { width: 52px; border: none; border-radius: 12px; background: var(--ink-blue); color: #fff; font-size: 18px; cursor: pointer; }
+  /*━━━ Map ━━━*/
+  #page-map { display: none; flex-direction: column; height: 100dvh; }
+  #page-map.active { display: flex; }
+  #map-container { flex: 1; z-index: 1; }
+  .map-topbar { display: flex; gap: 8px; padding: 12px 14px 8px; flex-shrink: 0; background: var(--bg); }
+  .map-topbar input { flex: 1; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; background: var(--surface); color: var(--ink); font-family: inherit; }
+  .map-topbar input:focus { border-color: var(--ink-blue); }
+  .map-topbar button { width: 40px; border: none; border-radius: 10px; background: var(--ink-blue); color: #fff; font-size: 16px; cursor: pointer; }
   .note-item .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 8px; }
   .note-form { margin-bottom: 16px; }
   .note-form input, .note-form textarea {
@@ -519,18 +518,17 @@
   </div>
 
   <!-- Map page -->
-  <div id="page-map" class="page padded">
-    <div class="bar">
+  <div id="page-map" class="page">
+    <div class="bar" style="flex-shrink:0;">
       <button class="bar-btn" id="back-home-map">←</button>
-      <span class="bar-title">🗺️ 位置查询</span>
+      <span class="bar-title">🗺️ 世界地图</span>
       <div class="bar-end"></div>
     </div>
-    <div class="map-search">
-      <input type="text" id="map-search-input" placeholder="搜索地理位置..." onkeydown="if(event.key==='Enter')searchMap()">
-      <button onclick="searchMap()">🔍</button>
+    <div class="map-topbar">
+      <input type="text" id="map-search" placeholder="搜索位置（如马六甲海峡）" onkeydown="if(event.key==='Enter')searchMapLocation()">
+      <button onclick="searchMapLocation()">🔍</button>
     </div>
-    <div class="map-section-title">常用考试位置</div>
-    <div id="map-quick-list"></div>
+    <div id="map-container"></div>
   </div>
 
   <!-- Notes page -->
@@ -906,36 +904,74 @@ document.getElementById('btn-retry-wrong').addEventListener('click', function() 
 
 document.getElementById('back-home').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
 // ── Map ──
-// ── Map (Baidu Maps) ──
-const MAP_LOCATIONS = [
-  { name: '马六甲海峡', desc: '东南亚·连接印度洋与太平洋' },
-  { name: '苏伊士运河', desc: '埃及·连接地中海与红海' },
-  { name: '巴拿马运河', desc: '中美洲·连接太平洋与大西洋' },
-  { name: '直布罗陀海峡', desc: '欧洲与非洲之间' },
-  { name: '霍尔木兹海峡', desc: '波斯湾·重要石油运输通道' },
-  { name: '好望角', desc: '南非·大西洋与印度洋交汇处' },
-  { name: '白令海峡', desc: '亚洲与北美洲之间' },
-  { name: '德雷克海峡', desc: '南美洲南端' },
-  { name: '土耳其海峡', desc: '土耳其·欧亚分界线' },
+// ── Interactive Map ──
+const TIANDITU_KEY = '0b79a07d2808103ab84aa56485c331a8';
+let mapInstance = null;
+let mapMarkers = [];
+
+const FIXED_LOCATIONS = [
+  { name: '马六甲海峡', lat: 2, lng: 102 },
+  { name: '苏伊士运河', lat: 30.5, lng: 32.5 },
+  { name: '巴拿马运河', lat: 9, lng: -79.5 },
+  { name: '直布罗陀海峡', lat: 36, lng: -5.5 },
+  { name: '霍尔木兹海峡', lat: 26.5, lng: 56 },
+  { name: '好望角', lat: -34.5, lng: 18.5 },
+  { name: '白令海峡', lat: 65.5, lng: -169 },
+  { name: '德雷克海峡', lat: -58, lng: -70 },
+  { name: '土耳其海峡', lat: 40.5, lng: 27 },
+  { name: '台湾海峡', lat: 24.5, lng: 119.5 },
+  { name: '马六甲海峡', lat: 2, lng: 102 },
+  { name: '琼州海峡', lat: 20.5, lng: 110.5 },
 ];
 
 function showMap() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-map').classList.add('active');
-  renderMapLocations();
-  document.getElementById('map-search-input').value = '';
-  document.getElementById('map-search-input').focus();
+  if (!mapInstance) initMap();
+  else mapInstance.invalidateSize();
+  setTimeout(() => document.getElementById('map-search').focus(), 400);
 }
 
-function renderMapLocations() {
-  document.getElementById('map-quick-list').innerHTML = MAP_LOCATIONS.map(l =>
-    '<button class="map-btn" onclick="window.open(\'https://map.baidu.com/search/' + encodeURIComponent(l.name) + '\',\'_blank\')">' + l.name + '<span class="s">' + l.desc + '</span></button>'
-  ).join('');
+function initMap() {
+  mapInstance = L.map('map-container', { zoomControl: true }).setView([20, 110], 3);
+
+  // 天地图 base map with Chinese labels
+  L.tileLayer('https://t0.tianditu.gov.cn/vec_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=c&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=tiles&tk=' + TIANDITU_KEY, {
+    maxZoom: 18, minZoom: 1, attribution: '天地图'
+  }).addTo(mapInstance);
+
+  // 天地图 Chinese label layer
+  L.tileLayer('https://t0.tianditu.gov.cn/cva_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=c&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=tiles&tk=' + TIANDITU_KEY, {
+    maxZoom: 18, minZoom: 1
+  }).addTo(mapInstance);
+
+  // Clickable markers
+  const redIcon = L.divIcon({ className: '', html: '<span style="background:#c0392b;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.3);">📍</span>', iconSize: [30, 30], iconAnchor: [15, 15] });
+
+  FIXED_LOCATIONS.forEach(loc => {
+    const m = L.marker([loc.lat, loc.lng], { icon: redIcon }).addTo(mapInstance);
+    m.bindPopup('<div style="font-size:15px;font-weight:600;padding:4px;">' + loc.name + '</div><div style="font-size:13px;color:#666;">纬度:' + loc.lat.toFixed(1) + ' 经度:' + loc.lng.toFixed(1) + '</div>');
+    mapMarkers.push(m);
+  });
 }
 
-function searchMap() {
-  const q = document.getElementById('map-search-input').value.trim();
-  if (q) window.open('https://map.baidu.com/search/' + encodeURIComponent(q), '_blank');
+function searchMapLocation() {
+  const q = document.getElementById('map-search').value.trim();
+  if (!q) return;
+  // Use Nominatim geocoding (free, no key, works globally)
+  fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) + '&limit=5&accept-language=zh')
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.length > 0) {
+        const loc = data[0];
+        mapInstance.setView([loc.lat, loc.lon], 7);
+        const m = L.marker([loc.lat, loc.lon]).addTo(mapInstance);
+        m.bindPopup('<b>' + escapeHtml(q) + '</b><br>' + escapeHtml(loc.display_name)).openPopup();
+      } else {
+        alert('未找到该位置，试试其他关键词');
+      }
+    })
+    .catch(() => alert('搜索失败，请检查网络'));
 }
 
 document.getElementById('back-home-map').addEventListener('click', function() {
@@ -1254,5 +1290,6 @@ function escapeHtml(s) {
 
 loadData();
 </script>
+<script src="/study-quiz/lib/leaflet.min.js"></script>
 </body>
 </html>
