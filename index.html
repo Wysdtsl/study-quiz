@@ -423,8 +423,11 @@
     <div class="stats" id="stats-bar"></div>
 
     <div class="home-actions">
-      <button class="btn btn-out" onclick="showWrongBank()">复习全部错题</button>
-      <button class="btn btn-out" onclick="showNotes()">📝 知识点笔记</button>
+      <div class="home-actions-row">
+        <button class="btn btn-out" onclick="showWrongBank()">复习全部错题</button>
+        <button class="btn btn-out" onclick="showNotes()">📝 笔记</button>
+      </div>
+      <button class="btn btn-out" onclick="window.open('https://map.tianditu.gov.cn','_blank')">🗺️ 天地图</button>
       <div class="home-actions-row">
         <button class="btn btn-out" onclick="exportData()">导出答题记录</button>
         <button class="btn btn-out" onclick="document.getElementById('import-input').click()">导入答题记录</button>
