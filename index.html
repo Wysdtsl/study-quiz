@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root {
     --bg: #f5f2ee;
@@ -269,7 +269,9 @@
   .note-detail .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 16px; }
 
   /*━━━ Map ━━━*/
-  #map-container { height: calc(100dvh - 100px); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+  #page-map { display: none; flex-direction: column; height: 100dvh; }
+  #page-map.active { display: flex; }
+  #map-container { flex: 1; margin: 0 12px 12px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); z-index: 1; }
   .note-item .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 8px; }
   .note-form { margin-bottom: 16px; }
   .note-form input, .note-form textarea {
@@ -511,8 +513,8 @@
   </div>
 
   <!-- Map page -->
-  <div id="page-map" class="page" style="padding:0 0 24px;">
-    <div class="bar" style="padding:14px 18px 6px;">
+  <div id="page-map" class="page">
+    <div class="bar" style="padding:14px 18px 6px;flex-shrink:0;">
       <button class="bar-btn" id="back-home-map">←</button>
       <span class="bar-title">🗺️ 世界地图</span>
       <div class="bar-end"></div>
@@ -898,8 +900,8 @@ let mapInstance = null;
 function showMap() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-map').classList.add('active');
-  if (!mapInstance) initMap();
-  setTimeout(() => { if (mapInstance) mapInstance.invalidateSize(); }, 200);
+  if (!mapInstance) { setTimeout(initMap, 300); }
+  else { setTimeout(() => mapInstance.invalidateSize(), 100); }
 }
 
 function initMap() {
@@ -1240,6 +1242,6 @@ function escapeHtml(s) {
 
 loadData();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </body>
 </html>
