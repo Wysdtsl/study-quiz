@@ -941,7 +941,9 @@ const FIXED_LOCATIONS = [
   { name: '孟加拉湾', lat: 15, lng: 90 },
   { name: '几内亚湾', lat: 3, lng: 5 },
   { name: '比斯开湾', lat: 45, lng: -5 },
-  // 世界之最
+];
+
+const WORLD_RECORDS = [
   { name: '珠穆朗玛峰(世界最高峰)', lat: 27.99, lng: 86.93 },
   { name: '马里亚纳海沟(海洋最深处)', lat: 11.3, lng: 142.2 },
   { name: '死海(陆地最低点)', lat: 31.5, lng: 35.5 },
@@ -982,12 +984,18 @@ function initMap() {
   }
   addLayer(0);
 
-  // Clickable markers
-  const redIcon = L.divIcon({ className: '', html: '<span style="background:#c0392b;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.3);">📍</span>', iconSize: [30, 30], iconAnchor: [15, 15] });
+  // Clickable markers: 普通地点用红色，世界之最用金色
+  const redIcon = L.divIcon({ className: '', html: '<span style="background:#c0392b;color:#fff;padding:3px 7px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.3);">📍</span>', iconSize: [26, 26], iconAnchor: [13, 13] });
+  const goldIcon = L.divIcon({ className: '', html: '<span style="background:#d4a017;color:#fff;padding:3px 7px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.3);">⭐</span>', iconSize: [26, 26], iconAnchor: [13, 13] });
 
   FIXED_LOCATIONS.forEach(loc => {
     const m = L.marker([loc.lat, loc.lng], { icon: redIcon }).addTo(mapInstance);
-    m.bindPopup('<div style="font-size:15px;font-weight:600;padding:4px;">' + loc.name + '</div><div style="font-size:13px;color:#666;">纬度:' + loc.lat.toFixed(1) + ' 经度:' + loc.lng.toFixed(1) + '</div>');
+    m.bindPopup('<div style="font-size:14px;font-weight:600;padding:2px;">' + loc.name + '</div>');
+    mapMarkers.push(m);
+  });
+  WORLD_RECORDS.forEach(loc => {
+    const m = L.marker([loc.lat, loc.lng], { icon: goldIcon }).addTo(mapInstance);
+    m.bindPopup('<div style="font-size:14px;font-weight:600;padding:2px;color:#d4a017;">' + loc.name + '</div>');
     mapMarkers.push(m);
   });
 
