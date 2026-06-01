@@ -919,28 +919,28 @@ let mapMarkers = [];
 
 const FIXED_LOCATIONS = [
   // 海峡 & 运河
-  { name: '马六甲海峡', lat: 2, lng: 102 },
-  { name: '苏伊士运河', lat: 30.5, lng: 32.5 },
-  { name: '巴拿马运河', lat: 9, lng: -79.5 },
-  { name: '直布罗陀海峡', lat: 36, lng: -5.5 },
-  { name: '霍尔木兹海峡', lat: 26.5, lng: 56 },
-  { name: '好望角', lat: -34.5, lng: 18.5 },
-  { name: '白令海峡', lat: 65.5, lng: -169 },
-  { name: '德雷克海峡', lat: -58, lng: -70 },
-  { name: '土耳其海峡', lat: 40.5, lng: 27 },
-  { name: '台湾海峡', lat: 24.5, lng: 119.5 },
-  { name: '琼州海峡', lat: 20.5, lng: 110.5 },
-  { name: '麦哲伦海峡', lat: -53, lng: -71 },
-  { name: '曼德海峡', lat: 13, lng: 43.3 },
-  { name: '莫桑比克海峡', lat: -19, lng: 39 },
+  { name: '马六甲海峡', lat: 2, lng: 102, desc: '印度洋 ↔ 太平洋(南海)' },
+  { name: '苏伊士运河', lat: 30.5, lng: 32.5, desc: '亚洲 ↔ 非洲 · 地中海 ↔ 红海' },
+  { name: '巴拿马运河', lat: 9, lng: -79.5, desc: '北美洲 ↔ 南美洲 · 太平洋 ↔ 大西洋' },
+  { name: '直布罗陀海峡', lat: 36, lng: -5.5, desc: '欧洲 ↔ 非洲 · 地中海 ↔ 大西洋' },
+  { name: '霍尔木兹海峡', lat: 26.5, lng: 56, desc: '波斯湾 ↔ 印度洋' },
+  { name: '好望角', lat: -34.5, lng: 18.5, desc: '大西洋 ↔ 印度洋' },
+  { name: '白令海峡', lat: 65.5, lng: -169, desc: '亚洲 ↔ 北美洲 · 北冰洋 ↔ 太平洋' },
+  { name: '德雷克海峡', lat: -58, lng: -70, desc: '太平洋 ↔ 大西洋(南美洲南端)' },
+  { name: '土耳其海峡', lat: 40.5, lng: 27, desc: '欧洲 ↔ 亚洲 · 黑海 ↔ 地中海' },
+  { name: '台湾海峡', lat: 24.5, lng: 119.5, desc: '中国大陆 ↔ 台湾岛' },
+  { name: '琼州海峡', lat: 20.5, lng: 110.5, desc: '广东 ↔ 海南岛' },
+  { name: '麦哲伦海峡', lat: -53, lng: -71, desc: '太平洋 ↔ 大西洋(南美洲南端)' },
+  { name: '曼德海峡', lat: 13, lng: 43.3, desc: '亚洲(也门) ↔ 非洲(吉布提) · 红海 ↔ 印度洋' },
+  { name: '莫桑比克海峡', lat: -19, lng: 39, desc: '马达加斯加 ↔ 非洲大陆' },
   // 海 & 湾
-  { name: '红海', lat: 22, lng: 38 },
-  { name: '地中海', lat: 35, lng: 18 },
-  { name: '加勒比海', lat: 15, lng: -75 },
-  { name: '波斯湾', lat: 27, lng: 52 },
-  { name: '孟加拉湾', lat: 15, lng: 90 },
-  { name: '几内亚湾', lat: 3, lng: 5 },
-  { name: '比斯开湾', lat: 45, lng: -5 },
+  { name: '红海', lat: 22, lng: 38, desc: '亚洲 ↔ 非洲之间的狭长海域' },
+  { name: '地中海', lat: 35, lng: 18, desc: '欧洲 · 非洲 · 亚洲之间的陆间海' },
+  { name: '加勒比海', lat: 15, lng: -75, desc: '北美洲 · 南美洲之间的海域' },
+  { name: '波斯湾', lat: 27, lng: 52, desc: '重要石油运输通道' },
+  { name: '孟加拉湾', lat: 15, lng: 90, desc: '印度洋北部海湾' },
+  { name: '几内亚湾', lat: 3, lng: 5, desc: '非洲西海岸' },
+  { name: '比斯开湾', lat: 45, lng: -5, desc: '法国 · 西班牙西海岸' },
 ];
 
 const WORLD_RECORDS = [
@@ -990,7 +990,8 @@ function initMap() {
 
   FIXED_LOCATIONS.forEach(loc => {
     const m = L.marker([loc.lat, loc.lng], { icon: redIcon }).addTo(mapInstance);
-    m.bindPopup('<div style="font-size:14px;font-weight:600;padding:2px;">' + loc.name + '</div>');
+    const desc = loc.desc ? '<div style="font-size:12px;color:#555;margin-top:2px;">' + loc.desc + '</div>' : '';
+    m.bindPopup('<div style="font-size:14px;font-weight:600;padding:2px;">' + loc.name + '</div>' + desc);
     mapMarkers.push(m);
   });
   WORLD_RECORDS.forEach(loc => {
