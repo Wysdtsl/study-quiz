@@ -935,14 +935,9 @@ function showMap() {
 function initMap() {
   mapInstance = L.map('map-container', { zoomControl: true }).setView([20, 110], 3);
 
-  // 天地图 base map with Chinese labels
-  L.tileLayer('https://t0.tianditu.gov.cn/vec_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=c&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=tiles&tk=' + TIANDITU_KEY, {
-    maxZoom: 18, minZoom: 1, attribution: '天地图'
-  }).addTo(mapInstance);
-
-  // 天地图 Chinese label layer
-  L.tileLayer('https://t0.tianditu.gov.cn/cva_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=c&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=tiles&tk=' + TIANDITU_KEY, {
-    maxZoom: 18, minZoom: 1
+  // 腾讯地图 tiles (国内CDN，速度快，有中文)
+  L.tileLayer('https://rt0.map.gtimg.com/tile?z={z}&x={x}&y={y}&type=vector&styleid=3', {
+    maxZoom: 18, minZoom: 1, attribution: '腾讯地图', tms: true
   }).addTo(mapInstance);
 
   // Clickable markers
