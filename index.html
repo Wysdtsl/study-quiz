@@ -1006,9 +1006,12 @@ function initMap() {
     [34, 100], [31, 99], [28, 100], [26, 100.5], [24, 99], [22, 97]];
   const s1 = L.polyline(step1, { color: '#e67e22', weight: 3, opacity: 0.9 }).addTo(mapInstance);
   s1.bindPopup('第一阶梯(青藏高原)分界线');
-  L.marker([36.5, 80]).addTo(mapInstance).bindTooltip('昆仑山', { permanent: true, className: 'map-label' });
-  L.marker([37.5, 97]).addTo(mapInstance).bindTooltip('祁连山', { permanent: true, className: 'map-label' });
-  L.marker([26, 100]).addTo(mapInstance).bindTooltip('横断山', { permanent: true, className: 'map-label' });
+  L.circleMarker([36.5, 80], { radius: 4, color: '#e67e22', fillColor: '#e67e22', fillOpacity: 1 })
+    .addTo(mapInstance).bindTooltip('昆仑山', { permanent: true, className: 'map-label' });
+  L.circleMarker([37.5, 97], { radius: 4, color: '#e67e22', fillColor: '#e67e22', fillOpacity: 1 })
+    .addTo(mapInstance).bindTooltip('祁连山', { permanent: true, className: 'map-label' });
+  L.circleMarker([26, 100], { radius: 4, color: '#e67e22', fillColor: '#e67e22', fillOpacity: 1 })
+    .addTo(mapInstance).bindTooltip('横断山', { permanent: true, className: 'map-label' });
 
   // ── 中国二级阶梯分界线（大兴安岭—太行山—巫山—雪峰山） ──
   const step2 = [[52, 122], [50, 122], [47, 121], [44, 120], [42, 119],
@@ -1016,10 +1019,14 @@ function initMap() {
     [28, 109], [27, 110]];
   const s2 = L.polyline(step2, { color: '#2980b9', weight: 3, opacity: 0.9 }).addTo(mapInstance);
   s2.bindPopup('第二阶梯分界线');
-  L.marker([50, 122]).addTo(mapInstance).bindTooltip('大兴安岭', { permanent: true, className: 'map-label' });
-  L.marker([38, 114]).addTo(mapInstance).bindTooltip('太行山', { permanent: true, className: 'map-label' });
-  L.marker([30, 110]).addTo(mapInstance).bindTooltip('巫山', { permanent: true, className: 'map-label' });
-  L.marker([27.5, 110.5]).addTo(mapInstance).bindTooltip('雪峰山', { permanent: true, className: 'map-label' });
+  L.circleMarker([50, 122], { radius: 4, color: '#2980b9', fillColor: '#2980b9', fillOpacity: 1 })
+    .addTo(mapInstance).bindTooltip('大兴安岭', { permanent: true, className: 'map-label' });
+  L.circleMarker([38, 114], { radius: 4, color: '#2980b9', fillColor: '#2980b9', fillOpacity: 1 })
+    .addTo(mapInstance).bindTooltip('太行山', { permanent: true, className: 'map-label' });
+  L.circleMarker([30, 110], { radius: 4, color: '#2980b9', fillColor: '#2980b9', fillOpacity: 1 })
+    .addTo(mapInstance).bindTooltip('巫山', { permanent: true, className: 'map-label' });
+  L.circleMarker([27.5, 110.5], { radius: 4, color: '#2980b9', fillColor: '#2980b9', fillOpacity: 1 })
+    .addTo(mapInstance).bindTooltip('雪峰山', { permanent: true, className: 'map-label' });
 }
 
 function searchMapLocation() {
