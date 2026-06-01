@@ -11,7 +11,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root {
     --bg: #f5f2ee;
@@ -269,9 +268,16 @@
   .note-detail .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 16px; }
 
   /*━━━ Map ━━━*/
-  #page-map { display: none; flex-direction: column; height: 100dvh; }
-  #page-map.active { display: flex; }
-  #map-container { flex: 1; margin: 0 12px 12px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); z-index: 1; }
+  #page-map { display: none; padding: 0 16px 24px; }
+  #page-map.active { display: block; }
+  .map-btn { display: block; width: 100%; padding: 14px; margin-bottom: 8px; text-align: left; font-size: 15px; font-weight: 500; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--ink); cursor: pointer; font-family: inherit; }
+  .map-btn:active { border-color: var(--ink-lighter); }
+  .map-btn .s { font-size: 12px; color: var(--ink-muted); display: block; margin-top: 2px; }
+  .map-section-title { font-size: 13px; font-weight: 600; color: var(--ink-muted); margin: 16px 0 8px 4px; }
+  .map-search { display: flex; gap: 8px; margin-bottom: 16px; }
+  .map-search input { flex: 1; border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 15px; outline: none; background: var(--surface); color: var(--ink); font-family: inherit; }
+  .map-search input:focus { border-color: var(--ink-blue); }
+  .map-search button { width: 52px; border: none; border-radius: 12px; background: var(--ink-blue); color: #fff; font-size: 18px; cursor: pointer; }
   .note-item .meta { font-size: 12px; color: var(--ink-lighter); margin-top: 8px; }
   .note-form { margin-bottom: 16px; }
   .note-form input, .note-form textarea {
@@ -513,13 +519,18 @@
   </div>
 
   <!-- Map page -->
-  <div id="page-map" class="page">
-    <div class="bar" style="padding:14px 18px 6px;flex-shrink:0;">
+  <div id="page-map" class="page padded">
+    <div class="bar">
       <button class="bar-btn" id="back-home-map">←</button>
-      <span class="bar-title">🗺️ 世界地图</span>
+      <span class="bar-title">🗺️ 位置查询</span>
       <div class="bar-end"></div>
     </div>
-    <div id="map-container"></div>
+    <div class="map-search">
+      <input type="text" id="map-search-input" placeholder="搜索地理位置..." onkeydown="if(event.key==='Enter')searchMap()">
+      <button onclick="searchMap()">🔍</button>
+    </div>
+    <div class="map-section-title">常用考试位置</div>
+    <div id="map-quick-list"></div>
   </div>
 
   <!-- Notes page -->
@@ -895,37 +906,36 @@ document.getElementById('btn-retry-wrong').addEventListener('click', function() 
 
 document.getElementById('back-home').addEventListener('click', function() { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-home').classList.add('active'); renderSubjects(); renderStats(); clearState(); });
 // ── Map ──
-let mapInstance = null;
+// ── Map (Baidu Maps) ──
+const MAP_LOCATIONS = [
+  { name: '马六甲海峡', desc: '东南亚·连接印度洋与太平洋' },
+  { name: '苏伊士运河', desc: '埃及·连接地中海与红海' },
+  { name: '巴拿马运河', desc: '中美洲·连接太平洋与大西洋' },
+  { name: '直布罗陀海峡', desc: '欧洲与非洲之间' },
+  { name: '霍尔木兹海峡', desc: '波斯湾·重要石油运输通道' },
+  { name: '好望角', desc: '南非·大西洋与印度洋交汇处' },
+  { name: '白令海峡', desc: '亚洲与北美洲之间' },
+  { name: '德雷克海峡', desc: '南美洲南端' },
+  { name: '土耳其海峡', desc: '土耳其·欧亚分界线' },
+];
 
 function showMap() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-map').classList.add('active');
-  if (!mapInstance) { setTimeout(initMap, 300); }
-  else { setTimeout(() => mapInstance.invalidateSize(), 100); }
+  renderMapLocations();
+  document.getElementById('map-search-input').value = '';
+  document.getElementById('map-search-input').focus();
 }
 
-function initMap() {
-  mapInstance = L.map('map-container').setView([10, 95], 2);
-  // Try OSM tiles first, fallback to Carto if OSM fails
-  const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, minZoom: 1 });
-  const carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 18, minZoom: 1 });
-  osm.addTo(mapInstance);
-  osm.on('tileerror', function() { osm.remove(); carto.addTo(mapInstance); });
+function renderMapLocations() {
+  document.getElementById('map-quick-list').innerHTML = MAP_LOCATIONS.map(l =>
+    '<button class="map-btn" onclick="window.open(\'https://map.baidu.com/search/' + encodeURIComponent(l.name) + '\',\'_blank\')">' + l.name + '<span class="s">' + l.desc + '</span></button>'
+  ).join('');
+}
 
-  // Key study locations
-  const markers = [
-    { name: '马六甲海峡', lat: 2, lng: 102 },
-    { name: '苏伊士运河', lat: 30.5, lng: 32.5 },
-    { name: '巴拿马运河', lat: 9, lng: -79.5 },
-    { name: '直布罗陀海峡', lat: 36, lng: -5.5 },
-    { name: '霍尔木兹海峡', lat: 26.5, lng: 56 },
-    { name: '好望角', lat: -34.5, lng: 18.5 },
-    { name: '白令海峡', lat: 65.5, lng: -169 },
-    { name: '德雷克海峡', lat: -58, lng: -70 },
-  ];
-  markers.forEach(m => {
-    L.marker([m.lat, m.lng]).addTo(mapInstance).bindPopup(m.name);
-  });
+function searchMap() {
+  const q = document.getElementById('map-search-input').value.trim();
+  if (q) window.open('https://map.baidu.com/search/' + encodeURIComponent(q), '_blank');
 }
 
 document.getElementById('back-home-map').addEventListener('click', function() {
@@ -1244,6 +1254,5 @@ function escapeHtml(s) {
 
 loadData();
 </script>
-<script src="https://cdn.bootcdn.net/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </body>
 </html>
