@@ -831,8 +831,8 @@ function renderQuestion() {
   const imgTag = document.getElementById('q-img-tag');
   if (q.image) { imgTag.src = q.image; imgDiv.style.display = 'block'; }
   else { imgDiv.style.display = 'none'; }
-  document.getElementById('answer-text').textContent = q.answer;
-  document.getElementById('tips-text').textContent = q.tips || '无';
+  document.getElementById('answer-text').innerHTML = q.answer;
+  document.getElementById('tips-text').innerHTML = q.tips || '';
   const area = document.getElementById('answer-area');
   const showBtn = document.getElementById('btn-show-answer');
   const ansBtns = document.getElementById('btn-group-answer');
