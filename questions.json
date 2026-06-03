@@ -2314,6 +2314,12 @@
       "name": "中共党史",
       "icon": "/study-quiz/icons/shubenkanshushujishu.svg",
       "sessions": []
+    },
+    {
+      "id": "socialism_theory",
+      "name": "中国特色社会主义理论体系",
+      "icon": "/study-quiz/icons/zhongteshe.svg",
+      "sessions": []
     }
   ]
 }
