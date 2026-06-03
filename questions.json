@@ -2319,7 +2319,308 @@
       "id": "socialism_theory",
       "name": "中国特色社会主义理论体系",
       "icon": "/study-quiz/icons/zhongteshe.svg",
-      "sessions": []
+      "sessions": [
+        {
+          "date": "中国特色社会主义理论体系总论",
+          "label": "中国特色社会主义理论体系总论",
+          "questions": [
+            {
+              "id": "theo_001",
+              "question": "中国特色社会主义理论体系包括什么？",
+              "answer": "中国特色社会主义理论体系包括<b>邓小平理论</b>、<b>「三个代表」重要思想</b>、<b>科学发展观</b>、<b>习近平新时代中国特色社会主义思想</b>",
+              "tips": "［Wikipedia 核实］Socialism with Chinese characteristics encompasses Deng Xiaoping Theory, Three Represents, Scientific Outlook on Development, and Xi Jinping Thought",
+              "section": "中国特色社会主义理论体系总论"
+            },
+            {
+              "id": "theo_002",
+              "question": "中国特色社会主义理论体系，在新的时代条件下系统回答了什么？",
+              "answer": "系统回答了<b>什么是社会主义、怎样建设社会主义</b>，<b>建设什么样的党、怎样建设党</b>，<b>实现什么样的发展、怎样发展</b>，<b>新时代坚持和发展什么样的中国特色社会主义、怎样坚持和发展中国特色社会主义</b>等重大时代课题",
+              "tips": "中国特色社会主义理论体系一脉相承又与时俱进，回答了不同时代条件下的重大课题",
+              "section": "中国特色社会主义理论体系总论"
+            },
+            {
+              "id": "theo_003",
+              "question": "马克思主义中国化的第二次历史性飞跃是什么？",
+              "answer": "马克思主义中国化的第二次历史性飞跃的理论成果是<b>中国特色社会主义理论体系</b>",
+              "tips": "［Wikipedia 核实］Socialism with Chinese characteristics as the second major theoretical development after Mao Zedong Thought。第一次飞跃是毛泽东思想",
+              "section": "中国特色社会主义理论体系总论"
+            },
+            {
+              "id": "theo_004",
+              "question": "中国特色社会主义理论的精髓是什么？",
+              "answer": "中国特色社会主义理论的精髓是<b>解放思想、实事求是</b>",
+              "tips": "实事求是是马克思主义的精髓，解放思想、实事求是是中国特色社会主义理论的精髓",
+              "section": "中国特色社会主义理论体系总论"
+            }
+          ]
+        },
+        {
+          "date": "邓小平理论的形成与发展",
+          "label": "邓小平理论的形成与发展",
+          "questions": [
+            {
+              "id": "theo_005",
+              "question": "邓小平理论的理论基础是什么？",
+              "answer": "邓小平理论的理论基础是<b>马克思列宁主义</b>和<b>毛泽东思想</b>",
+              "tips": "邓小平理论是在马克思列宁主义、毛泽东思想基础上，结合中国实际形成的",
+              "section": "邓小平理论的形成与发展"
+            },
+            {
+              "id": "theo_006",
+              "question": "邓小平理论的首要的基本理论问题是什么？",
+              "answer": "邓小平理论的首要的基本理论问题是<b>「什么是社会主义、怎样建设社会主义」</b>",
+              "tips": "［Wikipedia 核实］The theory addresses how to build socialism in a poor, underdeveloped country while preserving Communist Party control",
+              "section": "邓小平理论的形成与发展"
+            },
+            {
+              "id": "theo_007",
+              "question": "邓小平理论的形成和发展过程包括哪几个阶段？",
+              "answer": "包括四个阶段：<b>准备阶段</b>、<b>初步形成阶段</b>、<b>丰富发展阶段</b>、<b>成熟阶段</b>",
+              "tips": "邓小平理论的形成发展是一个逐步深化的过程",
+              "section": "邓小平理论的形成与发展"
+            },
+            {
+              "id": "theo_008",
+              "question": "准备阶段的时间段是什么？",
+              "answer": "准备阶段：<b>1978年</b>（十一届三中全会）至<b>1982年</b>（十二大前）",
+              "tips": "十一届三中全会开启了改革开放的历史新时期",
+              "section": "邓小平理论的形成与发展"
+            },
+            {
+              "id": "theo_009",
+              "question": "初步形成阶段的时间段是什么？",
+              "answer": "初步形成阶段：<b>1982年</b>（十二大）至<b>1987年</b>（十三大前）",
+              "tips": "1982年十二大正式提出「建设有中国特色的社会主义」科学命题",
+              "section": "邓小平理论的形成与发展"
+            },
+            {
+              "id": "theo_010",
+              "question": "丰富发展阶段的时间段是什么？",
+              "answer": "丰富发展阶段：<b>1987年</b>（十三大）至<b>1992年</b>（南方谈话前）",
+              "tips": "十三大系统阐述了社会主义初级阶段理论",
+              "section": "邓小平理论的形成与发展"
+            },
+            {
+              "id": "theo_011",
+              "question": "成熟阶段的时间段是什么？",
+              "answer": "成熟阶段：<b>1992年</b>（南方谈话和十四大）至<b>1997年</b>（十五大）",
+              "tips": "［Wikipedia 核实］1992 southern tour led to formal adoption; the 15th Congress in 1997 formally adopted Deng Xiaoping Theory into the Party Constitution",
+              "section": "邓小平理论的形成与发展"
+            }
+          ]
+        },
+        {
+          "date": "重要会议与命题",
+          "label": "重要会议与命题",
+          "questions": [
+            {
+              "id": "theo_012",
+              "question": "在哪一次会议中，邓小平第一次提出和使用了「建设有中国特色的社会主义」的科学概念？",
+              "answer": "<b>1982年中共十二大</b>",
+              "tips": "［Wikipedia 核实］The 12th National Congress (1982)：Deng stated the need to build Socialism with Chinese Characteristics. This marked the term's formal introduction",
+              "section": "重要会议与命题"
+            },
+            {
+              "id": "theo_013",
+              "question": "哪一次会议中，邓小平提出了「走自己的路，建设有中国特色社会主义」的科学命题？",
+              "answer": "<b>1982年中共十二大</b>开幕词中提出",
+              "tips": "十二大开幕词中邓小平指出：「把马克思主义的普遍真理同我国的具体实际结合起来，走自己的道路，建设有中国特色的社会主义」",
+              "section": "重要会议与命题"
+            },
+            {
+              "id": "theo_014",
+              "question": "十三大标志着什么？",
+              "answer": "十三大标志着<b>邓小平理论的基本形成</b>（系统阐述了社会主义初级阶段理论和党的基本路线）",
+              "tips": "［Wikipedia 核实］The 13th Congress formally declared that China was in the primary stage of socialism and established the 'One Center, Two Basic Points'",
+              "section": "重要会议与命题"
+            },
+            {
+              "id": "theo_015",
+              "question": "十三大上正式确定了什么？",
+              "answer": "十三大正式确定了<b>社会主义初级阶段理论</b>和<b>党的基本路线</b>（一个中心、两个基本点）",
+              "tips": "十三大是邓小平理论初步形成的重要里程碑",
+              "section": "重要会议与命题"
+            },
+            {
+              "id": "theo_016",
+              "question": "哪一个会议上把邓小平理论确立为党的指导思想，并写进了党章？",
+              "answer": "<b>1997年中共十五大</b>",
+              "tips": "［Wikipedia 核实］The 15th Congress formally adopted 'Deng Xiaoping Theory' and enshrined it in the Party Constitution",
+              "section": "重要会议与命题"
+            }
+          ]
+        },
+        {
+          "date": "社会主义本质与根本原则",
+          "label": "社会主义本质与根本原则",
+          "questions": [
+            {
+              "id": "theo_017",
+              "question": "邓小平理论的重要内容中，社会主义的本质是什么？",
+              "answer": "社会主义的本质：<b>解放生产力，发展生产力，消灭剥削，消除两极分化，最终达到共同富裕</b>",
+              "tips": "［Wikipedia 核实］Deng believed socialism must develop productive forces to achieve common prosperity, rejecting 'poor socialism'",
+              "section": "社会主义本质与根本原则"
+            },
+            {
+              "id": "theo_018",
+              "question": "社会主义的本质的内容中，哪一个是根本任务？哪一个是根本方向？哪一个是生产关系方面的目标？哪一个是根本目标/最大优越性？",
+              "answer": "<b>根本任务</b>：解放生产力，发展生产力。<b>根本方向</b>：消灭剥削，消除两极分化。<b>生产关系目标</b>：消灭剥削，消除两极分化。<b>根本目标/最大优越性</b>：最终达到共同富裕",
+              "tips": "解放发展生产力是社会主义的根本任务，共同富裕是社会主义的根本目的和最大优越性",
+              "section": "社会主义本质与根本原则"
+            },
+            {
+              "id": "theo_019",
+              "question": "邓小平理论的重要内容中，邓小平指出我们所必须坚持的社会主义根本原则是什么？",
+              "answer": "社会主义根本原则：①<b>公有制为主体</b>；②<b>共同富裕</b>",
+              "tips": "邓小平一再强调，一个公有制占主体，一个共同富裕，这是我们所必须坚持的社会主义根本原则",
+              "section": "社会主义本质与根本原则"
+            },
+            {
+              "id": "theo_020",
+              "question": "邓小平理论的精髓和活的灵魂是什么？",
+              "answer": "邓小平理论的精髓和活的灵魂是<b>解放思想、实事求是</b>",
+              "tips": "实事求是是马克思主义的精髓，解放思想、实事求是贯穿邓小平理论形成和发展的全过程",
+              "section": "社会主义本质与根本原则"
+            }
+          ]
+        },
+        {
+          "date": "社会主义初级阶段理论",
+          "label": "社会主义初级阶段理论",
+          "questions": [
+            {
+              "id": "theo_021",
+              "question": "社会主义初级阶段的两层含义是什么？",
+              "answer": "两层含义：①我国已经是<b>社会主义社会</b>（不能走回头路）；②我国的社会主义还处在<b>初级阶段</b>（即不发达阶段，不能超越阶段）",
+              "tips": "［Wikipedia 核实］Deng concluded China is still in the primary stage of socialism — a long initial phase where China must borrow market elements under state control",
+              "section": "社会主义初级阶段理论"
+            },
+            {
+              "id": "theo_022",
+              "question": "1956年9月15日中共八大提出，当前中国社会的主要矛盾是什么？",
+              "answer": "中共八大指出：当前中国社会的主要矛盾是<b>人民对于经济文化迅速发展的需要</b>同<b>当前经济文化不能满足人民需要的状况</b>之间的矛盾",
+              "tips": "八大对主要矛盾的判断是正确的，为后来的改革开放提供了理论准备",
+              "section": "社会主义初级阶段理论"
+            },
+            {
+              "id": "theo_023",
+              "question": "1981年十一届六中全会指出，社会初级阶段的主要矛盾的内容是什么？",
+              "answer": "社会主义初级阶段的主要矛盾是<b>人民日益增长的物质文化需要</b>同<b>落后的社会生产</b>之间的矛盾",
+              "tips": "1981年十一届六中全会通过的《关于建国以来党的若干历史问题的决议》对此作出明确表述",
+              "section": "社会主义初级阶段理论"
+            },
+            {
+              "id": "theo_024",
+              "question": "2017年10月18日，习近平同志在十九大报告中强调，中国特色社会主义进入新时代，我国社会主要矛盾是什么？",
+              "answer": "新时代我国社会主要矛盾是<b>人民日益增长的美好生活需要</b>同<b>不平衡不充分的发展</b>之间的矛盾",
+              "tips": "十九大报告指出，我国社会主要矛盾的变化是关系全局的历史性变化",
+              "section": "社会主义初级阶段理论"
+            }
+          ]
+        },
+        {
+          "date": "党的基本路线",
+          "label": "党的基本路线",
+          "questions": [
+            {
+              "id": "theo_025",
+              "question": "党的基本路线是什么时候提出的？",
+              "answer": "党的基本路线是在<b>1987年中共十三大</b>上正式提出的",
+              "tips": "［Wikipedia 核实］The 13th Congress formally established the 'One Center, Two Basic Points' basic line",
+              "section": "党的基本路线"
+            },
+            {
+              "id": "theo_026",
+              "question": "党的基本路线的核心内容是什么？",
+              "answer": "核心内容：<b>「一个中心、两个基本点」</b>。完整表述：领导和团结全国各族人民，以<b>经济建设为中心</b>，坚持<b>四项基本原则</b>，坚持<b>改革开放</b>，自力更生，艰苦创业，为把我国建设成为富强民主文明和谐美丽的社会主义现代化强国而奋斗",
+              "tips": "党的基本路线是党和国家的生命线、人民的幸福线",
+              "section": "党的基本路线"
+            },
+            {
+              "id": "theo_027",
+              "question": "一个中心指什么？",
+              "answer": "「一个中心」指以<b>经济建设</b>为中心",
+              "tips": "以经济建设为中心是兴国之要，是党和国家兴旺发达和长治久安的根本要求",
+              "section": "党的基本路线"
+            },
+            {
+              "id": "theo_028",
+              "question": "两个基本点指什么？",
+              "answer": "「两个基本点」指<b>坚持四项基本原则</b>和<b>坚持改革开放</b>",
+              "tips": "四项基本原则是立国之本，改革开放是强国之路",
+              "section": "党的基本路线"
+            },
+            {
+              "id": "theo_029",
+              "question": "坚持党的基本路线一百年不动摇，关键是什么？",
+              "answer": "关键是坚持以<b>经济建设为中心</b>不动摇",
+              "tips": "在整个社会主义初级阶段，必须始终把经济建设作为中心工作",
+              "section": "党的基本路线"
+            },
+            {
+              "id": "theo_030",
+              "question": "坚持四项基本原则的内容是什么？",
+              "answer": "四项基本原则：①坚持<b>社会主义道路</b>；②坚持<b>人民民主专政</b>；③坚持<b>中国共产党的领导</b>；④坚持<b>马克思列宁主义毛泽东思想</b>",
+              "tips": "［Wikipedia 核实］The CCP must uphold: the basic spirit of communism, the people's democratic dictatorship, leadership of the Communist Party, and Marxism–Leninism and Mao Zedong Thought",
+              "section": "党的基本路线"
+            }
+          ]
+        },
+        {
+          "date": "基本纲领",
+          "label": "基本纲领",
+          "questions": [
+            {
+              "id": "theo_031",
+              "question": "基本纲领是谁提出的？",
+              "answer": "基本纲领是<b>江泽民</b>在<b>1997年中共十五大</b>上提出的",
+              "tips": "十五大在邓小平理论指导下，提出了社会主义初级阶段的基本纲领",
+              "section": "基本纲领"
+            },
+            {
+              "id": "theo_032",
+              "question": "基本纲领中的经济部分的内容是什么？",
+              "answer": "经济纲领：在社会主义条件下发展<b>市场经济</b>，不断解放和发展生产力。坚持<b>公有制为主体、多种所有制经济共同发展</b>的基本经济制度",
+              "tips": "基本经济制度是社会主义市场经济体制的根基",
+              "section": "基本纲领"
+            },
+            {
+              "id": "theo_033",
+              "question": "基本纲领中的政治部分的内容是什么？",
+              "answer": "政治纲领：在中国共产党领导下，在人民当家作主的基础上，<b>依法治国</b>，发展社会主义民主政治。坚持和完善<b>人民代表大会制度</b>、<b>多党合作和政治协商制度</b>、<b>民族区域自治制度</b>",
+              "tips": "发展社会主义民主政治，建设社会主义政治文明",
+              "section": "基本纲领"
+            },
+            {
+              "id": "theo_034",
+              "question": "基本纲领中的文化部分的内容是什么？",
+              "answer": "文化纲领：以马克思主义为指导，培养<b>有理想、有道德、有文化、有纪律</b>的公民，发展面向现代化、面向世界、面向未来的，民族的科学的大众的<b>社会主义文化</b>",
+              "tips": "「四有」公民和「三个面向」是中国特色社会主义文化建设的目标",
+              "section": "基本纲领"
+            }
+          ]
+        },
+        {
+          "date": "「三个代表」重要思想",
+          "label": "「三个代表」重要思想",
+          "questions": [
+            {
+              "id": "theo_035",
+              "question": "「三个代表」重要思想的内容是什么？",
+              "answer": "「三个代表」：①始终代表<b>中国先进生产力的发展要求</b>；②始终代表<b>中国先进文化的前进方向</b>；③始终代表<b>中国最广大人民的根本利益</b>",
+              "tips": "江泽民2000年在广东考察时首次提出「三个代表」重要思想，2002年十六大写入党章",
+              "section": "「三个代表」重要思想"
+            },
+            {
+              "id": "theo_036",
+              "question": "贯彻「三个代表」的重要思想，关键在于什么？",
+              "answer": "关键在于<b>坚持与时俱进</b>。核心是<b>坚持党的先进性</b>。本质是<b>坚持执政为民</b>",
+              "tips": "贯彻「三个代表」重要思想，关键在坚持与时俱进，核心在坚持党的先进性，本质在坚持执政为民",
+              "section": "「三个代表」重要思想"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
