@@ -774,7 +774,7 @@ function renderSubjects() {
     let stamp;
     if (totalDone === 0) stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">0</span><span class="stamp-lbl">${allQ}</span></span>`;
     else { const pct = Math.round(totalCorrect / totalDone * 100); stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">${totalDone}</span><span class="stamp-lbl">${allQ} · ${pct}%</span></span>`; }
-    return `<div class="card" onclick="selectSubject('${s.id}')"><div class="card-row"><div class="card-icon ${ICON_CLS[i%4]}">${s.icon && s.icon.startsWith('/') ? '<img src="'+s.icon+'" alt="" style="width:24px;height:24px;">' : (s.icon || '📖')}</div><div class="card-body"><div class="card-name">${s.name}</div><div class="card-meta">${s.sessions.length} 章 · ${allQ} 题</div></div>${stamp}</div></div>`;
+    return `<div class="card" onclick="selectSubject('${s.id}')"><div class="card-row"><div class="card-icon ${ICON_CLS[i%4]}">${s.icon && s.icon.indexOf('.svg') > 0 ? '<img src="'+s.icon+'" alt="" style="width:24px;height:24px;display:block;">' : (s.icon || '📖')}</div><div class="card-body"><div class="card-name">${s.name}</div><div class="card-meta">${s.sessions.length} 章 · ${allQ} 题</div></div>${stamp}</div></div>`;
   }).join('');
 }
 
