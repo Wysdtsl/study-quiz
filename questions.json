@@ -2313,7 +2313,158 @@
       "id": "party_history",
       "name": "中共党史",
       "icon": "/study-quiz/icons/shubenkanshushujishu.svg",
-      "sessions": []
+      "sessions": [
+        {
+          "date": "中共早期全国代表大会",
+          "label": "中共早期全国代表大会",
+          "questions": [
+            {
+              "id": "cpc_001",
+              "question": "中共一大的时间是什么时候？在哪里召开？会议内容有哪些？有什么意义？",
+              "answer": "<b>时间</b>：<b>1921年7月23日—8月2日</b>。<b>地点</b>：先在<b>上海法租界</b>（李汉俊之兄李书城的寓所），后转移至<b>浙江嘉兴南湖</b>的游船上。<b>内容</b>：通过了<b>《中国共产党第一个纲领》</b>，确定党的名称为「中国共产党」，选举了中央领导机构（陈独秀任书记）。<b>意义</b>：<b>宣告中国共产党正式成立</b>",
+              "tips": "［Wikipedia 核实］July 23 to August 2, 1921. Began in a shikumen building in the Shanghai French Concession, concluded on a boat on South Lake in Jiaxing",
+              "section": "中共早期全国代表大会"
+            },
+            {
+              "id": "cpc_002",
+              "question": "中共二大的时间是什么时候？在哪里召开？会议内容有哪些？有什么意义？",
+              "answer": "<b>时间</b>：<b>1922年7月16—23日</b>。<b>地点</b>：<b>上海</b>（南成都路辅德里625号李达寓所）。<b>内容</b>：通过了<b>第一部《中国共产党章程》</b>，制定了<b>反帝反封建的民主革命纲领</b>（最低纲领），决定加入<b>共产国际</b>。<b>意义</b>：第一次提出了明确的反帝反封建的民主革命纲领",
+              "tips": "［Wikipedia 核实］July 16-23, 1922, at Li Da's apartment in Shanghai. A constitution was adopted",
+              "section": "中共早期全国代表大会"
+            },
+            {
+              "id": "cpc_003",
+              "question": "中共三大的时间是什么时候？会议内容有哪些？有什么意义？",
+              "answer": "<b>时间</b>：<b>1923年6月12—20日</b>。<b>地点</b>：<b>广州</b>。<b>内容</b>：决定<b>共产党员以个人身份加入国民党</b>，建立<b>革命统一战线</b>（国共第一次合作）。<b>意义</b>：正式确定了国共合作的方针，推动了革命统一战线的建立",
+              "tips": "［Wikipedia 核实］June 12-20, 1923, in Guangzhou. Allowed CCP members to join the Kuomintang",
+              "section": "中共早期全国代表大会"
+            },
+            {
+              "id": "cpc_004",
+              "question": "中共四大的时间是什么时候？会议内容有哪些？有什么意义？",
+              "answer": "<b>时间</b>：<b>1925年1月11—22日</b>。<b>地点</b>：<b>上海</b>。<b>内容</b>：通过了<b>12项决议案</b>，修订了党章，将党的基层组织由「小组」改为<b>「支部」</b>，提出无产阶级在民主革命中的<b>领导权</b>问题。<b>意义</b>：加强了党对革命运动的领导",
+              "tips": "［Wikipedia 核实］Jan 11-22, 1925, Shanghai. Passed 12 resolutions, renamed 'small groups' to 'branches'",
+              "section": "中共早期全国代表大会"
+            },
+            {
+              "id": "cpc_005",
+              "question": "中共五大的时间是什么时候？在哪里召开？会议内容有哪些？有什么意义？",
+              "answer": "<b>时间</b>：<b>1927年4月27日—5月9日</b>。<b>地点</b>：<b>武汉</b>。<b>内容</b>：批评了陈独秀的<b>「右倾机会主义」</b>错误，选举了新的中央委员会。<b>意义</b>：在大革命失败的危急关头召开，试图纠正党内右倾错误",
+              "tips": "［Wikipedia 核实］April 27 to May 9, 1927, in Wuhan. Qu Qiubai and Cai Hesen criticized Chen Duxiu for 'rightist opportunism'",
+              "section": "中共早期全国代表大会"
+            }
+          ]
+        },
+        {
+          "date": "国民党一大与新文化运动",
+          "label": "国民党一大与新文化运动",
+          "questions": [
+            {
+              "id": "cpc_006",
+              "question": "国民党一大的时间是什么时候？会议内容有哪些？有什么意义？",
+              "answer": "<b>时间</b>：<b>1924年1月20—30日</b>。<b>地点</b>：<b>广州</b>。<b>内容</b>：通过了<b>「联俄、联共、扶助农工」</b>三大政策，重新解释了三民主义（新三民主义），确定了国共合作。<b>意义</b>：标志着<b>第一次国共合作的正式形成</b>",
+              "tips": "［Wikipedia 核实］Jan 20-30, 1924, Guangzhou. Three key policies: alliance with the Soviet Union, alliance with the CCP, and support for the First United Front",
+              "section": "国民党一大与新文化运动"
+            },
+            {
+              "id": "cpc_007",
+              "question": "陈独秀新文化运动的标志？",
+              "answer": "<b>1915年</b>陈独秀在上海创办<b>《青年杂志》</b>（后改名《新青年》），标志着新文化运动的兴起",
+              "tips": "陈独秀创办《青年杂志》是新文化运动兴起的标志",
+              "section": "国民党一大与新文化运动"
+            },
+            {
+              "id": "cpc_008",
+              "question": "新文化运动的主题是什么？基本内容是什么？",
+              "answer": "<b>主题</b>：<b>民主与科学</b>（德先生和赛先生）。<b>基本内容</b>：提倡<b>民主</b>、反对封建专制；提倡<b>科学</b>、反对迷信盲从；提倡<b>新道德</b>、反对旧道德；提倡<b>新文学</b>、反对旧文学",
+              "tips": "新文化运动的口号是「德先生」（Democracy）和「赛先生」（Science）",
+              "section": "国民党一大与新文化运动"
+            },
+            {
+              "id": "cpc_009",
+              "question": "新文化运动的意义是什么？",
+              "answer": "①<b>沉重打击了封建专制思想</b>，解放了人们的思想；②为<b>马克思主义在中国的传播</b>创造了条件；③推动了五四运动的爆发；④促进了中国文化的现代化",
+              "tips": "新文化运动为五四运动奠定了思想基础",
+              "section": "国民党一大与新文化运动"
+            },
+            {
+              "id": "cpc_010",
+              "question": "新文化运动的代表人物有哪些？",
+              "answer": "<b>陈独秀</b>（创办《新青年》，总司令）、<b>李大钊</b>、<b>鲁迅</b>（《狂人日记》）、<b>胡适</b>（提倡白话文）、<b>蔡元培</b>（「思想自由、兼容并包」）",
+              "tips": "陈独秀被誉为新文化运动的「总司令」",
+              "section": "国民党一大与新文化运动"
+            }
+          ]
+        },
+        {
+          "date": "马克思主义的传播",
+          "label": "马克思主义的传播",
+          "questions": [
+            {
+              "id": "cpc_011",
+              "question": "谁在《新青年》上发表《我的马克思主义观》一文，比较全面地介绍了马克思主义的唯物史观、经济学说和社会主义理论？",
+              "answer": "<b>李大钊</b>",
+              "tips": "李大钊在1919年《新青年》第6卷第5、6号上发表《我的马克思主义观》",
+              "section": "马克思主义的传播"
+            },
+            {
+              "id": "cpc_012",
+              "question": "谁是第一个马克思主义传入中国的人？谁是第一个系统介绍马克思主义的人？",
+              "answer": "都是<b>李大钊</b>。他在十月革命后率先在中国宣传马克思主义，被称为<b>「中国最早的马克思主义传播者」</b>",
+              "tips": "李大钊在北大任职期间最早将马克思主义引入中国",
+              "section": "马克思主义的传播"
+            },
+            {
+              "id": "cpc_013",
+              "question": "中国共产党的第一个公开性机关刊物是什么？",
+              "answer": "<b>《新青年》</b>（1923年6月改为中共中央理论性机关刊物）",
+              "tips": "《新青年》从1920年9月起成为上海共产党早期组织的公开理论刊物",
+              "section": "马克思主义的传播"
+            },
+            {
+              "id": "cpc_014",
+              "question": "中共诞生后创办的第一个出版机关是什么？",
+              "answer": "<b>人民出版社</b>（1921年9月在上海成立）",
+              "tips": "人民出版社由李达负责",
+              "section": "马克思主义的传播"
+            }
+          ]
+        },
+        {
+          "date": "武装起义与建军",
+          "label": "武装起义与建军",
+          "questions": [
+            {
+              "id": "cpc_015",
+              "question": "南昌起义的时间、意义。",
+              "answer": "<b>时间</b>：<b>1927年8月1日</b>。<b>意义</b>：打响了<b>武装反抗国民党反动派的第一枪</b>，标志着中国共产党<b>独立领导革命战争</b>、<b>创建人民军队</b>和<b>武装夺取政权</b>的开始",
+              "tips": "［Wikipedia 核实］Nanchang Uprising took place on 1 August 1927, marking the beginning of the Chinese Civil War",
+              "section": "武装起义与建军"
+            },
+            {
+              "id": "cpc_016",
+              "question": "中国人民解放军建军纪念日是几月几号？",
+              "answer": "<b>8月1日</b>（八一建军节）",
+              "tips": "［Wikipedia 核实］August 1, 1927 was later regarded as the founding anniversary of the PLA",
+              "section": "武装起义与建军"
+            },
+            {
+              "id": "cpc_017",
+              "question": "八七会议的时间、内容、意义。",
+              "answer": "<b>时间</b>：<b>1927年8月7日</b>。<b>内容</b>：总结大革命失败的经验教训，提出<b>土地革命</b>和<b>武装斗争</b>的基本路线，毛泽东提出<b>「枪杆子里出政权」</b>的著名论断。<b>意义</b>：给正处于思想混乱和组织涣散的中国共产党指明了新的出路",
+              "tips": "［PDF讲义核实］「八七会议」(1927.8): 总结大革命失败的经验教训，提出土地革命和武装斗争的基本路线",
+              "section": "武装起义与建军"
+            },
+            {
+              "id": "cpc_018",
+              "question": "秋收起义的时间、内容、意义。",
+              "answer": "<b>时间</b>：<b>1927年9月7日</b>。<b>内容</b>：毛泽东在<b>湘赣边界</b>领导农民和部分国民革命军举行武装起义，创建了<b>工农革命军</b>。<b>意义</b>：虽然受挫，但<b>转向农村</b>（进军井冈山），为<b>农村包围城市、武装夺取政权</b>的革命道路开辟了新的起点",
+              "tips": "［Wikipedia 核实］September 7, 1927, led by Mao in Hunan and Jiangxi. Though defeated, marked strategic shift toward a rural-based approach",
+              "section": "武装起义与建军"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "socialism_theory",
