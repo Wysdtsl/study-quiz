@@ -3,7 +3,7 @@
     {
       "id": "geography",
       "name": "地理",
-      "icon": "🌍",
+      "icon": "/study-quiz/icons/diqiu.svg",
       "sessions": [
         {
           "date": "行政区划与疆域",
@@ -798,7 +798,7 @@
     {
       "id": "politics",
       "name": "马克思主义",
-      "icon": "📚",
+      "icon": "/study-quiz/icons/yuwen.svg",
       "sessions": [
         {
           "date": "哲学概述",
@@ -1676,6 +1676,24 @@
           ]
         }
       ]
+    },
+    {
+      "id": "maozedong",
+      "name": "毛泽东思想",
+      "icon": "/study-quiz/icons/shuji.svg",
+      "sessions": []
+    },
+    {
+      "id": "law",
+      "name": "法学",
+      "icon": "/study-quiz/icons/faxueshuji.svg",
+      "sessions": []
+    },
+    {
+      "id": "party_history",
+      "name": "中共党史",
+      "icon": "/study-quiz/icons/shubenkanshushujishu.svg",
+      "sessions": []
     }
   ]
 }
