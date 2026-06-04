@@ -3283,8 +3283,8 @@
             {
               "id": "eco_001",
               "question": "什么是经济制度，我国的经济制度是什么？",
-              "answer": "<b>经济制度</b>是指一定社会中占统治地位的生产关系的总和（即该社会的经济基础）。我国的经济制度是<b>公有制为主体、多种所有制经济共同发展</b>的<b>社会主义市场经济体制</b>",
-              "tips": "［Wikipedia 核实］China employs the socialist market economy (SME), combining a market economy with predominant public ownership and state-owned enterprises。💡 通俗理解：经济制度就像社会的「经济活动规则」，规定谁能拥有什么、怎么生产、怎么分配。我国是公有制和市场经济混合的制度",
+              "answer": "<b>经济制度</b>是指一定社会中占统治地位的生产关系的总和（即该社会的经济基础）。我国的基本经济制度是<b>公有制为主体、多种所有制经济共同发展</b>。注意区分：<b>经济制度</b>（根本性质）不等于<b>经济体制</b>（运行机制）——我国的经济体制是<b>社会主义市场经济体制</b>",
+              "tips": "［Wikipedia 核实］China employs the socialist market economy (SME), combining a market economy with predominant public ownership。💡 通俗理解：经济制度好比房子的「结构类型」（砖混还是框架），决定了房子的根本性质；经济体制好比房子里怎么布线走管（市场还是计划），是运行方式。两者不是一回事",
               "section": "经济制度与生产关系"
             },
             {
