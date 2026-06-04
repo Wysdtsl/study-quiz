@@ -3275,7 +3275,42 @@
       "id": "economics",
       "name": "经济学",
       "icon": "/study-quiz/icons/jingjixue.svg",
-      "sessions": []
+      "sessions": [
+        {
+          "date": "经济制度与生产关系",
+          "label": "经济制度与生产关系",
+          "questions": [
+            {
+              "id": "eco_001",
+              "question": "什么是经济制度，我国的经济制度是什么？",
+              "answer": "<b>经济制度</b>是指一定社会中占统治地位的生产关系的总和（即该社会的经济基础）。我国的经济制度是<b>公有制为主体、多种所有制经济共同发展</b>的<b>社会主义市场经济体制</b>",
+              "tips": "［Wikipedia 核实］China employs the socialist market economy (SME), combining a market economy with predominant public ownership and state-owned enterprises。💡 通俗理解：经济制度就像社会的「经济活动规则」，规定谁能拥有什么、怎么生产、怎么分配。我国是公有制和市场经济混合的制度",
+              "section": "经济制度与生产关系"
+            },
+            {
+              "id": "eco_002",
+              "question": "什么是生产关系？生产关系的三个内容是什么？",
+              "answer": "<b>生产关系</b>是人们在物质资料生产过程中结成的社会关系。三个内容：①<b>生产资料所有制形式</b>（谁占有生产资料）；②人们在生产中的<b>地位和相互关系</b>（是平等还是支配与被支配关系）；③<b>产品分配方式</b>（产品如何分配）",
+              "tips": "［Wikipedia 核实］Relations of production are the sum total of social relationships people must enter into to produce. 💡 通俗理解：生产关系就是「一群人一起干活时的规矩」——机器归谁（所有制）、谁听谁的（地位关系）、赚了钱怎么分（分配关系）",
+              "section": "经济制度与生产关系"
+            },
+            {
+              "id": "eco_003",
+              "question": "社会主义经济制度的基础是什么？",
+              "answer": "社会主义经济制度的基础是<b>生产资料的社会主义公有制</b>，即<b>全民所有制</b>和<b>劳动群众集体所有制</b>",
+              "tips": "［Wikipedia 核实］Public ownership, as the foundation of the socialist economic system, is a basic force of the state to guide economic and social development。💡 通俗理解：社会主义经济制度好比一栋大楼，公有制就是它的地基。没有公有制这个地基，社会主义经济制度就立不起来",
+              "section": "经济制度与生产关系"
+            },
+            {
+              "id": "eco_004",
+              "question": "生产资料是什么？马政经中，生产资料可以分为哪两类？",
+              "answer": "<b>生产资料</b>是人们从事物质资料生产所必需的一切物质条件。马克思政治经济学中，生产资料可以分为<b>劳动对象</b>（生产加工的对象，如原材料）和<b>劳动资料</b>（用来加工劳动对象的手段，以<b>生产工具</b>为主）",
+              "tips": "💡 通俗理解：做面包需要面粉（劳动对象）和烤箱（劳动资料），它们加在一起就是「生产资料」。工人用自己的劳动（不是机器）去使用这些资料来生产",
+              "section": "经济制度与生产关系"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
