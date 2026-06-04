@@ -3270,6 +3270,12 @@
           ]
         }
       ]
+    },
+    {
+      "id": "economics",
+      "name": "经济学",
+      "icon": "/study-quiz/icons/jingjixue.svg",
+      "sessions": []
     }
   ]
 }
