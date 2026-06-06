@@ -4414,6 +4414,12 @@
           ]
         }
       ]
+    },
+    {
+      "id": "culture_history",
+      "name": "文史常识",
+      "icon": "/study-quiz/icons/wenshi.svg",
+      "sessions": []
     }
   ]
 }
