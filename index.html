@@ -454,15 +454,7 @@
   .qe-list-item { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .qe-list-item:last-child { border-bottom: none; }
 
-  .qe-batch-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center; }
-  .qe-batch-overlay.show { display: flex; }
-  .qe-batch-sheet { background: var(--surface); border-radius: 16px; width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; padding: 20px 20px 32px; }
-  .qe-batch-item { background: var(--surface2); border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 13px; }
-  .qe-batch-item .q { font-weight: 600; margin-bottom: 6px; }
-  .qe-batch-item .actions { margin-top: 6px; display: flex; gap: 8px; }
-  .qe-batch-item .actions button { font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
-  .qe-batch-progress { text-align: center; color: var(--ink-blue); font-size: 14px; padding: 8px; }
-</style>
+  </style>
 </head>
 <body>
 
@@ -483,7 +475,7 @@
       <div class="home-actions-row" style="margin-top:8px;">
         <button class="btn btn-primary" onclick="openQEditor()" style="flex:1;">＋ 添加题目</button>
         <button class="btn btn-out" onclick="exportQuestions()" style="flex:1;">📥 导出题库</button>
-        <button class="btn btn-primary" onclick="openBatchEditor()" style="flex:1;">📋 批量添加</button>
+        <button class="btn btn-primary" onclick="openQEditor(true)" style="flex:1;">📋 批量添加</button>
       </div>
       <div class="home-actions-row">
         <button class="btn btn-out" onclick="exportData()">导出答题记录</button>
@@ -648,7 +640,7 @@ let sessionQuestions = null;
 
 
 // ── Question Editor ──
-function openQEditor() {
+function openQEditor(batchMode) {
   // Password: enter once, remembered on this browser
   const AUTH_KEY = 'qe_authed';
   const EDITOR_PW = 'wys123456';
@@ -659,6 +651,33 @@ function openQEditor() {
   }
   document.getElementById('qe-overlay').classList.add('show');
   document.getElementById('qe-saved').style.display = 'none';
+  
+  // Toggle single vs batch mode
+  var isBatch = batchMode === true;
+  var singleFields = ['qe-question','qe-answer','qe-tips'];
+  singleFields.forEach(function(id) { var el = document.getElementById(id); if (el) el.parentElement.style.display = isBatch ? 'none' : ''; });
+  document.getElementById('qe-batch-panel').style.display = isBatch ? '' : 'none';
+  document.getElementById('qe-batch-save-btn').style.display = 'none';
+  document.getElementById('qe-batch-gen-btn').style.display = isBatch ? '' : 'none';
+  var cancelBtn = document.querySelector('.qe-sheet .qe-btn-cancel'); 
+  if (cancelBtn) cancelBtn.parentElement.style.display = isBatch ? 'none' : ''; // hide original save/cancel for batch
+  batchResults = [];
+  document.getElementById('qe-batch-results').innerHTML = '';
+  document.getElementById('qe-batch-progress').textContent = '';
+  
+  // Populate batch section datalist
+  var secInput = document.getElementById('qe-batch-section');
+  if (!secInput) {
+    secInput = document.getElementById('qe-section').cloneNode();
+    secInput.id = 'qe-batch-section';
+    secInput.placeholder = '章节（和单题共享）';
+    document.getElementById('qe-batch-panel').insertBefore(secInput, document.getElementById('qe-batch-questions'));
+    // Add label
+    var lbl = document.createElement('label');
+    lbl.textContent = '章节';
+    lbl.style.cssText = 'font-size:13px;color:var(--ink-muted);margin:10px 0 4px;display:block;';
+    document.getElementById('qe-batch-panel').insertBefore(lbl, secInput);
+  }
   const sel = document.getElementById('qe-subject');
   sel.innerHTML = data.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
   
@@ -819,7 +838,7 @@ function openBatchEditor() {
     }
     var overlay = document.getElementById('qe-batch-overlay');
     if (!overlay) { alert('找不到批量编辑弹窗元素'); return; }
-    overlay.style.display = 'flex'; alert('B: display=flex已设置');
+     
     batchResults = [];
     var resultsDiv = document.getElementById('qe-batch-results');
     if (resultsDiv) resultsDiv.innerHTML = '';
@@ -827,6 +846,7 @@ function openBatchEditor() {
     if (progressDiv) progressDiv.textContent = '';
     var saveBtn = document.getElementById('qe-batch-save-btn');
     if (saveBtn) saveBtn.style.display = 'none';
+    overlay.style.display = "flex";
     var sel = document.getElementById('qe-batch-subject');
     if (sel) sel.innerHTML = data.subjects.map(function(s) { return '<option value="' + s.id + '">' + s.name + '</option>'; }).join('');
     var secInput = document.getElementById('qe-batch-section');
@@ -941,7 +961,7 @@ function editBatchAnswer(i) {
 function deleteBatchItem(i) { batchResults.splice(i, 1); renderBatchResults(); }
 
 function batchSaveAll() {
-  var sid = document.getElementById('qe-batch-subject').value;
+  var sid = document.getElementById('qe-subject').value;
   var section = document.getElementById('qe-batch-section').value.trim();
   if (!sid || !section || batchResults.length === 0) { alert('请填写科目、章节并生成答案'); return; }
   try {
@@ -1938,6 +1958,19 @@ loadData();
     <label>提示</label>
     <textarea id="qe-tips" placeholder="输入记忆提示..."></textarea>
     <div class="qe-saved" id="qe-saved">✅ 已保存到本地</div>
+    
+    <!-- Batch mode panel -->
+    <div id="qe-batch-panel" style="display:none;">
+      <label>题目（每行一题）</label>
+      <textarea id="qe-batch-questions" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;box-sizing:border-box;min-height:120px;resize:vertical;line-height:1.6;" placeholder="每行一题&#10;例如：&#10;什么是GDP？&#10;通货膨胀的定义是什么？"></textarea>
+      <div class="qe-batch-progress" id="qe-batch-progress" style="text-align:center;color:var(--ink-blue);font-size:14px;padding:8px;"></div>
+      <div id="qe-batch-results"></div>
+      <div class="qe-actions" style="display:flex;gap:10px;margin-top:12px;">
+        <button class="qe-btn-ai" onclick="batchGenerateAnswers()" id="qe-batch-gen-btn">🤖 批量查证生成</button>
+        <button class="qe-btn-save" onclick="batchSaveAll()" id="qe-batch-save-btn" style="display:none;">💾 全部保存</button>
+      </div>
+    </div>
+    
     <div class="qe-actions"><button class="qe-btn-ai" onclick="aiFillQA(event)" style="width:100%;">🤖 AI 查证填答案</button>
     <div class="qe-actions" style="display:flex;margin-top:8px;">
       <button class="qe-btn-cancel" onclick="closeQEditor()">取消</button>
@@ -1949,26 +1982,3 @@ loadData();
 <button class="fab-add" id="fab-add" onclick="openQEditor()" title="添加题目">＋</button>
 
 <!-- Batch Edit Modal -->
-<div class="qe-batch-overlay" id="qe-batch-overlay" onclick="closeBatchEditor(event)">
-  <div class="qe-batch-sheet" onclick="event.stopPropagation()">
-    <h3>📋 批量添加题目</h3>
-    <label style="font-size:13px;color:var(--ink-muted);margin-bottom:4px;">科目</label>
-    <select id="qe-batch-subject"></select>
-    <label style="font-size:13px;color:var(--ink-muted);margin-bottom:4px;">章节</label>
-    <input type="text" id="qe-batch-section" placeholder="如：秦汉时期" list="qe-section-list-batch" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;">
-    <label style="font-size:13px;color:var(--ink-muted);margin-bottom:4px;">题目（每行一题，空行分隔）</label>
-    <textarea id="qe-batch-questions" placeholder="每行一题&#10;例如：&#10;什么是GDP？&#10;通货膨胀的定义是什么？&#10;......"></textarea>
-    <div class="qe-batch-progress" id="qe-batch-progress"></div>
-    <div id="qe-batch-results"></div>
-    <div class="qe-actions" style="display:flex;gap:10px;margin-top:12px;">
-      <button class="qe-btn-cancel" onclick="closeBatchEditor()">取消</button>
-      <button class="qe-btn-ai" onclick="batchGenerateAnswers()" id="qe-batch-gen-btn">🤖 批量查证生成</button>
-      <button class="qe-btn-save" onclick="batchSaveAll()" id="qe-batch-save-btn" style="display:none;">💾 全部保存</button>
-    </div>
-  </div>
-</div>
-
-<button class="fab-export" id="fab-export" onclick="exportQuestions()" title="导出题库">⬇</button>
-
-</body>
-</html>
