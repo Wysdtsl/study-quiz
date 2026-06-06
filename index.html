@@ -442,6 +442,7 @@
   .qe-sheet .qe-actions { display: flex; gap: 10px; margin-top: 16px; }
   .qe-sheet .qe-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .qe-btn-save { background: var(--ink-blue); color: #fff; }
+  .qe-btn-ai { background: #6c5ce7; color: #fff; }
   .qe-btn-cancel { background: var(--surface2); color: var(--ink); }
   .qe-saved { display: none; text-align: center; padding: 12px; font-size: 14px; color: var(--green); }
   .fab-add { position: fixed; bottom: 24px; left: 20px; width: 48px; height: 48px; border-radius: 50%; background: var(--ink-blue); color: #fff; border: none; font-size: 26px; cursor: pointer; z-index: 120; box-shadow: 0 4px 16px rgba(44,62,92,.4); display: flex; align-items: center; justify-content: center; }
@@ -654,6 +655,58 @@ function openQEditor() {
   datalist.innerHTML = Array.from(sections).map(s => `<option value="${s}">`).join('');
 }
 function closeQEditor(e) { if (!e || e.target === document.getElementById('qe-overlay')) { document.getElementById('qe-overlay').classList.remove('show'); } }
+async function aiFillQA(e) {
+  const question = document.getElementById('qe-question').value.trim();
+  if (!question) { alert('请先填写题目'); return; }
+  
+  // Check API key
+  try { const raw = localStorage.getItem('chat_api_key'); if (raw) chatApiKey = atob(raw); } catch(e) {}
+  if (!chatApiKey) { alert('请先在聊天面板配置 DeepSeek API Key'); return; }
+  
+  const btn = e.target;
+  btn.disabled = true;
+  btn.textContent = '🤖 查证中...';
+  
+  try {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 20000);
+    
+    const resp = await fetch(DEEPSEEK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
+      body: JSON.stringify({
+        model: 'deepseek-v4-flash',
+        messages: [
+          { role: 'system', content: '你是考试题库查证助手。根据权威资料回答。返回JSON格式：{"answer":"答案（用<b>标签加粗关键词）","tips":"1-2句记忆提示或易考易混点"}' },
+          { role: 'user', content: question }
+        ],
+        max_tokens: 800,
+        temperature: 0.3
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(t);
+    
+    const data = await resp.json();
+    let text = data.choices?.[0]?.message?.content || '';
+    // Try parse JSON, otherwise use raw text
+    try {
+      const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+      document.getElementById('qe-answer').value = parsed.answer || '';
+      document.getElementById('qe-tips').value = parsed.tips || '';
+    } catch {
+      // If not valid JSON, treat first paragraph as answer, rest as tips
+      const parts = text.split('\n\n');
+      document.getElementById('qe-answer').value = parts[0] || text;
+      document.getElementById('qe-tips').value = parts.slice(1).join('\n\n') || '';
+    }
+  } catch(e) {
+    alert('AI查证失败: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = '🤖 AI 查证填答案';
+}
+
 function saveQuestion() {
   const sid = document.getElementById('qe-subject').value;
   const section = document.getElementById('qe-section').value.trim();
@@ -1662,7 +1715,8 @@ loadData();
     <label>提示</label>
     <textarea id="qe-tips" placeholder="输入记忆提示..."></textarea>
     <div class="qe-saved" id="qe-saved">✅ 已保存到本地</div>
-    <div class="qe-actions">
+    <div class="qe-actions"><button class="qe-btn-ai" onclick="aiFillQA(event)" style="width:100%;">🤖 AI 查证填答案</button>
+    <div class="qe-actions" style="display:flex;margin-top:8px;">
       <button class="qe-btn-cancel" onclick="closeQEditor()">取消</button>
       <button class="qe-btn-save" onclick="saveQuestion()">保存</button>
     </div>
