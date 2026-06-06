@@ -723,9 +723,9 @@ async function aiFillQA(e) {
       const contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
       const cr = await fetch(contentUrl);
       const cdata = await cr.json();
-      const pages = cdata.query?.pages || {};
+      const pages = (cdata.query && cdata.query.pages) || {};
       const page = Object.values(pages)[0];
-      if (page?.extract) { context = page.extract.substring(0, 2000); sourceName = '中文维基百科'; }
+      if (page && page.extract) { context = page.extract.substring(0, 2000); sourceName = '中文维基百科'; }
     }
 
     // Step 2: Fallback to Baidu Baike via Jina reader if Wikipedia failed
@@ -770,7 +770,7 @@ async function aiFillQA(e) {
     clearTimeout(t);
 
     const data = await resp.json();
-    let text = data.choices?.[0]?.message?.content || '';
+    let text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '';
     try {
       const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
       document.getElementById('qe-answer').value = parsed.answer || '';
@@ -898,9 +898,9 @@ async function batchGenerateAnswers() {
         var contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
         var cr = await fetch(contentUrl);
         var cdata = await cr.json();
-        var pages = cdata.query?.pages || {};
+        var pages = (cdata.query && cdata.query.pages) || {};
         var page = Object.values(pages)[0];
-        if (page?.extract) { context = page.extract.substring(0, 2000); sourceName = '中文维基百科'; }
+        if (page && page.extract) { context = page.extract.substring(0, 2000); sourceName = '中文维基百科'; }
       }
       if (!context) {
         try {
@@ -922,7 +922,7 @@ async function batchGenerateAnswers() {
         body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '考试题库查证助手。答案准确简洁。' }, { role: 'user', content: prompt }], max_tokens: 600, temperature: 0.3 })
       });
       var data = await resp.json();
-      var text = data.choices?.[0]?.message?.content || '';
+      var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '';
       var answer = '', tips = '';
       try { var p = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim()); answer = p.answer || ''; tips = p.tips || ''; } catch(err) { var pts = text.split('\n\n'); answer = pts[0] || text; tips = pts.slice(1).join(' ') || ''; }
       if (context) tips += '\n✅ ' + sourceName + ' 核实';
@@ -1925,7 +1925,7 @@ async function sendChat() {
     }
 
     const data = await resp.json();
-    const reply = data.choices?.[0]?.message?.content || '';
+    const reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '';
 
     addMsg('ai', escapeHtml(reply), false, true);
     chatHistory.push({ role: 'user', content: msg });
