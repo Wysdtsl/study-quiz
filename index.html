@@ -456,7 +456,7 @@
 
   </style>
 </head>
-<body><div style="background:red;color:white;padding:12px;font-size:16px;font-weight:bold;text-align:center;">PAGE LOADED · HTML OK · 如果看不到这行说明浏览器没有渲染HTML</div>
+<body><div id="js-status" style="background:#f0ad4e;color:#000;padding:8px;font-size:14px;text-align:center;">JS not started yet...</div>
 
 <div id="app">
   <!-- Home -->
@@ -1015,6 +1015,7 @@ function exportQuestions() {
 }
 
 async function loadData() {
+  document.getElementById('js-status').textContent = 'Loading data...';
   try {
     const res = await fetch('/study-quiz/questions.json?_=' + Date.now());
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1036,10 +1037,13 @@ async function loadData() {
         }
       }
     } catch(e) {}
+    document.getElementById('js-status').textContent = 'Data loaded ✓ · ' + data.subjects.length + ' subjects · ' + data.subjects.reduce(function(a,s){return a+s.sessions.reduce(function(b,ss){return b+ss.questions.length},0)},0) + ' questions'; document.getElementById('js-status').style.background = '#5cb85c'; document.getElementById('js-status').style.color = '#fff';
     renderSubjects();
     renderStats();
     restoreState();
+    setTimeout(function(){ document.getElementById('js-status').style.display = 'none'; }, 3000);
   } catch(e) {
+    document.getElementById('js-status').textContent = 'ERROR: ' + e.message + ' (line ' + (e.lineNumber || e.line || '?') + ')'; document.getElementById('js-status').style.background = '#d9534f'; document.getElementById('js-status').style.color = '#fff';
     const el = document.getElementById('subject-list');
     el.textContent = '';
     const d = document.createElement('div');
