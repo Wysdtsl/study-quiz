@@ -628,6 +628,9 @@
 </div>
 
 <script>
+document.getElementById('js-status').textContent = 'JS started OK';
+document.getElementById('js-status').style.background = '#5cb85c';
+document.getElementById('js-status').style.color = '#fff';
 const STORAGE_PREFIX = 'quiz_progress_';
 const STATE_KEY = 'quiz_app_state';
 let data = null;
