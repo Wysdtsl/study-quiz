@@ -809,27 +809,36 @@ function saveQuestion() {
 let batchResults = [];
 
 function openBatchEditor() {
-  const AUTH_KEY = 'qe_authed';
-  const EDITOR_PW = 'wys123456';
-  if (!localStorage.getItem(AUTH_KEY)) {
-    const input = prompt('请输入编辑密码：');
-    if (input !== EDITOR_PW) { alert('密码错误'); return; }
-    localStorage.setItem(AUTH_KEY, '1');
-  }
-  document.getElementById('qe-batch-overlay').style.display = 'flex';
-  batchResults = [];
-  document.getElementById('qe-batch-results').innerHTML = '';
-  document.getElementById('qe-batch-progress').textContent = '';
-  document.getElementById('qe-batch-save-btn').style.display = 'none';
-  const sel = document.getElementById('qe-batch-subject');
-  sel.innerHTML = data.subjects.map(function(s) { return '<option value="' + s.id + '">' + s.name + '</option>'; }).join('');
-  const secInput = document.getElementById('qe-batch-section');
-  secInput.setAttribute('list', 'qe-section-list-batch');
-  var dl = document.getElementById('qe-section-list-batch');
-  if (!dl) { dl = document.createElement('datalist'); dl.id = 'qe-section-list-batch'; secInput.parentNode.insertBefore(dl, secInput.nextSibling); }
-  const sections = new Set();
-  data.subjects.forEach(function(s) { s.sessions.forEach(function(ss) { sections.add(ss.label); }); });
-  dl.innerHTML = Array.from(sections).map(function(s) { return '<option value="' + s + '">'; }).join('');
+  try {
+    const AUTH_KEY = 'qe_authed';
+    const EDITOR_PW = 'wys123456';
+    if (!localStorage.getItem(AUTH_KEY)) {
+      const input = prompt('请输入编辑密码：');
+      if (input !== EDITOR_PW) { alert('密码错误'); return; }
+      localStorage.setItem(AUTH_KEY, '1');
+    }
+    var overlay = document.getElementById('qe-batch-overlay');
+    if (!overlay) { alert('找不到批量编辑弹窗元素'); return; }
+    overlay.style.display = 'flex';
+    batchResults = [];
+    var resultsDiv = document.getElementById('qe-batch-results');
+    if (resultsDiv) resultsDiv.innerHTML = '';
+    var progressDiv = document.getElementById('qe-batch-progress');
+    if (progressDiv) progressDiv.textContent = '';
+    var saveBtn = document.getElementById('qe-batch-save-btn');
+    if (saveBtn) saveBtn.style.display = 'none';
+    var sel = document.getElementById('qe-batch-subject');
+    if (sel) sel.innerHTML = data.subjects.map(function(s) { return '<option value="' + s.id + '">' + s.name + '</option>'; }).join('');
+    var secInput = document.getElementById('qe-batch-section');
+    if (secInput) {
+      secInput.setAttribute('list', 'qe-section-list-batch');
+      var dl = document.getElementById('qe-section-list-batch');
+      if (!dl) { dl = document.createElement('datalist'); dl.id = 'qe-section-list-batch'; secInput.parentNode.insertBefore(dl, secInput.nextSibling); }
+      var sections = new Set();
+      data.subjects.forEach(function(s) { s.sessions.forEach(function(ss) { sections.add(ss.label); }); });
+      dl.innerHTML = Array.from(sections).map(function(s) { return '<option value="' + s + '">'; }).join('');
+    }
+  } catch(e) { alert('批量编辑器错误: ' + e.message); }
 }
 
 function closeBatchEditor(e) {
