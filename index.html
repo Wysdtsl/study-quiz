@@ -475,7 +475,7 @@
       <div class="home-actions-row" style="margin-top:8px;">
         <button class="btn btn-primary" onclick="openQEditor()" style="flex:1;">＋ 添加题目</button>
         <button class="btn btn-out" onclick="exportQuestions()" style="flex:1;">📥 导出题库</button>
-        <button class="btn btn-primary" onclick="openQEditor()" style="flex:1;">📋 批量添加</button>
+        <button class="btn btn-primary" onclick="openQEditor(true)" style="flex:1;">📋 批量添加</button>
       </div>
       <div class="home-actions-row">
         <button class="btn btn-out" onclick="exportData()">导出答题记录</button>
@@ -640,7 +640,7 @@ let sessionQuestions = null;
 
 
 // ── Question Editor ──
-function openQEditor() {
+function openQEditor(batchMode) {
   // Password: enter once, remembered on this browser
   const AUTH_KEY = 'qe_authed';
   const EDITOR_PW = 'wys123456';
@@ -651,6 +651,49 @@ function openQEditor() {
   }
   document.getElementById('qe-overlay').classList.add('show');
   document.getElementById('qe-saved').style.display = 'none';
+  // Toggle single vs batch mode
+  if (batchMode === true) {
+    document.getElementById('qe-question').parentElement.style.display = 'none';
+    document.getElementById('qe-answer').parentElement.style.display = 'none';
+    document.getElementById('qe-tips').parentElement.style.display = 'none';
+    document.getElementById('qe-batch-panel').style.display = '';
+    batchResults = [];
+    document.getElementById('qe-batch-results').innerHTML = '';
+    document.getElementById('qe-batch-progress').textContent = '';
+    document.getElementById('qe-batch-save-btn').style.display = 'none';
+  } else {
+    document.getElementById('qe-question').parentElement.style.display = '';
+    document.getElementById('qe-answer').parentElement.style.display = '';
+    document.getElementById('qe-tips').parentElement.style.display = '';
+    document.getElementById('qe-batch-panel').style.display = 'none';
+  }
+  
+  // Toggle single vs batch mode
+  var isBatch = batchMode === true;
+  var singleFields = ['qe-question','qe-answer','qe-tips'];
+  singleFields.forEach(function(id) { var el = document.getElementById(id); if (el) el.parentElement.style.display = isBatch ? 'none' : ''; });
+  document.getElementById('qe-batch-panel').style.display = isBatch ? '' : 'none';
+  document.getElementById('qe-batch-save-btn').style.display = 'none';
+  document.getElementById('qe-batch-gen-btn').style.display = isBatch ? '' : 'none';
+  var cancelBtn = document.querySelector('.qe-sheet .qe-btn-cancel'); 
+  if (cancelBtn) cancelBtn.parentElement.style.display = isBatch ? 'none' : ''; // hide original save/cancel for batch
+  batchResults = [];
+  document.getElementById('qe-batch-results').innerHTML = '';
+  document.getElementById('qe-batch-progress').textContent = '';
+  
+  // Populate batch section datalist
+  var secInput = document.getElementById('qe-batch-section');
+  if (!secInput) {
+    secInput = document.getElementById('qe-section').cloneNode();
+    secInput.id = 'qe-batch-section';
+    secInput.placeholder = '章节（和单题共享）';
+    document.getElementById('qe-batch-panel').insertBefore(secInput, document.getElementById('qe-batch-questions'));
+    // Add label
+    var lbl = document.createElement('label');
+    lbl.textContent = '章节';
+    lbl.style.cssText = 'font-size:13px;color:var(--ink-muted);margin:10px 0 4px;display:block;';
+    document.getElementById('qe-batch-panel').insertBefore(lbl, secInput);
+  }
   const sel = document.getElementById('qe-subject');
   sel.innerHTML = data.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
   
@@ -795,6 +838,196 @@ function saveQuestion() {
   document.getElementById('qe-answer').value = '';
   document.getElementById('qe-tips').value = '';
   setTimeout(() => location.reload(), 600);
+}
+
+// ── Batch Editor ──
+let batchResults = [];
+
+function openBatchEditor() {
+  try {
+    const AUTH_KEY = 'qe_authed';
+    const EDITOR_PW = 'wys123456';
+    if (!localStorage.getItem(AUTH_KEY)) {
+      const input = prompt('请输入编辑密码：');
+      if (input !== EDITOR_PW) { alert('密码错误'); return; }
+      localStorage.setItem(AUTH_KEY, '1');
+    }
+    var overlay = document.getElementById('qe-batch-overlay');
+    if (!overlay) { alert('找不到批量编辑弹窗元素'); return; }
+     
+    batchResults = [];
+    var resultsDiv = document.getElementById('qe-batch-results');
+    if (resultsDiv) resultsDiv.innerHTML = '';
+    var progressDiv = document.getElementById('qe-batch-progress');
+    if (progressDiv) progressDiv.textContent = '';
+    var saveBtn = document.getElementById('qe-batch-save-btn');
+    if (saveBtn) saveBtn.style.display = 'none';
+    overlay.style.display = "flex";
+    var sel = document.getElementById('qe-subject');
+    if (sel) sel.innerHTML = data.subjects.map(function(s) { return '<option value="' + s.id + '">' + s.name + '</option>'; }).join('');
+    var secInput = document.getElementById('qe-batch-section');
+    if (secInput) {
+      secInput.setAttribute('list', 'qe-section-list-batch');
+      var dl = document.getElementById('qe-section-list-batch');
+      if (!dl) { dl = document.createElement('datalist'); dl.id = 'qe-section-list-batch'; secInput.parentNode.insertBefore(dl, secInput.nextSibling); }
+      var sections = new Set();
+      data.subjects.forEach(function(s) { s.sessions.forEach(function(ss) { sections.add(ss.label); }); });
+      dl.innerHTML = Array.from(sections).map(function(s) { return '<option value="' + s + '">'; }).join('');
+    }
+  } catch(e) { alert('批量编辑器错误: ' + e.message); }
+}
+
+function closeBatchEditor(e) {
+  if (!e || e.target === document.getElementById('qe-batch-overlay')) {
+    document.getElementById('qe-batch-overlay').style.display = 'none';
+  }
+}
+
+async function batchGenerateAnswers() {
+  var questions = document.getElementById('qe-batch-questions').value.trim();
+  if (!questions) { alert('请先在文本框输入题目（每行一题）'); return; }
+  try { var raw = localStorage.getItem('chat_api_key'); if (raw) chatApiKey = atob(raw); } catch(e) {}
+  if (!chatApiKey) { alert('请先在聊天面板配置 DeepSeek API Key'); return; }
+
+  var lines = questions.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 3; });
+  if (lines.length === 0) { alert('请每行输入一题'); return; }
+
+  var btn = document.getElementById('qe-batch-gen-btn');
+  btn.disabled = true;
+  batchResults = [];
+  document.getElementById('qe-batch-results').innerHTML = '';
+
+  for (var i = 0; i < lines.length; i++) {
+    var q = lines[i];
+    document.getElementById('qe-batch-progress').textContent = '正在查证 ' + (i+1) + '/' + lines.length + '...';
+
+    var context = '', sourceName = '';
+    try {
+      var wikiUrl = 'https://zh.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=3&format=json&origin=*';
+      var wr = await fetch(wikiUrl);
+      var wdata = await wr.json();
+      var titles = wdata[1] || [];
+      if (titles.length > 0) {
+        var contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
+        var cr = await fetch(contentUrl);
+        var cdata = await cr.json();
+        var pages = cdata.query?.pages || {};
+        var page = Object.values(pages)[0];
+        if (page?.extract) { context = page.extract.substring(0, 2000); sourceName = '中文维基百科'; }
+      }
+      if (!context) {
+        try {
+          var baiduUrl = 'https://r.jina.ai/https://baike.baidu.com/item/' + encodeURIComponent(q.replace(/[?？]/g,''));
+          var br = await fetch(baiduUrl);
+          if (br.ok) { var bt = await br.text(); if (bt && bt.length > 200) { context = bt.substring(0, 2500); sourceName = '百度百科'; } }
+        } catch(e) {}
+      }
+    } catch(e) {}
+
+    try {
+      var prompt = context
+        ? '根据以下' + sourceName + '资料回答问题。返回JSON：{"answer":"答案（用<b>标签加粗关键词）","tips":"记忆提示"}\n\n📚资料：' + context + '\n\n❓问题：' + q
+        : '回答此问题。返回JSON格式：{"answer":"答案（用<b>标签加粗关键词）","tips":"记忆提示"}\n\n问题：' + q;
+
+      var resp = await fetch(DEEPSEEK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
+        body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '考试题库查证助手。答案准确简洁。' }, { role: 'user', content: prompt }], max_tokens: 600, temperature: 0.3 })
+      });
+      var data = await resp.json();
+      var text = data.choices?.[0]?.message?.content || '';
+      var answer = '', tips = '';
+      try { var p = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim()); answer = p.answer || ''; tips = p.tips || ''; } catch(err) { var pts = text.split('\n\n'); answer = pts[0] || text; tips = pts.slice(1).join(' ') || ''; }
+      if (context) tips += '\n✅ ' + sourceName + ' 核实';
+      else tips += '\n⚠️ 基于模型知识';
+      batchResults.push({ question: q, answer: answer, tips: tips });
+    } catch(e) {
+      batchResults.push({ question: q, answer: '生成失败: ' + e.message, tips: '' });
+    }
+
+    renderBatchResults();
+    await new Promise(function(r) { setTimeout(r, 300); });
+  }
+
+  document.getElementById('qe-batch-progress').textContent = '✅ 完成 ' + lines.length + ' 题';
+  document.getElementById('qe-batch-save-btn').style.display = '';
+  btn.disabled = false;
+}
+
+function renderBatchResults() {
+  var el = document.getElementById('qe-batch-results');
+  el.innerHTML = batchResults.map(function(r, i) {
+    return '<div class="qe-batch-item"><div class="q">' + (i+1) + '. ' + r.question + '</div><div class="a" id="ba-' + i + '">' + r.answer + '</div><div class="actions"><button onclick="editBatchAnswer(' + i + ')">✏️ 编辑</button><button onclick="deleteBatchItem(' + i + ')">🗑 删除</button></div></div>';
+  }).join('');
+}
+
+function editBatchAnswer(i) {
+  var el = document.getElementById('ba-' + i);
+  if (el.classList.contains('edit-mode')) {
+    el.classList.remove('edit-mode');
+    el.setAttribute('contenteditable', 'false');
+    batchResults[i].answer = el.innerText;
+  } else {
+    el.classList.add('edit-mode');
+    el.setAttribute('contenteditable', 'true');
+    el.focus();
+  }
+}
+
+function deleteBatchItem(i) { batchResults.splice(i, 1); renderBatchResults(); }
+
+function batchSaveAll() {
+  var sid = document.getElementById('qe-subject').value;
+  var section = document.getElementById('qe-batch-section').value.trim();
+  if (!sid || !section || batchResults.length === 0) { alert('请填写科目、章节并生成答案'); return; }
+  try {
+    var custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+    if (!custom[sid]) custom[sid] = [];
+    var existing = new Set();
+    data.subjects.forEach(function(s) { s.sessions.forEach(function(ss) { ss.questions.forEach(function(q) { existing.add(q.id); }); }); });
+    for (var j = 0; j < (custom[sid] || []).length; j++) { existing.add(custom[sid][j].id); }
+    var prefix = sid.substring(0, 3);
+    var num = 1;
+    batchResults.forEach(function(r) {
+      while (existing.has(prefix + '_' + String(num).padStart(3, '0'))) num++;
+      var id = prefix + '_' + String(num).padStart(3, '0');
+      existing.add(id);
+      custom[sid].push({ id: id, section: section, question: r.question, answer: r.answer, tips: r.tips });
+      num++;
+    });
+    localStorage.setItem('customQuestions', JSON.stringify(custom));
+    alert('已保存 ' + batchResults.length + ' 题到 ' + section);
+    document.getElementById('qe-batch-overlay').style.display = 'none';
+    setTimeout(function() { location.reload(); }, 600);
+  } catch(e) { alert('保存失败: ' + e.message); }
+}
+
+
+function exportQuestions() {
+  // Merge custom questions into data
+  try {
+    const custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+    const exportData = JSON.parse(JSON.stringify(data));
+    for (const sid of Object.keys(custom)) {
+      const subj = exportData.subjects.find(s => s.id === sid);
+      if (subj) {
+        for (const entry of custom[sid]) {
+          let ses = subj.sessions.find(s => s.date === entry.section);
+          if (!ses) {
+            ses = { date: entry.section, label: entry.section, questions: [] };
+            subj.sessions.push(ses);
+          }
+          ses.questions.push({ id: entry.id, question: entry.question, answer: entry.answer, tips: entry.tips || '', section: entry.section });
+        }
+      }
+    }
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'questions.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch(e) { alert('导出失败: ' + e.message); }
 }
 
 async function loadData() {
@@ -1741,6 +1974,17 @@ loadData();
     <label>提示</label>
     <textarea id="qe-tips" placeholder="输入记忆提示..."></textarea>
     <div class="qe-saved" id="qe-saved">✅ 已保存到本地</div>
+    
+    <!-- Batch mode panel -->
+    <div id="qe-batch-panel" style="display:none;">
+      <label>题目（每行一题）</label>
+      <textarea id="qe-batch-questions" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;box-sizing:border-box;min-height:120px;resize:vertical;line-height:1.6;" placeholder="每行一题&#10;例如：&#10;什么是GDP？&#10;通货膨胀的定义是什么？"></textarea>
+      <div class="qe-batch-progress" id="qe-batch-progress" style="text-align:center;color:var(--ink-blue);font-size:14px;padding:8px;"></div>
+      <div id="qe-batch-results"></div>
+      <div class="qe-actions" style="display:flex;gap:10px;margin-top:12px;">
+        <button class="qe-btn-ai" onclick="batchGenerateAnswers()" id="qe-batch-gen-btn">🤖 批量查证生成</button>
+        <button class="qe-btn-save" onclick="batchSaveAll()" id="qe-batch-save-btn" style="display:none;">💾 全部保存</button>
+      </div>
     </div>
     
     <div class="qe-actions"><button class="qe-btn-ai" onclick="aiFillQA(event)" style="width:100%;">🤖 AI 查证填答案</button>
