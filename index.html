@@ -809,6 +809,7 @@ function saveQuestion() {
 let batchResults = [];
 
 function openBatchEditor() {
+  alert('函数被调用了');
   const AUTH_KEY = 'qe_authed';
   const EDITOR_PW = 'wys123456';
   if (!localStorage.getItem(AUTH_KEY)) {
