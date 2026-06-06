@@ -809,7 +809,6 @@ function saveQuestion() {
 let batchResults = [];
 
 function openBatchEditor() {
-  alert("A");
   try {
     const AUTH_KEY = 'qe_authed';
     const EDITOR_PW = 'wys123456';
@@ -820,7 +819,7 @@ function openBatchEditor() {
     }
     var overlay = document.getElementById('qe-batch-overlay');
     if (!overlay) { alert('找不到批量编辑弹窗元素'); return; }
-    overlay.style.display = 'flex';
+    overlay.style.display = 'flex'; alert('B: display=flex已设置');
     batchResults = [];
     var resultsDiv = document.getElementById('qe-batch-results');
     if (resultsDiv) resultsDiv.innerHTML = '';
