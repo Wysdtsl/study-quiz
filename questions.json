@@ -5202,6 +5202,82 @@
               "section": "三国两晋南北朝"
             }
           ]
+        },
+        {
+          "date": "隋唐时期",
+          "label": "隋唐时期",
+          "questions": [
+            {
+              "id": "wh_101",
+              "question": "隋唐时期的时间段",
+              "answer": "<b>隋朝</b>（581—618年）、<b>唐朝</b>（618—907年）。唐朝分四个阶段：<b>初唐</b>（高祖至高宗，约100年）→<b>盛唐</b>（中宗至玄宗的约50年）→<b>中唐</b>（肃宗至文宗约50年）→<b>晚唐</b>（武宗至哀帝约70年）",
+              "tips": "✓ [zh.wikipedia唐朝条目] 唐朝四分期法：初唐→盛唐→中唐→晚唐",
+              "section": "隋唐时期"
+            },
+            {
+              "id": "wh_102",
+              "question": "盛世之治的几个阶段",
+              "answer": "唐代三大盛世之治：①<b>贞观之治</b>（唐太宗李世民，627—649年，政治清明、任贤纳谏）；②<b>开元盛世</b>（唐玄宗李隆基前期，713—741年，唐朝鼎盛、人口达到5291万）；③<b>元和中兴</b>（唐宪宗，805—820年，平定藩镇暂归一统）",
+              "tips": "✓ [zh.wikipedia唐朝条目] 开元盛世人口峰值5291万，为唐朝人口最高的一年",
+              "section": "隋唐时期"
+            },
+            {
+              "id": "wh_103",
+              "question": "初唐四杰",
+              "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>人物</th><th>代表作</th><th>历史贡献</th></tr><tr><td>王勃</td><td>《滕王阁序》<br>名句：落霞与孤鹜齐飞，秋水共长天一色</td><td>五律成就最高</td></tr><tr style=\"background:#faf8f5;\"><td>杨炯</td><td>《从军行》<br>名句：宁为百夫长，胜作一书生</td><td>边塞诗先驱</td></tr><tr><td>卢照邻</td><td>《长安古意》<br>名句：得成比目何辞死，愿作鸳鸯不羡仙</td><td>七言歌行体代表</td></tr><tr style=\"background:#faf8f5;\"><td>骆宾王</td><td>《咏鹅》《讨武曌檄》<br>鹅鹅鹅，曲项向天歌</td><td>七岁作《咏鹅》，檄文名世</td></tr></table></div>",
+              "tips": "✓ [zh.wikipedia初唐四杰条目] 王杨卢骆，杜甫评「不废江河万古流」",
+              "section": "隋唐时期"
+            },
+            {
+              "id": "wh_104",
+              "question": "楷书四大家",
+              "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>人物</th><th>朝代</th><th>代表作</th><th>风格特点</th></tr><tr><td>欧阳询</td><td>唐</td><td>《九成宫醴泉铭》</td><td>欧体，结构严谨，法度森严</td></tr><tr style=\"background:#faf8f5;\"><td>颜真卿</td><td>唐</td><td>《颜勤礼碑》《多宝塔碑》</td><td>颜体，雄浑壮美，正气凛然。安史之乱忠臣</td></tr><tr><td>柳公权</td><td>唐</td><td>《玄秘塔碑》《神策军碑》</td><td>柳体，骨力遒劲。世称颜筋柳骨</td></tr><tr style=\"background:#faf8f5;\"><td>赵孟頫</td><td>元</td><td>《胆巴碑》《洛神赋》</td><td>赵体，圆润秀美，复古晋唐</td></tr></table></div>",
+              "tips": "✓ 楷书四大家=欧阳询(唐)+颜真卿(唐)+柳公权(唐)+赵孟頫(元)。颜筋柳骨是核心考点",
+              "section": "隋唐时期"
+            },
+            {
+              "id": "wh_105",
+              "question": "东晋著名书法家",
+              "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>人物</th><th>称号</th><th>代表作</th><th>历史地位</th></tr><tr><td>王羲之</td><td>书圣</td><td>《兰亭集序》</td><td>天下第一行书，中国书法最高峰</td></tr><tr style=\"background:#faf8f5;\"><td>王献之</td><td>—</td><td>《中秋帖》</td><td>王羲之第七子，与其父并称二王</td></tr></table></div>",
+              "tips": "✓ 王羲之=书圣=兰亭集序=天下第一行书",
+              "section": "隋唐时期"
+            },
+            {
+              "id": "wh_106",
+              "question": "宋四家",
+              "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>人物</th><th>书法风格</th><th>代表作</th></tr><tr><td>苏轼</td><td>丰腴跌宕，天真烂漫</td><td>《黄州寒食帖》天下第三行书</td></tr><tr style=\"background:#faf8f5;\"><td>黄庭坚</td><td>纵横拗崛，昂藏郁拔</td><td>《松风阁诗》</td></tr><tr><td>米芾</td><td>俊迈豪放，沉着痛快</td><td>《蜀素帖》</td></tr><tr style=\"background:#faf8f5;\"><td>蔡襄</td><td>浑厚端庄，淳淡婉美</td><td>《自书诗帖》</td></tr></table><p style=\"font-size:12px;color:var(--ink-muted);margin-top:4px;\">⚠ 争议：一说本为蔡京，因其奸臣恶名被蔡襄替换</p></div>",
+              "tips": "✓ [zh.wikipedia宋四家条目] 苏黄米蔡。蔡襄=本朝第一(苏轼评)。蔡京说：后人恶其为人以蔡襄替换",
+              "section": "隋唐时期"
+            },
+            {
+              "id": "wh_107",
+              "question": "盛唐山水田园诗",
+              "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>人物</th><th>称号</th><th>代表作</th><th>名句</th></tr><tr><td>王维</td><td>诗佛</td><td>《山居秋暝》《使至塞上》</td><td>明月松间照，清泉石上流<br>大漠孤烟直，长河落日圆</td></tr><tr style=\"background:#faf8f5;\"><td>孟浩然</td><td>—</td><td>《春晓》《过故人庄》</td><td>春眠不觉晓，处处闻啼鸟<br>待到重阳日，还来就菊花</td></tr></table></div>",
+              "tips": "✓[zh.wikipedia唐诗条目] 王维+孟浩然=盛唐山水田园派代表，苏轼评王维「诗中有画，画中有诗」",
+              "section": "隋唐时期"
+            },
+            {
+              "id": "wh_108",
+              "question": "边塞诗",
+              "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>人物</th><th>代表作</th><th>名句</th></tr><tr><td>岑参</td><td>《白雪歌送武判官归京》</td><td>忽如一夜春风来，千树万树梨花开</td></tr><tr style=\"background:#faf8f5;\"><td>高适</td><td>《别董大》</td><td>莫愁前路无知己，天下谁人不识君</td></tr><tr><td>王昌龄</td><td>《出塞》</td><td>秦时明月汉时关，万里长征人未还</td></tr><tr style=\"background:#faf8f5;\"><td>王之涣</td><td>《凉州词》</td><td>羌笛何须怨杨柳，春风不度玉门关</td></tr></table></div>",
+              "tips": "✓[zh.wikipedia唐诗条目] 边塞四家=岑参+高适+王昌龄+王之涣。七言为主，浪漫气质，气象雄浑",
+              "section": "隋唐时期"
+            },
+            {
+              "id": "wh_109",
+              "question": "大李杜",
+              "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>人物</th><th>称号</th><th>流派</th><th>代表作</th><th>名句</th></tr><tr><td>李白</td><td>诗仙</td><td>浪漫主义</td><td>《将进酒》《蜀道难》《静夜思》</td><td>天生我材必有用，千金散尽还复来<br>床前明月光，疑是地上霜</td></tr><tr style=\"background:#faf8f5;\"><td>杜甫</td><td>诗圣</td><td>现实主义</td><td>《春望》《登高》《茅屋为秋风所破歌》</td><td>国破山河在，城春草木深<br>安得广厦千万间，大庇天下寒士俱欢颜</td></tr></table></div>",
+              "tips": "✓[zh.wikipedia唐诗条目] 李白=浪漫派诗仙，杜甫=社会派诗圣。韩愈评「李杜文章在，光焰万丈长」",
+              "section": "隋唐时期"
+            },
+            {
+              "id": "wh_110",
+              "question": "白居易、李贺、刘禹锡、李商隐、杜牧",
+              "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>人物</th><th>称号</th><th>时期</th><th>代表作</th><th>名句</th></tr><tr><td>白居易</td><td>诗魔/诗王</td><td>中唐</td><td>《长恨歌》《琵琶行》《卖炭翁》</td><td>天长地久有时尽，此恨绵绵无绝期<br>同是天涯沦落人，相逢何必曾相识</td></tr><tr style=\"background:#faf8f5;\"><td>李贺</td><td>诗鬼</td><td>中唐</td><td>《雁门太守行》</td><td>黑云压城城欲摧，甲光向日金鳞开</td></tr><tr><td>刘禹锡</td><td>诗豪</td><td>中唐</td><td>《陋室铭》《乌衣巷》</td><td>山不在高，有仙则名<br>旧时王谢堂前燕，飞入寻常百姓家</td></tr><tr style=\"background:#faf8f5;\"><td>李商隐</td><td>—</td><td>晚唐</td><td>《无题》《锦瑟》</td><td>春蚕到死丝方尽，蜡炬成灰泪始干<br>此情可待成追忆，只是当时已惘然</td></tr><tr><td>杜牧</td><td>小杜</td><td>晚唐</td><td>《阿房宫赋》《泊秦淮》</td><td>商女不知亡国恨，隔江犹唱后庭花</td></tr></table></div>",
+              "tips": "✓[zh.wikipedia唐诗条目] 元白=元稹+白居易。李贺=奇险派(诗鬼)。小李杜=李商隐+杜牧。刘禹锡=诗豪",
+              "section": "隋唐时期"
+            }
+          ]
         }
       ]
     }
