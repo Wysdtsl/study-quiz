@@ -456,7 +456,7 @@
 
   .qe-batch-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center; }
   .qe-batch-overlay.show { display: flex; }
-  .qe-batch-sheet { background: var(--surface); border-radius: 16px; width: 100%%; max-width: 600px; max-height: 92vh; overflow-y: auto; padding: 20px 20px 32px; }
+  .qe-batch-sheet { background: var(--surface); border-radius: 16px; width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; padding: 20px 20px 32px; }
   .qe-batch-item { background: var(--surface2); border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 13px; }
   .qe-batch-item .q { font-weight: 600; margin-bottom: 6px; }
   .qe-batch-item .actions { margin-top: 6px; display: flex; gap: 8px; }
@@ -816,7 +816,7 @@ function openBatchEditor() {
     if (input !== EDITOR_PW) { alert('密码错误'); return; }
     localStorage.setItem(AUTH_KEY, '1');
   }
-  document.getElementById('qe-batch-overlay').classList.add('show');
+  document.getElementById('qe-batch-overlay').style.display = 'flex';
   batchResults = [];
   document.getElementById('qe-batch-results').innerHTML = '';
   document.getElementById('qe-batch-progress').textContent = '';
@@ -834,7 +834,7 @@ function openBatchEditor() {
 
 function closeBatchEditor(e) {
   if (!e || e.target === document.getElementById('qe-batch-overlay')) {
-    document.getElementById('qe-batch-overlay').classList.remove('show');
+    document.getElementById('qe-batch-overlay').style.display = 'none';
   }
 }
 
@@ -952,7 +952,7 @@ function batchSaveAll() {
     });
     localStorage.setItem('customQuestions', JSON.stringify(custom));
     alert('已保存 ' + batchResults.length + ' 题到 ' + section);
-    document.getElementById('qe-batch-overlay').classList.remove('show');
+    document.getElementById('qe-batch-overlay').style.display = 'none';
     setTimeout(function() { location.reload(); }, 600);
   } catch(e) { alert('保存失败: ' + e.message); }
 }
