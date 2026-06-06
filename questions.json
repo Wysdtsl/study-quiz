@@ -5069,6 +5069,27 @@
               "answer": "西汉首都<b>长安</b>（西），东汉首都<b>洛阳</b>（东）。中间有<b>王莽建立新朝</b>（9-23年）中断。西汉由刘邦建立（前202年），东汉由刘秀（汉光武帝）恢复（25年）",
               "tips": "✓ [zh.wikipedia汉朝条目] 西汉都长安，东汉都洛阳，故称两汉或两京",
               "section": "秦汉时期"
+            },
+            {
+              "id": "wh_089",
+              "question": "海上丝绸之路",
+              "answer": "<b>海上丝绸之路</b>（又称陶瓷之路、香药之路）是陆上丝绸之路的海上延伸。<b>泉州</b>是联合国认定的海上丝绸之路<b>起点</b>。从广州、泉州出发，经中南半岛和南海诸国，穿越印度洋驶入红海，可达东非和欧洲。<b>郑和下西洋</b>是海上丝绸之路发展的巅峰",
+              "tips": "✓ [zh.wikipedia海上丝绸之路条目] 泉州=联合国唯一认定的起点",
+              "section": "秦汉时期"
+            },
+            {
+              "id": "wh_090",
+              "question": "我国传统医学的四大经典著作",
+              "answer": "中医四大经典：①<b>《黄帝内经》</b>（战国至西汉，中医理论奠基）；②<b>《难经》</b>（传扁鹊著，西汉）；③<b>《伤寒杂病论》</b>（张仲景，东汉，中医临床经典）；④<b>《神农本草经》</b>（东汉，最早药物学专著）",
+              "tips": "✓ [zh.wikipedia] 黄帝内经=理论奠基，伤寒杂病论=临床经典，神农本草经=最早药学",
+              "section": "秦汉时期"
+            },
+            {
+              "id": "wh_091",
+              "question": "“前四史”有哪些？",
+              "answer": "<b>“前四史”</b>是二十四史中最前面的四部正史：①<b>《史记》</b>（司马迁，西汉，纪传体通史）；②<b>《汉书》</b>（班固，东汉，断代史）；③<b>《后汉书》</b>（范晔，南朝宋）；④<b>《三国志》</b>（陈寿，西晋）。口诀：史记汉书后汉书三国志",
+              "tips": "✓ 前四史=史记+汉书+后汉书+三国志",
+              "section": "秦汉时期"
             }
           ]
         },
@@ -5117,6 +5138,68 @@
               "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>领域</th><th>人物</th><th>时期</th><th>称号</th><th>著作/成就</th><th>历史地位</th></tr><tr><td><b>史学</b></td><td>司马迁</td><td style=\"white-space:nowrap;\">西汉</td><td>史圣</td><td>《史记》《报任安书》</td><td>第一部纪传体通史（鲁迅称\"史家之绝唱，无韵之离骚\"）</td></tr><tr style=\"background:#faf8f5;\"><td><b>史学</b></td><td>班固</td><td style=\"white-space:nowrap;\">东汉</td><td>—</td><td>《汉书》</td><td>第一部断代史</td></tr><tr><td><b>科技</b></td><td>蔡伦</td><td style=\"white-space:nowrap;\">东汉</td><td>龙亭侯</td><td>改进造纸术</td><td>蔡侯纸（造纸术西汉已有雏形）</td></tr><tr style=\"background:#faf8f5;\"><td><b>科技</b></td><td>张衡</td><td style=\"white-space:nowrap;\">东汉</td><td>—</td><td>地动仪+浑天仪</td><td>世界最早地震检测仪器</td></tr><tr><td><b>科技</b></td><td>佚名/张苍</td><td style=\"white-space:nowrap;\">西汉</td><td>—</td><td>《周髀算经》《九章算术》</td><td>最古老天文历法之一+最早数学著作（与《几何原本》并列世界两大数学体系）</td></tr><tr style=\"background:#faf8f5;\"><td><b>文学</b></td><td>司马相如</td><td style=\"white-space:nowrap;\">西汉</td><td>赋圣</td><td>《子虚赋》《上林赋》</td><td>汉赋最高代表</td></tr><tr><td><b>文学</b></td><td>乐府诗</td><td style=\"white-space:nowrap;\">东汉</td><td>—</td><td>《孔雀东南飞》</td><td>第一部长篇叙事诗</td></tr><tr style=\"background:#faf8f5;\"><td><b>医学</b></td><td>张仲景</td><td style=\"white-space:nowrap;\">东汉</td><td>医圣</td><td>《伤寒杂病论》</td><td>中医临床经典</td></tr><tr><td><b>医学</b></td><td>华佗</td><td style=\"white-space:nowrap;\">东汉</td><td>外科鼻祖</td><td>麻沸散+五禽戏</td><td>最早麻醉药/外科手术先驱</td></tr><tr style=\"background:#faf8f5;\"><td><b>医学</b></td><td>—</td><td style=\"white-space:nowrap;\">战国—西汉</td><td>—</td><td>《黄帝内经》</td><td>中医理论奠基（非单一汉朝著作）</td></tr><tr><td><b>医学</b></td><td>—</td><td style=\"white-space:nowrap;\">东汉</td><td>—</td><td>《神农本草经》</td><td>最早药物学专著</td></tr><tr style=\"background:#faf8f5;\"><td><b>宗教</b></td><td>—</td><td style=\"white-space:nowrap;\">东汉明帝</td><td>—</td><td>白马寺（68年）</td><td>佛教传入中国第一座寺院（祖庭+释源）</td></tr></table></div>",
               "tips": "✓ [zh.wikipedia各条目验证] 全部数据交叉核对。💡 表格可直接看：左到右 领域→人物→时期→称号→著作→地位",
               "section": "西汉时期"
+            }
+          ]
+        },
+        {
+          "date": "三国两晋南北朝",
+          "label": "三国两晋南北朝",
+          "questions": [
+            {
+              "id": "wh_092",
+              "question": "三国两晋南北朝的时间段",
+              "answer": "<b>三国</b>（220—280年）、<b>西晋</b>（265—316年）、<b>东晋</b>（317—420年）、<b>南北朝</b>（420—589年）。隋朝于589年统一中国，结束近400年分裂",
+              "tips": "✓ 三国两晋南北朝=220—589年，约370年的大分裂时期",
+              "section": "三国两晋南北朝"
+            },
+            {
+              "id": "wh_093",
+              "question": "三国时期最著名的三大战役是什么？",
+              "answer": "①<b>官渡之战</b>（200年，曹操大败袁绍，奠定统一北方的基础）；②<b>赤壁之战</b>（208年，孙刘联军火攻大败曹操，奠定三国鼎立局面）；③<b>夷陵之战</b>（221—222年，陆逊火攻大败刘备，蜀汉元气大伤）",
+              "tips": "✓ 三大战役=官渡→赤壁→夷陵，三次都用了火攻",
+              "section": "三国两晋南北朝"
+            },
+            {
+              "id": "wh_094",
+              "question": "赤壁之战的概述？",
+              "answer": "<b>赤壁之战</b>（208年）：曹操率大军南下，孙权和刘备联手，<b>周瑜</b>率孙刘联军在赤壁（今湖北赤壁市）用<b>火攻</b>大破曹军。此战奠定了<b>三国鼎立</b>的基础。关键成语：<b>“万事俱备，只欠东风”</b>（诸葛亮借东风）",
+              "tips": "✓ [zh.wikipedia] 赤壁之战=孙刘联军火攻曹操，三国鼎立的开始",
+              "section": "三国两晋南北朝"
+            },
+            {
+              "id": "wh_095",
+              "question": "关于赤壁之战的诗词？",
+              "answer": "①<b>苏轼《念奴娇·赤壁怀古》</b>（“大江东去，浪淘尽，千古风流人物”）；②<b>杜牧《赤壁》</b>（“折戟沉沙铁未销，自将磨洗认前朝”）；③<b>李白《赤壁歌送别》</b>（“二龙争战决雌雄，赤壁楼船扫地空”）",
+              "tips": "✓ 苏轾《念奴娇·赤壁怀古》是最著名的赤壁诗词，杜牧《赤壁》亦是名篇",
+              "section": "三国两晋南北朝"
+            },
+            {
+              "id": "wh_096",
+              "question": "诸葛亮给刘禅上书的表文有哪些？",
+              "answer": "诸葛亮的表文（收入《出师表》二篇）：①<b>《前出师表》</b>（227年第一次北伐前上书），名句“<b>亲贤臣，远小人，此先汉所以兴隆也</b>”、“尽忠尽节者，当赏当罚，不宜偏私”；②<b>《后出师表》</b>（有争议是否诸葛亮作），名句“<b>鞠躬尽瘌，死而后已</b>”。收入《<b>古文观止</b>》、《<b>三国志</b>》",
+              "tips": "✓ 前出师表=“亲贤臣远小人”，后出师表=“鞠躬尽瘌死而后已”",
+              "section": "三国两晋南北朝"
+            },
+            {
+              "id": "wh_097",
+              "question": "官渡之战的表述",
+              "answer": "<b>官渡之战</b>（200年）：<b>曹操</b>以少胜多大败<b>袁绍</b>，奠定了曹操<b>统一北方</b>的基础。曹操在许攸帮助下夜袭乌巢烧毁袁绍粮草，是中国历史上著名的以少胜多战役",
+              "tips": "✓ 官渡之战=曹操大败袁绍→统一北方基础",
+              "section": "三国两晋南北朝"
+            },
+            {
+              "id": "wh_098",
+              "question": "夷陵之战的概述",
+              "answer": "<b>夷陵之战</b>（221—222年）：刘备为关羽报仇亲率大军伐吴，<b>陆逊</b>在夷陵（今湖北宜昌）<b>火烧连营</b>大败刘备。刘备退回白帝城崩死，蜀汉元气大伤，三国鼎立局面紳定",
+              "tips": "✓ 夷陵之战=陆逊火烧连营大败刘备，蜀汉元气大伤",
+              "section": "三国两晋南北朝"
+            },
+            {
+              "id": "wh_100",
+              "question": "三国两晋南北朝时期的文学成就",
+              "answer": "<div class=\"tb-wrap\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;\"><tr style=\"background:#f0ede8;\"><th>时期</th><th>人物</th><th>称号</th><th>代表作</th><th>历史地位</th></tr><tr><td><b>建安</b></td><td>三曹（曹操/曹丕/曹植）</td><td>建安风骨之领袖</td><td>《短歌行》《七步诗》《燕歌行》</td><td>建安文学最高代表</td></tr><tr style=\"background:#faf8f5;\"><td><b>建安</b></td><td>建安七子</td><td>—</td><td>王粲《七哀诗》《登楼赋》</td><td>王粲为七子之冠冕（刘勰评）</td></tr><tr><td><b>建安</b></td><td>蔡琰（蔡文姬）</td><td>才女</td><td>《悲愤诗》《胡笳十八拍》</td><td>著名女诗人</td></tr><tr style=\"background:#faf8f5;\"><td><b>曹魏</b></td><td>曹丕</td><td>—</td><td>《典论·论文》</td><td>中国文学批评史上第一篇论文</td></tr><tr><td><b>西晋</b></td><td>左思</td><td>—</td><td>《三都赋》</td><td>洛阳纸贵的典故来源</td></tr><tr style=\"background:#faf8f5;\"><td><b>东晋</b></td><td>王羲之</td><td>书圣</td><td>《兰亭集序》</td><td>天下第一行书，散文名篇</td></tr><tr><td><b>东晋末</b></td><td>陶渊明</td><td>田园诗人鼻祖</td><td>《归去来兮辞》《桃花源记》</td><td>田园诗创始人（地位堪比屈原、杜甫）</td></tr><tr style=\"background:#faf8f5;\"><td><b>东晋</b></td><td>干宝</td><td>—</td><td>《搜神记》</td><td>志怪小说开山</td></tr><tr><td><b>南朝宋</b></td><td>刘义庆</td><td>—</td><td>《世说新语》</td><td>笔记小说鼻祖</td></tr><tr style=\"background:#faf8f5;\"><td><b>南朝梁</b></td><td>刘勰</td><td>—</td><td>《文心雕龙》</td><td>第一部系统文学理论巨著（50篇）</td></tr><tr><td><b>南朝梁</b></td><td>钟嵘</td><td>—</td><td>《诗品》</td><td>第一部诗歌评论专著</td></tr><tr style=\"background:#faf8f5;\"><td><b>南朝梁</b></td><td>萧统</td><td>昭明太子</td><td>《文选》</td><td>现存最早诗文总集</td></tr></table></div>",
+              "tips": "✓ [zh.wikipedia魏晋南北朝文学条目] 建安七子以王粲为首，陶渊明地位堪比屈原/杜甫，刘勰《文心雕龙》=第一部系统文论，昭明《文选》=最早诗文总集",
+              "section": "三国两晋南北朝"
             }
           ]
         }
