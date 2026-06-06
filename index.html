@@ -651,22 +651,6 @@ function openQEditor(batchMode) {
   }
   document.getElementById('qe-overlay').classList.add('show');
   document.getElementById('qe-saved').style.display = 'none';
-  // Toggle single vs batch mode
-  if (batchMode === true) {
-    document.getElementById('qe-question').parentElement.style.display = 'none';
-    document.getElementById('qe-answer').parentElement.style.display = 'none';
-    document.getElementById('qe-tips').parentElement.style.display = 'none';
-    document.getElementById('qe-batch-panel').style.display = '';
-    batchResults = [];
-    document.getElementById('qe-batch-results').innerHTML = '';
-    document.getElementById('qe-batch-progress').textContent = '';
-    document.getElementById('qe-batch-save-btn').style.display = 'none';
-  } else {
-    document.getElementById('qe-question').parentElement.style.display = '';
-    document.getElementById('qe-answer').parentElement.style.display = '';
-    document.getElementById('qe-tips').parentElement.style.display = '';
-    document.getElementById('qe-batch-panel').style.display = 'none';
-  }
   
   // Toggle single vs batch mode
   var isBatch = batchMode === true;
@@ -863,7 +847,7 @@ function openBatchEditor() {
     var saveBtn = document.getElementById('qe-batch-save-btn');
     if (saveBtn) saveBtn.style.display = 'none';
     overlay.style.display = "flex";
-    var sel = document.getElementById('qe-subject');
+    var sel = document.getElementById('qe-batch-subject');
     if (sel) sel.innerHTML = data.subjects.map(function(s) { return '<option value="' + s.id + '">' + s.name + '</option>'; }).join('');
     var secInput = document.getElementById('qe-batch-section');
     if (secInput) {
