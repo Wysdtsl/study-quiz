@@ -809,7 +809,6 @@ function saveQuestion() {
 let batchResults = [];
 
 function openBatchEditor() {
-  
   const AUTH_KEY = 'qe_authed';
   const EDITOR_PW = 'wys123456';
   if (!localStorage.getItem(AUTH_KEY)) {
@@ -817,10 +816,7 @@ function openBatchEditor() {
     if (input !== EDITOR_PW) { alert('密码错误'); return; }
     localStorage.setItem(AUTH_KEY, '1');
   }
-  var el = document.getElementById('qe-batch-overlay');
-  
-  el.classList.add('show'); 
-  
+  document.getElementById('qe-batch-overlay').classList.add('show');
   batchResults = [];
   document.getElementById('qe-batch-results').innerHTML = '';
   document.getElementById('qe-batch-progress').textContent = '';
