@@ -475,6 +475,7 @@
       <div class="home-actions-row" style="margin-top:8px;">
         <button class="btn btn-primary" onclick="openQEditor()" style="flex:1;">＋ 添加题目</button>
         <button class="btn btn-out" onclick="exportQuestions()" style="flex:1;">📥 导出题库</button>
+        <button class="btn btn-primary" onclick="openBatchEditor()" style="flex:1;">📋 批量添加</button>
       </div>
       <div class="home-actions-row">
         <button class="btn btn-out" onclick="exportData()">导出答题记录</button>
@@ -1776,6 +1777,27 @@ loadData();
 </div>
 
 <button class="fab-add" id="fab-add" onclick="openQEditor()" title="添加题目">＋</button>
+
+<!-- Batch Edit Modal -->
+<div class="qe-batch-overlay" id="qe-batch-overlay" onclick="closeBatchEditor(event)">
+  <div class="qe-batch-sheet" onclick="event.stopPropagation()">
+    <h3>📋 批量添加题目</h3>
+    <label style="font-size:13px;color:var(--ink-muted);margin-bottom:4px;">科目</label>
+    <select id="qe-batch-subject"></select>
+    <label style="font-size:13px;color:var(--ink-muted);margin-bottom:4px;">章节</label>
+    <input type="text" id="qe-batch-section" placeholder="如：秦汉时期" list="qe-section-list-batch" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;box-sizing:border-box;">
+    <label style="font-size:13px;color:var(--ink-muted);margin-bottom:4px;">题目（每行一题，空行分隔）</label>
+    <textarea id="qe-batch-questions" placeholder="每行一题&#10;例如：&#10;什么是GDP？&#10;通货膨胀的定义是什么？&#10;......"></textarea>
+    <div class="qe-batch-progress" id="qe-batch-progress"></div>
+    <div id="qe-batch-results"></div>
+    <div class="qe-actions" style="display:flex;gap:10px;margin-top:12px;">
+      <button class="qe-btn-cancel" onclick="closeBatchEditor()">取消</button>
+      <button class="qe-btn-ai" onclick="batchGenerateAnswers()" id="qe-batch-gen-btn">🤖 批量查证生成</button>
+      <button class="qe-btn-save" onclick="batchSaveAll()" id="qe-batch-save-btn" style="display:none;">💾 全部保存</button>
+    </div>
+  </div>
+</div>
+
 <button class="fab-export" id="fab-export" onclick="exportQuestions()" title="导出题库">⬇</button>
 
 </body>
