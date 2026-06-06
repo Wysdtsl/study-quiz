@@ -662,27 +662,53 @@ function closeQEditor(e) { if (!e || e.target === document.getElementById('qe-ov
 async function aiFillQA(e) {
   const question = document.getElementById('qe-question').value.trim();
   if (!question) { alert('请先填写题目'); return; }
-  
-  // Check API key
+
   try { const raw = localStorage.getItem('chat_api_key'); if (raw) chatApiKey = atob(raw); } catch(e) {}
   if (!chatApiKey) { alert('请先在聊天面板配置 DeepSeek API Key'); return; }
-  
+
   const btn = e.target;
   btn.disabled = true;
-  btn.textContent = '🤖 查证中...';
-  
+  btn.textContent = '🔍 联网搜索中...';
+
   try {
+    // Step 1: Search Wikipedia for relevant articles
+    btn.textContent = '🔍 搜索中...';
+    const searchUrl = 'https://zh.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(question) + '&limit=3&format=json&origin=*';
+    const sr = await fetch(searchUrl);
+    const sdata = await sr.json();
+    const titles = sdata[1] || [];
+
+    // Step 2: Fetch content from best matching article
+    let context = '';
+    if (titles.length > 0) {
+      btn.textContent = '📖 阅读资料中...';
+      const contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
+      const cr = await fetch(contentUrl);
+      const cdata = await cr.json();
+      const pages = cdata.query?.pages || {};
+      const page = Object.values(pages)[0];
+      if (page?.extract) {
+        context = page.extract.substring(0, 2000); // first 2000 chars
+      }
+    }
+
+    // Step 3: Ask DeepSeek to generate answer from Wikipedia content
+    btn.textContent = '🤖 生成答案中...';
     const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), 20000);
-    
+    const t = setTimeout(() => controller.abort(), 25000);
+
+    const prompt = context
+      ? '根据以下维基百科资料回答问题。返回JSON格式：{"answer":"...","tips":"..."}\n\n📚 资料：\n' + context + '\n\n❓ 问题：' + question
+      : '根据你的知识回答问题。如果不太确定请在tips中说明。返回JSON格式：{"answer":"...","tips":"..."}\n\n问题：' + question;
+
     const resp = await fetch(DEEPSEEK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
       body: JSON.stringify({
         model: 'deepseek-v4-flash',
         messages: [
-          { role: 'system', content: '你是考试题库查证助手。根据权威资料回答。返回JSON格式：{"answer":"答案（用<b>标签加粗关键词）","tips":"1-2句记忆提示或易考易混点"}' },
-          { role: 'user', content: question }
+          { role: 'system', content: '你是考试题库查证助手。答案要准确简洁，用<b>标签加粗关键词。返回JSON：{"answer":"答案","tips":"记忆提示"}' },
+          { role: 'user', content: prompt }
         ],
         max_tokens: 800,
         temperature: 0.3
@@ -690,16 +716,14 @@ async function aiFillQA(e) {
       signal: controller.signal
     });
     clearTimeout(t);
-    
+
     const data = await resp.json();
     let text = data.choices?.[0]?.message?.content || '';
-    // Try parse JSON, otherwise use raw text
     try {
       const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
       document.getElementById('qe-answer').value = parsed.answer || '';
-      document.getElementById('qe-tips').value = parsed.tips || '';
+      document.getElementById('qe-tips').value = (parsed.tips || '') + (context ? '' : '\n\n⚠️ 未找到维基百科相关条目，答案基于模型知识生成，请自行核实');
     } catch {
-      // If not valid JSON, treat first paragraph as answer, rest as tips
       const parts = text.split('\n\n');
       document.getElementById('qe-answer').value = parts[0] || text;
       document.getElementById('qe-tips').value = parts.slice(1).join('\n\n') || '';
