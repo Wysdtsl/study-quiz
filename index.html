@@ -830,46 +830,6 @@ function saveQuestion() {
 // ── Batch Editor ──
 let batchResults = [];
 
-function openBatchEditor() {
-  try {
-    const AUTH_KEY = 'qe_authed';
-    const EDITOR_PW = 'wys123456';
-    if (!localStorage.getItem(AUTH_KEY)) {
-      const input = prompt('请输入编辑密码：');
-      if (input !== EDITOR_PW) { alert('密码错误'); return; }
-      localStorage.setItem(AUTH_KEY, '1');
-    }
-    var overlay = document.getElementById('qe-batch-overlay');
-    if (!overlay) { alert('找不到批量编辑弹窗元素'); return; }
-     
-    batchResults = [];
-    var resultsDiv = document.getElementById('qe-batch-results');
-    if (resultsDiv) resultsDiv.innerHTML = '';
-    var progressDiv = document.getElementById('qe-batch-progress');
-    if (progressDiv) progressDiv.textContent = '';
-    var saveBtn = document.getElementById('qe-batch-save-btn');
-    if (saveBtn) saveBtn.style.display = 'none';
-    overlay.style.display = "flex";
-    var sel = document.getElementById('qe-batch-subject');
-    if (sel) sel.innerHTML = data.subjects.map(function(s) { return '<option value="' + s.id + '">' + s.name + '</option>'; }).join('');
-    var secInput = document.getElementById('qe-batch-section');
-    if (secInput) {
-      secInput.setAttribute('list', 'qe-section-list-batch');
-      var dl = document.getElementById('qe-section-list-batch');
-      if (!dl) { dl = document.createElement('datalist'); dl.id = 'qe-section-list-batch'; secInput.parentNode.insertBefore(dl, secInput.nextSibling); }
-      var sections = new Set();
-      data.subjects.forEach(function(s) { s.sessions.forEach(function(ss) { sections.add(ss.label); }); });
-      dl.innerHTML = Array.from(sections).map(function(s) { return '<option value="' + s + '">'; }).join('');
-    }
-  } catch(e) { alert('批量编辑器错误: ' + e.message); }
-}
-
-function closeBatchEditor(e) {
-  if (!e || e.target === document.getElementById('qe-batch-overlay')) {
-    document.getElementById('qe-batch-overlay').style.display = 'none';
-  }
-}
-
 async function batchGenerateAnswers() {
   var questions = document.getElementById('qe-batch-questions').value.trim();
   if (!questions) { alert('请先在文本框输入题目（每行一题）'); return; }
@@ -984,11 +944,10 @@ function batchSaveAll() {
     });
     localStorage.setItem('customQuestions', JSON.stringify(custom));
     alert('已保存 ' + batchResults.length + ' 题到 ' + section);
-    document.getElementById('qe-batch-overlay').style.display = 'none';
+    document.getElementById('qe-overlay').classList.remove('show');
     setTimeout(function() { location.reload(); }, 600);
   } catch(e) { alert('保存失败: ' + e.message); }
 }
-
 
 function exportQuestions() {
   // Merge custom questions into data
