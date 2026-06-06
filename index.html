@@ -668,38 +668,51 @@ async function aiFillQA(e) {
 
   const btn = e.target;
   btn.disabled = true;
-  btn.textContent = '🔍 联网搜索中...';
+  let context = '';
+  let sourceName = '';
 
   try {
-    // Step 1: Search Wikipedia for relevant articles
-    btn.textContent = '🔍 搜索中...';
-    const searchUrl = 'https://zh.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(question) + '&limit=3&format=json&origin=*';
-    const sr = await fetch(searchUrl);
-    const sdata = await sr.json();
-    const titles = sdata[1] || [];
+    // Step 1: Try Wikipedia first
+    btn.textContent = '🔍 搜索维基百科...';
+    const wikiUrl = 'https://zh.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(question) + '&limit=3&format=json&origin=*';
+    const wr = await fetch(wikiUrl);
+    const wdata = await wr.json();
+    const titles = wdata[1] || [];
 
-    // Step 2: Fetch content from best matching article
-    let context = '';
     if (titles.length > 0) {
-      btn.textContent = '📖 阅读资料中...';
+      btn.textContent = '📖 阅读维基百科...';
       const contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
       const cr = await fetch(contentUrl);
       const cdata = await cr.json();
       const pages = cdata.query?.pages || {};
       const page = Object.values(pages)[0];
-      if (page?.extract) {
-        context = page.extract.substring(0, 2000); // first 2000 chars
-      }
+      if (page?.extract) { context = page.extract.substring(0, 2000); sourceName = '中文维基百科'; }
     }
 
-    // Step 3: Ask DeepSeek to generate answer from Wikipedia content
+    // Step 2: Fallback to Baidu Baike via Jina reader if Wikipedia failed
+    if (!context) {
+      btn.textContent = '🔍 搜索百度百科...';
+      try {
+        const baiduUrl = 'https://r.jina.ai/https://baike.baidu.com/item/' + encodeURIComponent(question.replace(/[？?]/g,''));
+        const br = await fetch(baiduUrl);
+        if (br.ok) {
+          const btext = await br.text();
+          if (btext && btext.length > 200) {
+            context = btext.substring(0, 2500);
+            sourceName = '百度百科';
+          }
+        }
+      } catch(be) { /* fallback failed, try without Jina *//* fallback failed */ }
+    }
+
+    // Step 3: Generate answer
     btn.textContent = '🤖 生成答案中...';
     const controller = new AbortController();
     const t = setTimeout(() => controller.abort(), 25000);
 
     const prompt = context
-      ? '根据以下维基百科资料回答问题。返回JSON格式：{"answer":"...","tips":"..."}\n\n📚 资料：\n' + context + '\n\n❓ 问题：' + question
-      : '根据你的知识回答问题。如果不太确定请在tips中说明。返回JSON格式：{"answer":"...","tips":"..."}\n\n问题：' + question;
+      ? '根据以下' + sourceName + '资料回答问题。返回JSON格式：{"answer":"...","tips":"..."}\n\n📚 资料（来源：' + sourceName + '）：\n' + context + '\n\n❓ 问题：' + question
+      : '根据你的知识回答问题。返回JSON格式：{"answer":"...","tips":"..."}\n\n问题：' + question;
 
     const resp = await fetch(DEEPSEEK_URL, {
       method: 'POST',
@@ -722,7 +735,10 @@ async function aiFillQA(e) {
     try {
       const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
       document.getElementById('qe-answer').value = parsed.answer || '';
-      document.getElementById('qe-tips').value = (parsed.tips || '') + (context ? '' : '\n\n⚠️ 未找到维基百科相关条目，答案基于模型知识生成，请自行核实');
+      let tip = parsed.tips || '';
+      if (context) tip += '\n\n✅ 已自动搜索 ' + sourceName + ' 核实';
+      else tip += '\n\n⚠️ 未找到维基百科或百度百科的相关条目，答案基于模型知识生成，请自行核实';
+      document.getElementById('qe-tips').value = tip;
     } catch {
       const parts = text.split('\n\n');
       document.getElementById('qe-answer').value = parts[0] || text;
@@ -733,7 +749,6 @@ async function aiFillQA(e) {
   }
   btn.disabled = false;
   btn.textContent = '🤖 AI 查证填答案';
-}
 
 function saveQuestion() {
   const sid = document.getElementById('qe-subject').value;
