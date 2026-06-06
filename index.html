@@ -454,6 +454,14 @@
   .qe-list-item { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .qe-list-item:last-child { border-bottom: none; }
 
+  .qe-batch-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: flex-end; justify-content: center; }
+  .qe-batch-overlay.show { display: flex; }
+  .qe-batch-sheet { background: var(--surface); border-radius: 16px 16px 0 0; width: 100%%; max-width: 600px; max-height: 92vh; overflow-y: auto; padding: 20px 20px 32px; }
+  .qe-batch-item { background: var(--surface2); border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 13px; }
+  .qe-batch-item .q { font-weight: 600; margin-bottom: 6px; }
+  .qe-batch-item .actions { margin-top: 6px; display: flex; gap: 8px; }
+  .qe-batch-item .actions button { font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
+  .qe-batch-progress { text-align: center; color: var(--ink-blue); font-size: 14px; padding: 8px; }
 </style>
 </head>
 <body>
