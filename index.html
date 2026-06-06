@@ -685,7 +685,7 @@ function openQEditor(batchMode) {
   sel.innerHTML = data.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
   
   // Populate section suggestions
-  const secInput = document.getElementById('qe-section');
+  secInput = document.getElementById('qe-section');
   secInput.setAttribute('list', 'qe-section-list');
   let datalist = document.getElementById('qe-section-list');
   if (!datalist) {
