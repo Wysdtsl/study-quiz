@@ -760,7 +760,7 @@ function exportQuestions() {
           let ses = subj.sessions.find(s => s.date === entry.section);
           if (!ses) {
             ses = { date: entry.section, label: entry.section, questions: [] };
-            subj.sessions.unshift(ses);
+            subj.sessions.push(ses);
           }
           ses.questions.push({ id: entry.id, question: entry.question, answer: entry.answer, tips: entry.tips || '', section: entry.section });
         }
@@ -790,7 +790,7 @@ async function loadData() {
             let ses = subj.sessions.find(s => s.date === entry.section);
             if (!ses) {
               ses = { date: entry.section, label: entry.section, questions: [] };
-              subj.sessions.unshift(ses);
+              subj.sessions.push(ses);
             }
             ses.questions.push({ id: entry.id, question: entry.question, answer: entry.answer, tips: entry.tips || '', section: entry.section });
           }
