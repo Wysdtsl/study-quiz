@@ -2380,24 +2380,23 @@ async function syncToGitHub(updatedData, msg) {
   var _apiUrl = 'https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json';
   var _proxyUrl = 'https://gh-proxy.org/https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json';
 
-  // Try direct, fallback to proxy
   async function _ghFetch(url, opts) {
     var _c = new AbortController();
-    var _t = setTimeout(function() { _c.abort(); }, 15000);
+    var _t = setTimeout(function() { _c.abort(); }, 10000);
     try { return await fetch(url, Object.assign({ signal: _c.signal }, opts)); }
     finally { clearTimeout(_t); }
   }
-  function _ghUrl(isDirect) { return isDirect ? _apiUrl : _proxyUrl; }
 
-  var _useDirect = true;
+  // Try direct GitHub API first, then proxy
   var getResp;
   try { getResp = await _ghFetch(_apiUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
-  catch(e) { _useDirect = false; try { getResp = await _ghFetch(_proxyUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); } catch(e2) { throw new Error('无法连接到 GitHub (' + e.message + ')'); } }
-  if (!getResp.ok) throw new Error('GitHub 读取失败 (HTTP ' + getResp.status + ')，请检查 Token 是否有权限');
+  catch(e) {
+    try { getResp = await _ghFetch(_proxyUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
+    catch(e2) { throw new Error('\u65e0\u6cd5\u8fde\u63a5\u5230 GitHub'); }
+  }
+  if (!getResp.ok) throw new Error('GitHub \u8bfb\u53d6\u5931\u8d25 (HTTP ' + getResp.status + ')');
   var fileInfo = await getResp.json();
   var remoteData = JSON.parse(atob(fileInfo.content));
-  var localSubjIds = {};
-  updatedData.subjects.forEach(function(s) { localSubjIds[s.id] = true; });
   remoteData.subjects.forEach(function(rs) {
     var localSubj = updatedData.subjects.find(function(s) { return s.id === rs.id; });
     if (localSubj) {
@@ -2415,11 +2414,27 @@ async function syncToGitHub(updatedData, msg) {
   });
   var jsonStr = JSON.stringify(updatedData, null, 2);
   var encoded = btoa(unescape(encodeURIComponent(jsonStr)));
-  var putUrl = _useDirect ? _apiUrl : _proxyUrl;
-  var putResp;
-  try { putResp = await _ghFetch(putUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha }) }); }
-  catch(e) { throw new Error('无法写入 GitHub (' + e.message + ')'); }
-  if (!putResp.ok) throw new Error('GitHub 写入失败 (HTTP ' + putResp.status + ')');
+
+  // Try write via direct or proxy
+  var putBody = JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha });
+  try {
+    var putResp = await _ghFetch(_apiUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: putBody });
+    if (putResp.ok) return;
+  } catch(e) {}
+  try {
+    var putResp2 = await _ghFetch(_proxyUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: putBody });
+    if (putResp2.ok) return;
+  } catch(e) {}
+  // Both failed - download file for manual upload
+  var blob = new Blob([jsonStr], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'questions.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  window.open('https://github.com/Wysdtsl/study-quiz/blob/main/questions.json', '_blank');
+  throw new Error('GitHub API \u8fde\u4e0d\u4e0a\uff0c\u5df2\u4e0b\u8f7d\u6587\u4ef6\uff0c\u8bf7\u624b\u52a8\u4e0a\u4f20\u5230 GitHub');
 }
 
 function setupGithubSync() {
