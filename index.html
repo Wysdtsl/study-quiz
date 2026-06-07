@@ -2043,7 +2043,7 @@ loadData();
 
       <!-- PDF Import -->
       <button class="qe-btn-pdf" onclick="importPDF()" id="pdf-import-btn" style="display:flex;align-items:center;gap:6px;width:100%;padding:10px;border:1px dashed var(--border);border-radius:10px;background:var(--surface2);color:var(--ink);font-size:14px;cursor:pointer;font-family:inherit;justify-content:center;">📄 从 PDF 导入</button>
-      <input type="file" id="pdf-file-input" accept=".pdf" style="display:none">
+      <input type="file" id="pdf-file-input" accept=".pdf" style="display:none" onchange="handlePDFFile(event)">
       <div id="pdf-preview" style="display:none;margin-top:8px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--surface);font-size:13px;line-height:1.6;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <span id="pdf-filename" style="font-weight:600;font-size:13px;color:var(--ink-blue);word-break:break-all;"></span>
