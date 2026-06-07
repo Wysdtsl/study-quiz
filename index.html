@@ -2346,7 +2346,8 @@ function toggleHideQuestion(qid) {
   var idx = hidden.indexOf(qid);
   if (idx > -1) { hidden.splice(idx, 1); } else { hidden.push(qid); }
   localStorage.setItem('qHidden', JSON.stringify(hidden));
-  renderQuestionManager();
+  try { renderQuestionManager(); } catch(e) {}
+  try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
 }
 
 // ── Question Manager ──
@@ -2476,27 +2477,28 @@ function deleteCustomQuestion(sid, id) {
       custom[sid] = custom[sid].filter(function(q) { return q.id !== id; });
       if (custom[sid].length === 0) delete custom[sid];
       localStorage.setItem('customQuestions', JSON.stringify(custom));
-      renderQuestionManager();
     }
   } catch(e) { alert('删除失败: ' + e.message); }
+  try { renderQuestionManager(); } catch(e) {}
 }
 
 function deleteAnyQuestion(sid, qid) {
-  // Check if custom
-  var custom = getCustomQuestions();
-  if (custom[sid] && custom[sid].find(function(q) { return q.id === qid; })) {
-    deleteCustomQuestion(sid, qid);
-    return;
-  }
-  // Built-in: toggle hidden
-  var hidden = getHiddenIds();
-  if (hidden.indexOf(qid) > -1) {
-    // Unhide
-    toggleHideQuestion(qid);
-  } else {
-    if (!confirm('确定隐藏这道内置题吗？（可在题目管理中恢复）')) return;
-    toggleHideQuestion(qid);
-  }
+  try {
+    var custom = getCustomQuestions();
+    if (custom[sid] && custom[sid].find(function(q) { return q.id === qid; })) {
+      deleteCustomQuestion(sid, qid);
+      try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
+      return;
+    }
+    var hidden = getHiddenIds();
+    if (hidden.indexOf(qid) > -1) {
+      toggleHideQuestion(qid);
+    } else {
+      if (!confirm('确定隐藏这道内置题吗？（可在题目管理中恢复）')) return;
+      toggleHideQuestion(qid);
+    }
+  } catch(e) { alert('操作失败: ' + e.message); }
+  try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
 }
 
 function editCustomQuestion(sid, id) {
