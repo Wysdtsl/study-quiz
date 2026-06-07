@@ -2377,9 +2377,14 @@ function removeUserAddedId(id) {
 async function syncToGitHub(updatedData, msg) {
   var token = getGHToken();
   if (!token) throw new Error('未配置 GitHub Token，请先点击 🔗 设置');
+  var _gc = new AbortController();
+  var _gt = setTimeout(function() { _gc.abort(); }, 15000);
+  try {
   var getResp = await fetch('https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json', {
+    signal: _gc.signal,
     headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
   });
+  } finally { clearTimeout(_gt); }
   if (!getResp.ok) throw new Error('GitHub 读取失败 (HTTP ' + getResp.status + ')，请检查 Token 是否有权限');
   var fileInfo = await getResp.json();
   // Decode the CURRENT content from GitHub (another device may have added questions)
@@ -2413,11 +2418,16 @@ async function syncToGitHub(updatedData, msg) {
   });
   var jsonStr = JSON.stringify(updatedData, null, 2);
   var encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+  var _pc = new AbortController();
+  var _pt = setTimeout(function() { _pc.abort(); }, 15000);
+  try {
   var putResp = await fetch('https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json', {
+    signal: _pc.signal,
     method: 'PUT',
     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
     body: JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha })
   });
+  } finally { clearTimeout(_pt); }
   if (!putResp.ok) throw new Error('GitHub 写入失败 (HTTP ' + putResp.status + ')');
 }
 
