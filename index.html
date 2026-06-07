@@ -125,10 +125,15 @@
   .card-icon.green { background: var(--green-light); }
   .card-icon.red { background: var(--red-light); }
   .card-body { flex: 1; min-width: 0; }
-  .ans table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
-  .ans th { background: var(--surface2); padding: 6px 8px; text-align: left; font-weight: 600; white-space: nowrap; }
-  .ans td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  .ans .tb-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ans table, .a table, .result table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; border-radius: 8px; overflow: hidden; }
+  .ans thead, .a thead { display: table-header-group; }
+  .ans th, .a th, .result th { background: var(--surface2); padding: 8px 10px; text-align: left; font-weight: 600; white-space: nowrap; font-size: 13px; }
+  .ans td, .a td, .result td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  .ans tr:last-child td, .a tr:last-child td, .result tr:last-child td { border-bottom: none; }
+  .ans tbody tr:nth-child(even), .a tbody tr:nth-child(even), .result tbody tr:nth-child(even) { background: var(--surface2); }
+  .ans tbody tr:nth-child(odd), .a tbody tr:nth-child(odd), .result tbody tr:nth-child(odd) { background: var(--surface); }
+  .ans .tb-wrap, .a .tb-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 4px 0; }
+  .ans table, .a table { min-width: 200px; }
   .card-name { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .card-meta { font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
 
@@ -984,7 +989,7 @@ async function batchGenerateAnswers() {
 function renderBatchResults() {
   var el = document.getElementById('qe-batch-results');
   el.innerHTML = batchResults.map(function(r, i) {
-    return '<div class="qe-batch-item"><div class="q">' + (i+1) + '. ' + r.question + '</div><div class="a" id="ba-' + i + '">' + r.answer + '</div><div class="actions"><button onclick="editBatchAnswer(' + i + ')">✏️ 编辑</button><button onclick="deleteBatchItem(' + i + ')">🗑 删除</button></div></div>';
+    return '<div class="qe-batch-item"><div class="q">' + (i+1) + '. ' + r.question + '</div><div class="a" id="ba-' + i + '"><div class="tb-wrap">' + r.answer + '</div></div><div class="actions"><button onclick="editBatchAnswer(' + i + ')">✏️ 编辑</button><button onclick="deleteBatchItem(' + i + ')">🗑 删除</button></div></div>';
   }).join('');
 }
 
