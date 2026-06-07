@@ -659,6 +659,8 @@ function openQEditor(batchMode) {
   var isBatch = batchMode === true;
   var singleContainer = document.getElementById('qe-single-fields');
   if (singleContainer) singleContainer.style.display = isBatch ? 'none' : '';
+  var sectionField = document.getElementById('qe-section-field');
+  if (sectionField) sectionField.style.display = isBatch ? 'none' : '';
   document.getElementById('qe-batch-panel').style.display = isBatch ? '' : 'none';
   document.getElementById('qe-batch-save-btn').style.display = 'none';
   document.getElementById('qe-batch-gen-btn').style.display = isBatch ? '' : 'none';
@@ -1915,8 +1917,10 @@ loadData();
     <h3>✏️ 添加题目</h3>
     <label>科目</label>
     <select id="qe-subject"></select>
-    <label>章节 (可填已有或新建)</label>
-    <input type="text" id="qe-section" placeholder="如：秦汉时期">
+    <div id="qe-section-field">
+      <label>章节 (可填已有或新建)</label>
+      <input type="text" id="qe-section" placeholder="如：秦汉时期">
+    </div>
     <div id="qe-single-fields">
       <label>题目</label>
       <textarea id="qe-question" placeholder="输入题目..."></textarea>
