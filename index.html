@@ -887,18 +887,14 @@ function indexPDFText(text) {
 }
 
 function getPDFContext(question) {
-  if (pdfChunks.length === 0) return pdfTextContent.substring(0, 5000);
+  if (pdfChunks.length === 0) return pdfTextContent.substring(0, 8000);
   var qFreq = getCharFreq(question);
   var scores = pdfChunks.map(function(chunk, idx) {
     return { s: keywordScore(getCharFreq(chunk), qFreq), i: idx };
   });
   scores.sort(function(a, b) { return b.s - a.s; });
-  var top = scores.slice(0, 5);
-  // If best score is too low, fall back to broader context
-  var result = top[0] && top[0].s > 0.5
-    ? top.map(function(sc) { return pdfChunks[sc.i]; }).join('\n\n---\n\n')
-    : pdfTextContent.substring(0, 5000);
-  return result;
+  // Take top 8 chunks — more context is better than missing content
+  return scores.slice(0, 8).map(function(sc) { return pdfChunks[sc.i]; }).join('\n\n---\n\n');
 }
 
 async function batchGenerateAnswers() {
@@ -950,9 +946,10 @@ async function batchGenerateAnswers() {
     try {
       var prompt = context
         ? '根据以下资料回答问题。返回JSON：{\"answer\":\"答案（用<b>标签加粗关键词）\",\"tips\":\"记忆提示\"}\n\n📚资料：' + context + '\n\n❓问题：' + q
-        : '回答此问题。返回JSON格式：{\"answer\":\"答案（用<b>标签加粗关键词）\",\"tips\":\"记忆提示\"}\n\n问题：' + q;
-	      if (sourceName === 'PDF 资料') {
-	        prompt = '以下是PDF文档中的内容。请**严格依据这份PDF资料**回答问题，不要使用其他知识。如果PDF中没有相关答案，请如实说"PDF中未找到相关的内容"。返回JSON：{"answer":"答案（用<b>标签加粗关键词）","tips":"在PDF第几页找到的"}\n\n📄PDF资料：' + context + '\n\n❓问题：' + q;
+        : '回答此问题。返回JSON格式：{\"answer\":\"答案（用<b>标签加粗关键词）\",\"tips\":\"记忆提示\"}\n\n问题：' + q;      if (sourceName === 'PDF 资料') {
+        prompt = '请参考以下PDF文档内容回答问题。尽可能从PDF资料中找答案。如果资料中确实没有，可以根据你的知识回答，但请在tips中注明。返回JSON：{"answer":"答案（用<b>标签加粗关键词）","tips":"记忆提示"}\n\n📄PDF资料：' + context + '\n\n❓问题：' + q;
+      }
+\n\n📄PDF资料：' + context + '\n\n❓问题：' + q;
 	      }
 
       var resp = await fetch(DEEPSEEK_URL, {
