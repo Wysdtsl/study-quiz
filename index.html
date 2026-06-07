@@ -2377,57 +2377,48 @@ function removeUserAddedId(id) {
 async function syncToGitHub(updatedData, msg) {
   var token = getGHToken();
   if (!token) throw new Error('未配置 GitHub Token，请先点击 🔗 设置');
-  var _gc = new AbortController();
-  var _gt = setTimeout(function() { _gc.abort(); }, 15000);
-  try {
-  var getResp = await fetch('https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json', {
-    signal: _gc.signal,
-    headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
-  });
-  } finally { clearTimeout(_gt); }
+  var _apiUrl = 'https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json';
+  var _proxyUrl = 'https://gh-proxy.org/https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json';
+
+  // Try direct, fallback to proxy
+  async function _ghFetch(url, opts) {
+    var _c = new AbortController();
+    var _t = setTimeout(function() { _c.abort(); }, 15000);
+    try { return await fetch(url, Object.assign({ signal: _c.signal }, opts)); }
+    finally { clearTimeout(_t); }
+  }
+  function _ghUrl(isDirect) { return isDirect ? _apiUrl : _proxyUrl; }
+
+  var _useDirect = true;
+  var getResp;
+  try { getResp = await _ghFetch(_apiUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
+  catch(e) { _useDirect = false; try { getResp = await _ghFetch(_proxyUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); } catch(e2) { throw new Error('无法连接到 GitHub (' + e.message + ')'); } }
   if (!getResp.ok) throw new Error('GitHub 读取失败 (HTTP ' + getResp.status + ')，请检查 Token 是否有权限');
   var fileInfo = await getResp.json();
-  // Decode the CURRENT content from GitHub (another device may have added questions)
   var remoteData = JSON.parse(atob(fileInfo.content));
-  // Merge: keep questions from both local and remote, dedup by (subject + question id)
   var localSubjIds = {};
   updatedData.subjects.forEach(function(s) { localSubjIds[s.id] = true; });
-  // For each subject in remote, merge questions into local data
   remoteData.subjects.forEach(function(rs) {
     var localSubj = updatedData.subjects.find(function(s) { return s.id === rs.id; });
     if (localSubj) {
-      // Merge sessions
       rs.sessions.forEach(function(rsess) {
         var localSess = localSubj.sessions.find(function(s) { return s.date === rsess.date; });
         if (localSess) {
-          // Add remote questions not yet in local
           rsess.questions.forEach(function(rq) {
             if (!localSess.questions.find(function(lq) { return lq.id === rq.id; })) {
               localSess.questions.push(rq);
             }
           });
-        } else {
-          // New session from remote
-          localSubj.sessions.push(rsess);
-        }
+        } else { localSubj.sessions.push(rsess); }
       });
-    } else {
-      // New subject from remote
-      updatedData.subjects.push(rs);
-    }
+    } else { updatedData.subjects.push(rs); }
   });
   var jsonStr = JSON.stringify(updatedData, null, 2);
   var encoded = btoa(unescape(encodeURIComponent(jsonStr)));
-  var _pc = new AbortController();
-  var _pt = setTimeout(function() { _pc.abort(); }, 15000);
-  try {
-  var putResp = await fetch('https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json', {
-    signal: _pc.signal,
-    method: 'PUT',
-    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-    body: JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha })
-  });
-  } finally { clearTimeout(_pt); }
+  var putUrl = _useDirect ? _apiUrl : _proxyUrl;
+  var putResp;
+  try { putResp = await _ghFetch(putUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha }) }); }
+  catch(e) { throw new Error('无法写入 GitHub (' + e.message + ')'); }
   if (!putResp.ok) throw new Error('GitHub 写入失败 (HTTP ' + putResp.status + ')');
 }
 
