@@ -941,14 +941,13 @@ function splitIntoChunks(text, maxChars) {
   return chunks.length > 0 ? chunks : [text];
 }
 
-// Pure JS keyword matching — no external model needed
+// Keyword matching for locating the relevant PDF region
 function getCharFreq(text) {
   var freq = {};
   for (var k = 0; k < text.length; k++) {
     var ch = text[k];
     if (/[\u4e00-\u9fff]/.test(ch)) { freq[ch] = (freq[ch] || 0) + 1; }
   }
-  // Also track character bigrams for better matching
   var chars = text.match(/[\u4e00-\u9fff]/g) || [];
   for (var k = 0; k < chars.length - 1; k++) {
     var bg = chars[k] + chars[k+1];
@@ -967,52 +966,58 @@ function keywordScore(chunkFreq, questionFreq) {
 }
 
 function indexPDFText(text) {
-  pdfChunks = splitIntoChunks(text, 500);
+  // Use larger 1500-char chunks for more coherent context windows
+  pdfChunks = splitIntoChunks(text, 1500);
   pdfIndexReady = true;
   var statusEl = document.getElementById('pdf-index-status');
   if (statusEl) { statusEl.style.display = ''; statusEl.textContent = '✅ 索引完成 (' + pdfChunks.length + ' 段)'; }
 }
 
 function getPDFContext(question) {
-  if (pdfChunks.length === 0) return pdfTextContent.substring(0, 10000);
+  if (pdfChunks.length === 0) return pdfTextContent.substring(0, 12000);
+  // For very short questions or non-Chinese terms, try direct substring search first
+  var qLower = question.toLowerCase();
+  var directHits = [];
+  for (var di = 0; di < pdfChunks.length; di++) {
+    if (pdfChunks[di].toLowerCase().indexOf(qLower) > -1) {
+      directHits.push(di);
+    }
+  }
+  // If direct text match found, center the window around the first hit
+  if (directHits.length > 0) {
+    var centerIdx = directHits[Math.floor(directHits.length / 2)];
+    var start = Math.max(0, centerIdx - 4);
+    var end = Math.min(pdfChunks.length, centerIdx + 5);
+    return pdfChunks.slice(start, end).join('\n\n---\n\n');
+  }
+  // Fallback: keyword frequency matching
   var qFreq = getCharFreq(question);
+  // If question has no Chinese chars, fall through to broad coverage
+  var hasChinese = Object.keys(qFreq).some(function(k) { return k.length === 1; });
+  if (!hasChinese) {
+    // Grab first 20% + last 20% for broad coverage (non-Chinese queries)
+    var third = Math.floor(pdfChunks.length / 5);
+    var taken = {};
+    var result = [];
+    function _add(i) { if (!taken[i]) { taken[i] = true; result.push(pdfChunks[i]); } }
+    for (var si = 0; si < third; si++) _add(si);
+    for (var ei = Math.max(third, pdfChunks.length - third); ei < pdfChunks.length; ei++) _add(ei);
+    return result.join('\n\n---\n\n');
+  }
   var scores = pdfChunks.map(function(chunk, idx) {
     return { s: keywordScore(getCharFreq(chunk), qFreq), i: idx };
   });
   scores.sort(function(a, b) { return b.s - a.s; });
-
-  // Cascade 1: top 8 precise matches
-  var best = scores[0].s;
-  var taken = {};
-  var result = [];
-  function addChunk(i) {
-    if (taken[i]) return;
-    taken[i] = true;
-    result.push(pdfChunks[i]);
+  var bestIdx = scores[0].i;
+  // Return a wide continuous window centered on the best match
+  var windowStart = Math.max(0, bestIdx - 5);
+  var windowEnd = Math.min(pdfChunks.length, bestIdx + 6);
+  // If best score is very low, expand the window
+  if (scores[0].s < 0.15) {
+    windowStart = Math.max(0, bestIdx - 8);
+    windowEnd = Math.min(pdfChunks.length, bestIdx + 9);
   }
-  scores.slice(0, 8).forEach(function(sc) { addChunk(sc.i); });
-
-  // Cascade 2: if best match is weak, expand to top 16 + neighbors
-  if (best < 0.3) {
-    scores.slice(8, 16).forEach(function(sc) { addChunk(sc.i); });
-    // Also grab chunks adjacent to matched ones
-    scores.slice(0, 8).forEach(function(sc) {
-      if (sc.i > 0) addChunk(sc.i - 1);
-      if (sc.i < pdfChunks.length - 1) addChunk(sc.i + 1);
-    });
-  }
-
-  // Cascade 3: if still poor, grab broad coverage
-  if (result.length < 5) {
-    var mid = Math.floor(pdfChunks.length / 3);
-    var mid2 = Math.floor(pdfChunks.length * 2 / 3);
-    addChunk(0);
-    if (mid > 0) addChunk(mid);
-    if (mid2 > 0) addChunk(mid2);
-    addChunk(pdfChunks.length - 1);
-  }
-
-  return result.join('\n\n---\n\n');
+  return pdfChunks.slice(windowStart, windowEnd).join('\n\n---\n\n');
 }
 
 async function batchGenerateAnswers() {
@@ -1083,7 +1088,7 @@ async function batchGenerateAnswers() {
       var resp = await fetch(DEEPSEEK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
-        body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '你是考试题库查证助手。答案准确简洁，用<b>标签加粗关键词。适合表格的内容用HTML表格（<table><tr><th>...</th></tr><tr><td>...</td></tr></table>）。返回JSON：{"answer":"答案","tips":"记忆提示"}' }, { role: 'user', content: prompt }], max_tokens: 600, temperature: 0.3 })
+        body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '你是考试题库查证助手。答案准确简洁，用<b>标签加粗关键词。适合表格的内容用HTML表格（<table><tr><th>...</th></tr><tr><td>...</td></tr></table>）。返回JSON：{"answer":"答案","tips":"记忆提示"}。注意：资料可能包含多个章节内容，请从中提取与问题最相关的部分作为答案。' }, { role: 'user', content: prompt }], max_tokens: 1024, temperature: 0.3 })
       });
       var data = await resp.json();
       var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
