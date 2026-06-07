@@ -460,29 +460,58 @@
   .qe-list-item:last-child { border-bottom: none; }
 
   /* Question Manager */
-  .qm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; align-items: flex-start; justify-content: center; padding-top: 10vh; }
+  .qm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; align-items: flex-start; justify-content: center; padding-top: 8vh; }
   .qm-overlay.show { display: flex; }
-  .qm-sheet { background: var(--surface); border-radius: 16px; width: 100%; max-width: 600px; max-height: 80vh; overflow-y: auto; margin: 0 18px; padding: 20px; }
-  .qm-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .qm-head h3 { font-size: 18px; font-weight: 600; }
-  .qm-head .x { background: none; border: none; font-size: 20px; color: var(--ink-muted); cursor: pointer; padding: 4px; }
-  .qm-subj { margin-bottom: 16px; }
-  .qm-subj-name { font-size: 15px; font-weight: 600; padding: 8px 0; color: var(--ink-blue); cursor: pointer; display: flex; align-items: center; gap: 6px; }
-  .qm-subj-name::before { content: '▸'; font-size: 12px; transition: transform .2s; }
-  .qm-subj-name.open::before { transform: rotate(90deg); }
-  .qm-sess { margin-left: 16px; margin-bottom: 8px; }
-  .qm-sess-name { font-size: 13px; font-weight: 600; padding: 6px 0; color: var(--ink); cursor: pointer; display: flex; align-items: center; gap: 6px; }
-  .qm-sess-name::before { content: '▸'; font-size: 11px; transition: transform .2s; }
-  .qm-sess-name.open::before { transform: rotate(90deg); }
-  .qm-q { font-size: 13px; padding: 6px 8px; border-left: 2px solid var(--border); margin: 2px 0 2px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .qm-q-local { border-left-color: var(--amber); background: var(--amber-light); border-radius: 0 6px 6px 0; }
-  .qm-q-text { flex: 1; min-width: 0; line-height: 1.5; }
-  .qm-q-actions { display: flex; gap: 4px; flex-shrink: 0; }
-  .qm-q-actions button { background: none; border: none; font-size: 12px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+  .qm-sheet { background: var(--surface); border-radius: 20px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; margin: 0 16px; padding: 0; box-shadow: 0 8px 40px rgba(0,0,0,.15); }
+  .qm-head { position: sticky; top: 0; z-index: 1; background: var(--surface); display: flex; justify-content: space-between; align-items: center; padding: 20px 20px 12px; border-bottom: 1px solid var(--border); }
+  .qm-head h3 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+  .qm-head .x { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--surface2); border: none; border-radius: 10px; font-size: 16px; color: var(--ink-muted); cursor: pointer; transition: background .15s; }
+  .qm-head .x:active { background: var(--border); }
+  .qm-body { padding: 12px 20px 20px; }
+
+  /* Subject card */
+  .qm-subj { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+  .qm-subj-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; transition: background .15s; }
+  .qm-subj-header:active { background: var(--surface2); }
+  .qm-subj-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .qm-subj-icon.geo { background: #e4efe9; }
+  .qm-subj-icon.pol { background: #f5ecdc; }
+  .qm-subj-icon.his { background: #f2e3e1; }
+  .qm-subj-icon.eco { background: #e5eaf0; }
+  .qm-subj-icon.def { background: var(--surface2); }
+  .qm-subj-info { flex: 1; min-width: 0; }
+  .qm-subj-name { font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .qm-subj-meta { font-size: 12px; color: var(--ink-muted); margin-top: 1px; }
+  .qm-subj-arrow { font-size: 14px; color: var(--ink-lighter); transition: transform .25s cubic-bezier(.4,0,.2,1); flex-shrink: 0; }
+  .qm-subj-arrow.open { transform: rotate(180deg); }
+  .qm-subj-body { border-top: 1px solid var(--border); padding: 8px 0; display: none; }
+  .qm-subj-body.open { display: block; }
+
+  /* Session */
+  .qm-sess { margin: 0 12px; }
+  .qm-sess-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer; border-radius: 8px; -webkit-tap-highlight-color: transparent; user-select: none; transition: background .15s; }
+  .qm-sess-header:active { background: var(--surface2); }
+  .qm-sess-name { font-size: 14px; font-weight: 500; flex: 1; }
+  .qm-sess-count { font-size: 12px; color: var(--ink-muted); background: var(--surface2); padding: 2px 8px; border-radius: 10px; }
+  .qm-sess-arrow { font-size: 12px; color: var(--ink-lighter); transition: transform .25s cubic-bezier(.4,0,.2,1); }
+  .qm-sess-arrow.open { transform: rotate(180deg); }
+  .qm-sess-body { padding: 2px 0 8px 12px; display: none; }
+  .qm-sess-body.open { display: block; }
+
+  /* Question item */
+  .qm-q { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; margin: 3px 0; border-radius: 8px; border: 1px solid transparent; transition: background .15s; }
+  .qm-q:hover { background: var(--surface2); }
+  .qm-q-text { flex: 1; min-width: 0; font-size: 13px; line-height: 1.6; color: var(--ink); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .qm-q-local { background: #fff8f0; border-color: #f0dbb8; }
+  .qm-q-local .qm-q-text { -webkit-line-clamp: unset; }
+  .qm-q-badge { font-size: 10px; background: var(--amber); color: #fff; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-right: 6px; white-space: nowrap; flex-shrink: 0; }
+  .qm-q-actions { display: flex; gap: 2px; flex-shrink: 0; opacity: .4; transition: opacity .2s; }
+  .qm-q:hover .qm-q-actions, .qm-q-local .qm-q-actions { opacity: 1; }
+  .qm-q-actions button { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: none; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; transition: background .15s; }
+  .qm-q-actions button:active { background: var(--border); }
   .qm-q-actions .edit { color: var(--ink-blue); }
   .qm-q-actions .del { color: var(--red); }
-  .qm-q-actions button:hover { background: var(--surface2); }
-  .qm-empty { text-align: center; padding: 40px 0; color: var(--ink-muted); font-size: 14px; }
+  .qm-empty { text-align: center; padding: 60px 20px; color: var(--ink-muted); font-size: 14px; line-height: 1.8; }
 
   </style>
 </head>
@@ -2142,78 +2171,88 @@ function closeQuestionManager(e) {
   }
 }
 
+function getSubjectIcon(name) {
+  if (name.indexOf('地理') > -1) return { icon: '🌍', cls: 'geo' };
+  if (name.indexOf('马克思') > -1) return { icon: '📕', cls: 'pol' };
+  if (name.indexOf('毛泽东') > -1 || name.indexOf('中共') > -1) return { icon: '📗', cls: 'his' };
+  if (name.indexOf('中国') > -1) return { icon: '📘', cls: 'eco' };
+  return { icon: '📚', cls: 'def' };
+}
+
 function renderQuestionManager() {
   var custom = getCustomQuestions();
-  var html = '';
+  var html = '<div class="qm-body">';
+  var totalBuiltin = 0, totalCustom = 0;
 
   for (var si = 0; si < data.subjects.length; si++) {
     var subj = data.subjects[si];
-    html += '<div class="qm-subj"><div class="qm-subj-name" onclick="toggleQMSubj(' + si + ')" id="qms-' + si + '">' + subj.name + ' <span style="font-weight:400;font-size:12px;color:var(--ink-muted);">' + subj.sessions.length + ' 章</span></div>';
-    html += '<div id="qmsc-' + si + '" style="display:none;">';
+    var subjCustom = custom[subj.id] || [];
+    var subjTotalQ = 0;
+    subj.sessions.forEach(function(s) { subjTotalQ += s.questions.length; });
+    totalBuiltin += subjTotalQ;
+    totalCustom += subjCustom.length;
+    var iconData = getSubjectIcon(subj.name);
+
+    html += '<div class="qm-subj">';
+    html += '<div class="qm-subj-header" onclick="toggleQMSubj(' + si + ')">';
+    html += '<div class="qm-subj-icon ' + iconData.cls + '">' + iconData.icon + '</div>';
+    html += '<div class="qm-subj-info"><div class="qm-subj-name">' + subj.name + '</div><div class="qm-subj-meta">' + subj.sessions.length + ' 章 · ' + subjTotalQ + ' 题' + (subjCustom.length ? ' · <b style="color:var(--amber);">本地 ' + subjCustom.length + ' 题</b>' : '') + '</div></div>';
+    html += '<div class="qm-subj-arrow" id="qma-' + si + '">▼</div></div>';
+    html += '<div class="qm-subj-body" id="qmsb-' + si + '">';
 
     for (var sei = 0; sei < subj.sessions.length; sei++) {
       var sess = subj.sessions[sei];
       var qs = sess.questions || [];
-      var customInSession = (custom[subj.id] || []).filter(function(q) { return q.section === sess.date; });
-      html += '<div class="qm-sess"><div class="qm-sess-name" onclick="toggleQMSess(' + si + ',' + sei + ')" id="qmsess-' + si + '-' + sei + '">' + sess.label + ' <span style="font-weight:400;font-size:12px;color:var(--ink-muted);">' + qs.length + ' 题' + (customInSession.length ? ' +' + customInSession.length + ' 本地' : '') + '</span></div>';
-      html += '<div id="qmsessc-' + si + '-' + sei + '" style="display:none;">';
+      var customInSession = subjCustom.filter(function(q) { return q.section === sess.date; });
+      html += '<div class="qm-sess">';
+      html += '<div class="qm-sess-header" onclick="toggleQMSess(' + si + ',' + sei + ')">';
+      html += '<span class="qm-sess-name">' + sess.label + '</span>';
+      html += '<span class="qm-sess-count">' + qs.length + ' 题' + (customInSession.length ? ' · 本地 ' + customInSession.length : '') + '</span>';
+      html += '<span class="qm-sess-arrow" id="qmsa-' + si + '-' + sei + '">▼</span></div>';
+      html += '<div class="qm-sess-body" id="qmsessb-' + si + '-' + sei + '">';
 
-      // Built-in questions
       for (var qi = 0; qi < qs.length; qi++) {
-        var q = qs[qi];
-        html += '<div class="qm-q"><span class="qm-q-text">' + q.question + '</span></div>';
+        html += '<div class="qm-q"><span class="qm-q-text">' + qs[qi].question + '</span></div>';
       }
-
-      // Custom questions in this session
       for (var ci = 0; ci < customInSession.length; ci++) {
         var cq = customInSession[ci];
-        html += '<div class="qm-q qm-q-local"><span class="qm-q-text">📌 ' + cq.question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">🗑</button></div></div>';
+        html += '<div class="qm-q qm-q-local"><span class="qm-q-badge">本地</span><span class="qm-q-text">' + cq.question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">🗑</button></div></div>';
       }
-
-      html += '</div></div>'; // close session content + session
+      html += '</div></div>'; // sess-body + sess
     }
 
-    // Show subject-level custom questions (those not tied to a specific session section)
-    var subjCustom = (custom[subj.id] || []).filter(function(q) { return !subj.sessions.some(function(s) { return s.date === q.section; }); });
-    if (subjCustom.length > 0) {
-      html += '<div class="qm-sess"><div class="qm-sess-name" onclick="toggleQMSess(' + si + ',\'orphan\')" id="qmsess-' + si + '-orphan">📌 本地题 <span style="font-weight:400;font-size:12px;color:var(--ink-muted);">' + subjCustom.length + ' 题</span></div>';
-      html += '<div id="qmsessc-' + si + '-orphan" style="display:none;">';
-      for (var ci = 0; ci < subjCustom.length; ci++) {
-        var cq = subjCustom[ci];
-        html += '<div class="qm-q qm-q-local"><span class="qm-q-text">📌 ' + cq.question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">🗑</button></div></div>';
+    // Orphan custom questions (no matching session)
+    var orphans = subjCustom.filter(function(q) { return !subj.sessions.some(function(s) { return s.date === q.section; }); });
+    if (orphans.length > 0) {
+      html += '<div class="qm-sess"><div class="qm-sess-header" onclick="toggleQMSess(' + si + ',\'o\')"><span class="qm-sess-name">其他</span><span class="qm-sess-count">本地 ' + orphans.length + ' 题</span><span class="qm-sess-arrow" id="qmsa-' + si + '-o">▼</span></div>';
+      html += '<div class="qm-sess-body" id="qmsessb-' + si + '-o">';
+      for (var ci = 0; ci < orphans.length; ci++) {
+        html += '<div class="qm-q qm-q-local"><span class="qm-q-badge">本地</span><span class="qm-q-text">' + orphans[ci].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')">🗑</button></div></div>';
       }
-      html += '</div></div>';
+      html += '</div></div>'; // sess-body + sess
     }
 
-    html += '</div></div>'; // close subject content + subject
+    html += '</div></div>'; // subj-body + subj
   }
 
+  html += '</div>'; // qm-body
   document.getElementById('qm-content').innerHTML = html || '<div class="qm-empty">暂无题目数据</div>';
 }
 
 function toggleQMSubj(idx) {
-  var name = document.getElementById('qms-' + idx);
-  var content = document.getElementById('qmsc-' + idx);
-  if (content.style.display === 'none') {
-    content.style.display = '';
-    name.classList.add('open');
-  } else {
-    content.style.display = 'none';
-    name.classList.remove('open');
-  }
+  var body = document.getElementById('qmsb-' + idx);
+  var arrow = document.getElementById('qma-' + idx);
+  if (!body) return;
+  body.classList.toggle('open');
+  if (arrow) arrow.classList.toggle('open');
 }
 
 function toggleQMSess(si, sei) {
-  var name = document.getElementById('qmsess-' + si + '-' + sei);
-  var content = document.getElementById('qmsessc-' + si + '-' + sei);
-  if (!name || !content) return;
-  if (content.style.display === 'none') {
-    content.style.display = '';
-    name.classList.add('open');
-  } else {
-    content.style.display = 'none';
-    name.classList.remove('open');
-  }
+  var body = document.getElementById('qmsessb-' + si + '-' + sei);
+  var arrow = document.getElementById('qmsa-' + si + '-' + sei);
+  if (!body) return;
+  body.classList.toggle('open');
+  if (arrow) arrow.classList.toggle('open');
 }
 
 function deleteCustomQuestion(sid, id) {
