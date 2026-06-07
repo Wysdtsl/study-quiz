@@ -833,6 +833,77 @@ function saveQuestion() {
 let batchResults = [];
 let pdfTextContent = '';
 let pdfFileName = '';
+let pdfChunks = [];
+let pdfEmbeddings = [];
+let pdfIndexReady = false;
+let pdfExtractor = null;
+
+function splitIntoChunks(text, maxChars) {
+  var parts = text.split(/\n+/);
+  var chunks = [];
+  var cur = '';
+  for (var j = 0; j < parts.length; j++) {
+    var p = parts[j].trim();
+    if (!p) continue;
+    if (cur && (cur + '\n\n' + p).length > maxChars) {
+      chunks.push(cur);
+      cur = p;
+    } else {
+      cur = cur ? cur + '\n\n' + p : p;
+    }
+  }
+  if (cur) chunks.push(cur);
+  return chunks.length > 0 ? chunks : [text];
+}
+
+function cosineSimilarity(a, b) {
+  var dot = 0, na = 0, nb = 0;
+  for (var j = 0; j < a.length; j++) { dot += a[j] * b[j]; na += a[j] * a[j]; nb += b[j] * b[j]; }
+  return dot / (Math.sqrt(na) * Math.sqrt(nb));
+}
+
+async function indexPDFText(text) {
+  pdfChunks = splitIntoChunks(text, 300);
+  pdfEmbeddings = [];
+  pdfIndexReady = false;
+  var statusEl = document.getElementById('pdf-index-status');
+  if (!statusEl) return;
+  statusEl.style.display = '';
+  statusEl.textContent = '🧠 正在加载 AI 索引模型（首次约 23MB）...';
+  try {
+    if (!window.Transformers) { await loadScript('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1/dist/transformers.min.js'); }
+    if (!pdfExtractor) {
+      statusEl.textContent = '🧠 下载模型文件中...';
+      pdfExtractor = await window.Transformers.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
+        progress_callback: function(p) { if (p.status === 'progress' && statusEl) { statusEl.textContent = '🧠 下载模型中... ' + Math.round(p.progress) + '%'; } }
+      });
+    }
+    statusEl.textContent = '🧠 正在分析 ' + pdfChunks.length + ' 个段落...';
+    for (var j = 0; j < pdfChunks.length; j++) {
+      var out = await pdfExtractor(pdfChunks[j], { pooling: 'mean', normalize: true });
+      pdfEmbeddings.push(Array.from(out.data));
+      if (j % 5 === 0) { statusEl.textContent = '🧠 索引中 ' + (j+1) + '/' + pdfChunks.length + '...'; await new Promise(function(r) { setTimeout(r, 0); }); }
+    }
+    pdfIndexReady = true;
+    statusEl.textContent = '✅ 索引完成 (' + pdfChunks.length + ' 段)';
+  } catch(e) {
+    statusEl.textContent = '⚠️ 索引入失败，使用全文搜索';
+    pdfChunks = []; pdfEmbeddings = [];
+  }
+}
+
+async function getPDFContext(question) {
+  if (!pdfIndexReady || pdfEmbeddings.length === 0) return pdfTextContent.substring(0, 5000);
+  try {
+    var out = await pdfExtractor(question, { pooling: 'mean', normalize: true });
+    var qEmb = Array.from(out.data);
+    var scores = pdfEmbeddings.map(function(emb, idx) { return { s: cosineSimilarity(qEmb, emb), i: idx }; });
+    scores.sort(function(a, b) { return b.s - a.s; });
+    return scores.slice(0, 3).map(function(sc) { return pdfChunks[sc.i]; }).join('\n\n---\n\n');
+  } catch(e) {
+    return pdfTextContent.substring(0, 5000);
+  }
+}
 
 async function batchGenerateAnswers() {
   var questions = document.getElementById('qe-batch-questions').value.trim();
@@ -853,7 +924,7 @@ async function batchGenerateAnswers() {
     document.getElementById('qe-batch-progress').textContent = '正在查证 ' + (i+1) + '/' + lines.length + '...';
 
     if (pdfTextContent) {
-      context = pdfTextContent.substring(0, 5000);
+      context = await getPDFContext(q);
       sourceName = 'PDF 资料';
     } else {
       try {
@@ -1020,6 +1091,9 @@ async function handlePDFFile(event) {
     btn.style.border = '1px solid var(--green)';
     btn.style.background = 'var(--green-light)';
     btn.style.color = 'var(--green)';
+
+    // Build AI index in background
+    indexPDFText(pdfTextContent);
   } catch(e) {
     alert('PDF 读取失败: ' + e.message);
     clearPDF();
@@ -1045,6 +1119,9 @@ function togglePDFPreview() {
 function clearPDF() {
   pdfTextContent = '';
   pdfFileName = '';
+  pdfChunks = []; pdfEmbeddings = []; pdfIndexReady = false;
+  var idxStatus = document.getElementById('pdf-index-status');
+  if (idxStatus) { idxStatus.style.display = 'none'; idxStatus.textContent = ''; }
   document.getElementById('pdf-preview').style.display = 'none';
   document.getElementById('pdf-file-input').value = '';
   var btn = document.getElementById('pdf-import-btn');
@@ -2059,6 +2136,7 @@ loadData();
         </div>
         <div id="pdf-text-preview" style="color:var(--ink-muted);max-height:120px;overflow-y:auto;font-size:12px;white-space:pre-wrap;word-break:break-word;"></div>
         <button id="pdf-expand-btn" onclick="togglePDFPreview()" style="display:none;background:none;border:none;color:var(--ink-blue);font-size:12px;cursor:pointer;margin-top:4px;padding:0;">展开全部 ▾</button>
+        <div id="pdf-index-status" style="display:none;margin-top:4px;padding:4px 0;font-size:12px;color:var(--ink-muted);"></div>
       </div>
 
       <div class="qe-batch-progress" id="qe-batch-progress" style="text-align:center;color:var(--ink-blue);font-size:14px;padding:8px;"></div>
