@@ -853,37 +853,60 @@ async function batchGenerateAnswers() {
     document.getElementById('qe-batch-progress').textContent = '正在查证 ' + (i+1) + '/' + lines.length + '...';
 
     var context = '', sourceName = '';
+
+    // Step 1: PDF context (if imported)
     if (pdfTextContent) {
       context = pdfTextContent.substring(0, 2500);
       sourceName = 'PDF 资料';
-    } else {
-      try {
-        var wikiUrl = 'https://zh.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=3&format=json&origin=*';
-        var wr = await fetch(wikiUrl);
-        var wdata = await wr.json();
-        var titles = wdata[1] || [];
-        if (titles.length > 0) {
-          var contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
-          var cr = await fetch(contentUrl);
-          var cdata = await cr.json();
-          var pages = (cdata.query && cdata.query.pages) || {};
-          var page = Object.values(pages)[0];
-          if (page && page.extract) { context = page.extract.substring(0, 2000); sourceName = '中文维基百科'; }
-        }
-        if (!context) {
-          try {
-            var baiduUrl = 'https://r.jina.ai/https://baike.baidu.com/item/' + encodeURIComponent(q.replace(/[?？]/g,''));
-            var br = await fetch(baiduUrl);
-            if (br.ok) { var bt = await br.text(); if (bt && bt.length > 200) { context = bt.substring(0, 2500); sourceName = '百度百科'; } }
-          } catch(e) {}
-        }
-      } catch(e) {}
     }
+
+    // Step 2: Also try Wikipedia/Baidu for supplement
+    var wikiFound = false;
+    try {
+      var wikiUrl = 'https://zh.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=3&format=json&origin=*';
+      var wr = await fetch(wikiUrl);
+      var wdata = await wr.json();
+      var titles = wdata[1] || [];
+      if (titles.length > 0) {
+        var contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
+        var cr = await fetch(contentUrl);
+        var cdata = await cr.json();
+        var pages = (cdata.query && cdata.query.pages) || {};
+        var page = Object.values(pages)[0];
+        if (page && page.extract) {
+          var wikiText = page.extract.substring(0, 1500);
+          if (context) {
+            context = context + '\n\n--- 百科查证 ---\n' + wikiText;
+            sourceName = sourceName + ' + 中文维基百科';
+          } else {
+            context = wikiText;
+            sourceName = '中文维基百科';
+          }
+          wikiFound = true;
+        }
+      }
+      if (!wikiFound) {
+        try {
+          var baiduUrl = 'https://r.jina.ai/https://baike.baidu.com/item/' + encodeURIComponent(q.replace(/[?？]/g,''));
+          var br = await fetch(baiduUrl);
+          if (br.ok) { var bt = await br.text(); if (bt && bt.length > 200) {
+            var baiduText = bt.substring(0, 1500);
+            if (context) {
+              context = context + '\n\n--- 百科查证 ---\n' + baiduText;
+              sourceName = sourceName + ' + 百度百科';
+            } else {
+              context = baiduText;
+              sourceName = '百度百科';
+            }
+          }}
+        } catch(e) {}
+      }
+    } catch(e) {}
 
     try {
       var prompt = context
-        ? '根据以下' + sourceName + '资料回答问题。返回JSON：{"answer":"答案（用<b>标签加粗关键词）","tips":"记忆提示"}\n\n📚资料：' + context + '\n\n❓问题：' + q
-        : '回答此问题。返回JSON格式：{"answer":"答案（用<b>标签加粗关键词）","tips":"记忆提示"}\n\n问题：' + q;
+        ? '根据以下资料回答问题。返回JSON：{\"answer\":\"答案（用<b>标签加粗关键词）\",\"tips\":\"记忆提示\"}\n\n📚资料：' + context + '\n\n❓问题：' + q
+        : '回答此问题。返回JSON格式：{\"answer\":\"答案（用<b>标签加粗关键词）\",\"tips\":\"记忆提示\"}\n\n问题：' + q;
 
       var resp = await fetch(DEEPSEEK_URL, {
         method: 'POST',
@@ -891,11 +914,16 @@ async function batchGenerateAnswers() {
         body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '考试题库查证助手。答案准确简洁。' }, { role: 'user', content: prompt }], max_tokens: 600, temperature: 0.3 })
       });
       var data = await resp.json();
-      var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '';
+      var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
       var answer = '', tips = '';
-      try { var p = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim()); answer = p.answer || ''; tips = p.tips || ''; } catch(err) { var pts = text.split('\n\n'); answer = pts[0] || text; tips = pts.slice(1).join(' ') || ''; }
-      if (context) tips += '\n✅ ' + sourceName + ' 核实';
-      else tips += '\n⚠️ 基于模型知识';
+      if (text) {
+        try { var p = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim()); answer = p.answer || ''; tips = p.tips || ''; } catch(err) { var pts = text.split('\n\n'); answer = pts[0] || text; tips = pts.slice(1).join(' ') || ''; }
+        if (context) tips += '\n✅ ' + sourceName + ' 核实';
+        else tips += '\n⚠️ 基于模型知识';
+      } else {
+        tips = '⚠️ AI 返回为空，可能被限流或 API 异常';
+        answer = '（未获取到回答）';
+      }
       batchResults.push({ question: q, answer: answer, tips: tips });
     } catch(e) {
       batchResults.push({ question: q, answer: '生成失败: ' + e.message, tips: '' });
