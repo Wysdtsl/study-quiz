@@ -852,14 +852,14 @@ async function aiFillQA(e) {
   btn.textContent = '🤖 AI 查证填答案';
   }
 
-function saveQuestion() {
+async function saveQuestion() {
   const sid = document.getElementById('qe-subject').value;
   const section = document.getElementById('qe-section').value.trim();
   const question = document.getElementById('qe-question').value.trim();
   const answer = document.getElementById('qe-answer').value.trim();
   const tips = document.getElementById('qe-tips').value.trim();
   if (!sid || !section || !question || !answer) { alert('请填写科目、章节、题目和答案'); return; }
-  
+
   // Generate unique ID
   const prefix = sid.substring(0, 3);
   const existing = new Set();
@@ -871,22 +871,41 @@ function saveQuestion() {
   let num = 1;
   while (existing.has(`${prefix}_${String(num).padStart(3,'0')}`)) num++;
   const id = `${prefix}_${String(num).padStart(3,'0')}`;
-  
-  // Save to localStorage
   const entry = { id, section, question, answer, tips };
-  try {
-    const custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-    if (!custom[sid]) custom[sid] = [];
-    custom[sid].push(entry);
-    localStorage.setItem('customQuestions', JSON.stringify(custom));
-  } catch(e) { alert('保存失败: ' + e.message); return; }
-  
+
+  // Try GitHub sync first
+  var saved = false, syncErr = '';
+  if (getGHToken()) {
+    try {
+      // Add to data in memory
+      var subj = data.subjects.find(function(s) { return s.id === sid; });
+      if (subj) {
+        var sess = subj.sessions.find(function(s) { return s.label === section; });
+        if (!sess) { sess = { date: section, label: section, questions: [] }; subj.sessions.push(sess); }
+        sess.questions.push(entry);
+      }
+      await syncToGitHub(data, '✨ 添加题目: ' + question);
+      saved = true;
+    } catch(e) { syncErr = e.message; }
+  }
+
+  if (!saved) {
+    // Fallback to localStorage
+    try {
+      const custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+      if (!custom[sid]) custom[sid] = [];
+      custom[sid].push(entry);
+      localStorage.setItem('customQuestions', JSON.stringify(custom));
+    } catch(e) { alert('保存失败: ' + e.message); return; }
+  }
+
   // Show success
   document.getElementById('qe-saved').style.display = 'block';
+  document.getElementById('qe-saved').textContent = saved ? '✅ 已保存到 GitHub，刷新后所有设备可见' : ('⚠️ GitHub 同步失败: ' + syncErr + '，已保存到本地');
   document.getElementById('qe-question').value = '';
   document.getElementById('qe-answer').value = '';
   document.getElementById('qe-tips').value = '';
-  setTimeout(() => location.reload(), 600);
+  setTimeout(function() { location.reload(); }, saved ? 800 : 1500);
 }
 
 // ── Batch Editor ──
@@ -1063,30 +1082,57 @@ function editBatchAnswer(i) {
 
 function deleteBatchItem(i) { batchResults.splice(i, 1); renderBatchResults(); }
 
-function batchSaveAll() {
+async function batchSaveAll() {
   var sid = document.getElementById('qe-subject').value;
   var section = document.getElementById('qe-batch-section').value.trim();
   if (!sid || !section || batchResults.length === 0) { alert('请填写科目、章节并生成答案'); return; }
+
+  // Generate IDs and build questions
+  var existing = new Set();
+  data.subjects.forEach(function(s) { s.sessions.forEach(function(ss) { ss.questions.forEach(function(q) { existing.add(q.id); }); }); });
   try {
-    var custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-    if (!custom[sid]) custom[sid] = [];
-    var existing = new Set();
-    data.subjects.forEach(function(s) { s.sessions.forEach(function(ss) { ss.questions.forEach(function(q) { existing.add(q.id); }); }); });
-    for (var j = 0; j < (custom[sid] || []).length; j++) { existing.add(custom[sid][j].id); }
-    var prefix = sid.substring(0, 3);
-    var num = 1;
-    batchResults.forEach(function(r) {
-      while (existing.has(prefix + '_' + String(num).padStart(3, '0'))) num++;
-      var id = prefix + '_' + String(num).padStart(3, '0');
-      existing.add(id);
-      custom[sid].push({ id: id, section: section, question: r.question, answer: r.answer, tips: r.tips });
-      num++;
-    });
-    localStorage.setItem('customQuestions', JSON.stringify(custom));
-    alert('已保存 ' + batchResults.length + ' 题到 ' + section);
-    document.getElementById('qe-overlay').classList.remove('show');
-    setTimeout(function() { location.reload(); }, 600);
-  } catch(e) { alert('保存失败: ' + e.message); }
+    var c = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+    for (var j = 0; j < (c[sid] || []).length; j++) { existing.add(c[sid][j].id); }
+  } catch(e) {}
+  var prefix = sid.substring(0, 3);
+  var num = 1;
+  var newQuestions = [];
+  batchResults.forEach(function(r) {
+    while (existing.has(prefix + '_' + String(num).padStart(3, '0'))) num++;
+    var id = prefix + '_' + String(num).padStart(3, '0');
+    existing.add(id);
+    newQuestions.push({ id: id, section: section, question: r.question, answer: r.answer, tips: r.tips });
+    num++;
+  });
+
+  // Try GitHub sync first
+  var saved = false, syncErr = '';
+  if (getGHToken()) {
+    try {
+      // Add to data in memory
+      var subj = data.subjects.find(function(s) { return s.id === sid; });
+      if (subj) {
+        var sess = subj.sessions.find(function(s) { return s.label === section; });
+        if (!sess) { sess = { date: section, label: section, questions: [] }; subj.sessions.push(sess); }
+        newQuestions.forEach(function(q) { sess.questions.push(q); });
+      }
+      await syncToGitHub(data, '📋 批量添加 ' + batchResults.length + ' 题到 ' + section);
+      saved = true;
+    } catch(e) { syncErr = e.message; }
+  }
+
+  if (!saved) {
+    try {
+      var custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+      if (!custom[sid]) custom[sid] = [];
+      newQuestions.forEach(function(q) { custom[sid].push(q); });
+      localStorage.setItem('customQuestions', JSON.stringify(custom));
+    } catch(e) { alert('保存失败: ' + e.message); return; }
+  }
+
+  alert(saved ? '✅ 已保存 ' + batchResults.length + ' 题到 GitHub，所有设备同步' : ('⚠️ 已保存到本地: ' + syncErr));
+  document.getElementById('qe-overlay').classList.remove('show');
+  setTimeout(function() { location.reload(); }, 600);
 }
 
 // ── PDF Import ──
@@ -2149,6 +2195,41 @@ function escapeHtml(s) {
   return d.innerHTML;
 }
 
+// ── GitHub Sync ──
+function getGHToken() { try { var r = localStorage.getItem('gh_token'); return r ? atob(r) : ''; } catch(e) { return ''; } }
+
+async function syncToGitHub(updatedData, msg) {
+  var token = getGHToken();
+  if (!token) throw new Error('未配置 GitHub Token，请先点击 🔗 设置');
+  var getResp = await fetch('https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json', {
+    headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
+  });
+  if (!getResp.ok) throw new Error('GitHub 读取失败 (HTTP ' + getResp.status + ')，请检查 Token 是否有权限');
+  var fileInfo = await getResp.json();
+  var jsonStr = JSON.stringify(updatedData, null, 2);
+  var encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+  var putResp = await fetch('https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json', {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+    body: JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha })
+  });
+  if (!putResp.ok) throw new Error('GitHub 写入失败 (HTTP ' + putResp.status + ')');
+}
+
+function setupGithubSync() {
+  var current = getGHToken();
+  if (current) {
+    if (!confirm('当前已配置 GitHub Token。要重新设置吗？')) return;
+  }
+  var token = prompt('请输入 GitHub Personal Access Token：', current ? '****' + current.slice(-4) : '');
+  if (!token) return;
+  try {
+    localStorage.setItem('gh_token', btoa(token));
+    var el = document.getElementById('qm-sync-status');
+    if (el) { el.style.display = ''; el.textContent = '✅ GitHub Token 已配置'; el.style.color = 'var(--green)'; setTimeout(function() { el.style.display = 'none'; }, 3000); }
+  } catch(e) { alert('保存失败: ' + e.message); }
+}
+
 // ── Question Manager ──
 function getCustomQuestions() {
   try { return JSON.parse(localStorage.getItem('customQuestions') || '{}'); } catch(e) { return {}; }
@@ -2160,6 +2241,16 @@ function openQuestionManager() {
     const input = prompt('请输入管理密码：');
     if (input !== EDITOR_PW) { alert('密码错误'); return; }
     localStorage.setItem(AUTH_KEY, '1');
+  }
+  var syncEl = document.getElementById('qm-sync-status');
+  if (getGHToken()) {
+    syncEl.style.display = '';
+    syncEl.textContent = '🔗 GitHub 已连接，保存即同步';
+    syncEl.style.color = 'var(--green)';
+  } else {
+    syncEl.style.display = '';
+    syncEl.textContent = '⚠️ 未配置 GitHub 同步，题目仅保存在本地';
+    syncEl.style.color = 'var(--red)';
   }
   renderQuestionManager();
   document.getElementById('qm-overlay').classList.add('show');
@@ -2351,8 +2442,12 @@ loadData();
   <div class="qm-sheet" onclick="event.stopPropagation()">
     <div class="qm-head">
       <h3>📋 题目管理</h3>
-      <button class="x" onclick="closeQuestionManager()">✕</button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="x" onclick="setupGithubSync()" title="GitHub 同步设置" style="font-size:14px;width:auto;padding:0 10px;">🔗</button>
+        <button class="x" onclick="closeQuestionManager()">✕</button>
+      </div>
     </div>
+    <div id="qm-sync-status" style="display:none;padding:0 20px 8px;font-size:12px;color:var(--green);"></div>
     <div id="qm-content"><div class="qm-empty">加载中...</div></div>
   </div>
 </div>
