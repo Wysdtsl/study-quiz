@@ -511,6 +511,13 @@
   .qm-q-actions button:active { background: var(--border); }
   .qm-q-actions .edit { color: var(--ink-blue); }
   .qm-q-actions .del { color: var(--red); }
+  .qm-q-cb { display: flex; align-items: center; padding: 2px 0; flex-shrink: 0; }
+  .qm-q-cb input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--ink-blue); }
+  .qm-q.selected { background: #eef4ff; border-color: #b8cff0; }
+  .qm-batch-bar { display: none; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid var(--border); background: var(--surface); position: sticky; bottom: 0; }
+  .qm-batch-bar.has-checked { display: flex; }
+  .qm-batch-count { font-size: 13px; color: var(--ink); font-weight: 600; }
+  .qm-batch-del { background: var(--red); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
   .qm-empty { text-align: center; padding: 60px 20px; color: var(--ink-muted); font-size: 14px; line-height: 1.8; }
 
   </style>
@@ -2477,11 +2484,11 @@ function renderQuestionManager() {
         var hidden = isHidden(qid);
         var cls = overridden ? ' qm-q-local' : (hidden ? ' qm-q' : '');
         var _delFn = userAddedIds.indexOf(qid) > -1 ? 'deleteCustomQuestion' : 'deleteAnyQuestion';
-        html += '<div class="qm-q' + (overridden || hidden ? ' qm-q-local' : '') + '"><span class="qm-q-text" style="' + (hidden ? 'text-decoration:line-through;opacity:.5;' : '') + '">' + (overridden ? '✏️ ' : '') + (hidden ? '🚫 ' : '') + qs[qi].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editAnyQuestion(\'' + subj.id + '\',\'' + qid + '\')">✏️</button><button class="del" onclick="' + _delFn + '(\'' + subj.id + '\',\'' + qid + '\')">🗑</button></div></div>';
+        html += '<div class="qm-q' + (overridden || hidden ? ' qm-q-local' : '') + '"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + qid + '" onchange="onBatchCheck()"></label><span class="qm-q-text" style="' + (hidden ? 'text-decoration:line-through;opacity:.5;' : '') + '">' + (overridden ? '✏️ ' : '') + (hidden ? '🚫 ' : '') + qs[qi].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editAnyQuestion(\'' + subj.id + '\',\'' + qid + '\')">✏️</button><button class="del" onclick="' + _delFn + '(\'' + subj.id + '\',\'' + qid + '\')">🗑</button></div></div>';
       }
       for (var ci = 0; ci < customInSession.length; ci++) {
         var cq = customInSession[ci];
-        html += '<div class="qm-q qm-q-local"><span class="qm-q-badge">本地</span><span class="qm-q-text">' + cq.question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">🗑</button></div></div>';
+        html += '<div class="qm-q qm-q-local"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + cq.id + '" onchange="onBatchCheck()"></label><span class="qm-q-badge">本地</span><span class="qm-q-text">' + cq.question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">🗑</button></div></div>';
       }
       html += '</div></div>'; // sess-body + sess
     }
@@ -2492,7 +2499,7 @@ function renderQuestionManager() {
       html += '<div class="qm-sess"><div class="qm-sess-header" onclick="toggleQMSess(' + si + ',\'o\')"><span class="qm-sess-name">其他</span><span class="qm-sess-count">本地 ' + orphans.length + ' 题</span><span class="qm-sess-arrow" id="qmsa-' + si + '-o">▼</span></div>';
       html += '<div class="qm-sess-body" id="qmsessb-' + si + '-o">';
       for (var ci = 0; ci < orphans.length; ci++) {
-        html += '<div class="qm-q qm-q-local"><span class="qm-q-badge">本地</span><span class="qm-q-text">' + orphans[ci].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')">🗑</button></div></div>';
+        html += '<div class="qm-q qm-q-local"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + orphans[ci].id + '" onchange="onBatchCheck()"></label><span class="qm-q-badge">本地</span><span class="qm-q-text">' + orphans[ci].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')">🗑</button></div></div>';
       }
       html += '</div></div>'; // sess-body + sess
     }
@@ -2501,6 +2508,7 @@ function renderQuestionManager() {
   }
 
   html += '</div>'; // qm-body
+  html += '<div class="qm-batch-bar" id="qm-batch-bar"><span class="qm-batch-count" id="qm-batch-count">已选 0 题</span><button class="qm-batch-del" onclick="batchDeleteQuestions()">🗑 批量删除</button></div>';
   document.getElementById('qm-content').innerHTML = html || '<div class="qm-empty">暂无题目数据</div>';
 }
 
@@ -2518,6 +2526,85 @@ function toggleQMSess(si, sei) {
   if (!body) return;
   body.classList.toggle('open');
   if (arrow) arrow.classList.toggle('open');
+}
+
+// ── Batch delete ──
+function removeQuestionFromData(sid, qid) {
+  for (var _si = 0; _si < data.subjects.length; _si++) {
+    if (data.subjects[_si].id === sid) {
+      for (var _sei = 0; _sei < data.subjects[_si].sessions.length; _sei++) {
+        var _sess = data.subjects[_si].sessions[_sei];
+        for (var _qi = 0; _qi < _sess.questions.length; _qi++) {
+          if (_sess.questions[_qi].id === qid) {
+            _sess.questions.splice(_qi, 1);
+            return true;
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
+function onBatchCheck() {
+  var checked = document.querySelectorAll('#qm-content .qm-cb:checked').length;
+  var bar = document.getElementById('qm-batch-bar');
+  var count = document.getElementById('qm-batch-count');
+  if (count) count.textContent = '已选 ' + checked + ' 题';
+  if (bar) bar.classList.toggle('has-checked', checked > 0);
+}
+
+function batchDeleteQuestions() {
+  var cbs = document.querySelectorAll('#qm-content .qm-cb:checked');
+  if (cbs.length === 0) return;
+  var toDelete = [], toHide = [];
+  var _custom = getCustomQuestions();
+  var _userAdded = getUserAddedIds();
+  for (var _bi = 0; _bi < cbs.length; _bi++) {
+    var _qid = cbs[_bi].getAttribute('data-qid');
+    if (!_qid) continue;
+    var _qmQ = cbs[_bi].closest('.qm-q');
+    if (!_qmQ) continue;
+    var _delBtn = _qmQ.querySelector('.del');
+    if (!_delBtn) continue;
+    var _oc = _delBtn.getAttribute('onclick') || '';
+    var _m = _oc.match(/'([^']+)','([^']+)'\)/);
+    if (!_m) continue;
+    var _sid = _m[1], _qid2 = _m[2];
+    if ((_custom[_sid] && _custom[_sid].find(function(q) { return q.id === _qid2; })) || _userAdded.indexOf(_qid2) > -1) {
+      toDelete.push({sid: _sid, qid: _qid2});
+    } else {
+      toHide.push(_qid2);
+    }
+  }
+  if (toDelete.length === 0 && toHide.length === 0) return;
+  var msg = '';
+  if (toDelete.length > 0) msg += '删除 ' + toDelete.length + ' 道题';
+  if (toHide.length > 0) msg += (msg ? '，' : '') + '隐藏 ' + toHide.length + ' 道内置题';
+  if (!confirm('确定' + msg + '吗？')) return;
+  // Delete custom/synced questions
+  toDelete.forEach(function(item) {
+    if (_custom[item.sid]) {
+      _custom[item.sid] = _custom[item.sid].filter(function(q) { return q.id !== item.qid; });
+      if (_custom[item.sid].length === 0) delete _custom[item.sid];
+    }
+    removeUserAddedId(item.qid);
+    removeQuestionFromData(item.sid, item.qid);
+  });
+  localStorage.setItem('customQuestions', JSON.stringify(_custom));
+  // Hide built-in questions
+  toHide.forEach(function(qid) {
+    var _h = getHiddenIds();
+    if (_h.indexOf(qid) === -1) { _h.push(qid); localStorage.setItem('qHidden', JSON.stringify(_h)); }
+  });
+  // Sync to GitHub
+  if (toDelete.length > 0 && getGHToken()) {
+    syncToGitHub(data, '🗑 批量删除 ' + toDelete.length + ' 题').catch(function(e) {});
+  }
+  // Re-render
+  _qmRendering = true; renderQuestionManager();
+  document.getElementById('qm-overlay').classList.add('show');
+  setTimeout(function() { _qmRendering = false; }, 200);
 }
 
 function deleteCustomQuestion(sid, id) {
