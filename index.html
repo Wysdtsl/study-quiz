@@ -1395,6 +1395,34 @@ async function loadData() {
         }
       }
     } catch(e) {}
+    // Also sync from GitHub API if token available (cross-device)
+    try {
+      var _gt = getGHToken();
+      if (_gt) {
+        var _gr = await fetch('https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json', {
+          headers: { 'Authorization': 'Bearer ' + _gt, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (_gr.ok) {
+          var _gf = await _gr.json();
+          var _remote = JSON.parse(atob(_gf.content));
+          _remote.subjects.forEach(function(_rs) {
+            var _ls = data.subjects.find(function(s) { return s.id === _rs.id; });
+            if (_ls) {
+              _rs.sessions.forEach(function(_rsess) {
+                var _lss = _ls.sessions.find(function(s) { return s.date === _rsess.date; });
+                if (_lss) {
+                  _rsess.questions.forEach(function(_rq) {
+                    if (!_lss.questions.find(function(lq) { return lq.id === _rq.id; })) {
+                      _lss.questions.push(_rq);
+                    }
+                  });
+                } else { _ls.sessions.push(_rsess); }
+              });
+            } else { data.subjects.push(_rs); }
+          });
+        }
+      }
+    } catch(e) {}
     document.getElementById('js-status').textContent = 'Data loaded ✓ · ' + data.subjects.length + ' subjects · ' + data.subjects.reduce(function(a,s){return a+s.sessions.reduce(function(b,ss){return b+ss.questions.length},0)},0) + ' questions'; document.getElementById('js-status').style.background = '#5cb85c'; document.getElementById('js-status').style.color = '#fff';
     renderSubjects();
     renderStats();
@@ -2337,6 +2365,35 @@ async function syncToGitHub(updatedData, msg) {
   });
   if (!getResp.ok) throw new Error('GitHub 读取失败 (HTTP ' + getResp.status + ')，请检查 Token 是否有权限');
   var fileInfo = await getResp.json();
+  // Decode the CURRENT content from GitHub (another device may have added questions)
+  var remoteData = JSON.parse(atob(fileInfo.content));
+  // Merge: keep questions from both local and remote, dedup by (subject + question id)
+  var localSubjIds = {};
+  updatedData.subjects.forEach(function(s) { localSubjIds[s.id] = true; });
+  // For each subject in remote, merge questions into local data
+  remoteData.subjects.forEach(function(rs) {
+    var localSubj = updatedData.subjects.find(function(s) { return s.id === rs.id; });
+    if (localSubj) {
+      // Merge sessions
+      rs.sessions.forEach(function(rsess) {
+        var localSess = localSubj.sessions.find(function(s) { return s.date === rsess.date; });
+        if (localSess) {
+          // Add remote questions not yet in local
+          rsess.questions.forEach(function(rq) {
+            if (!localSess.questions.find(function(lq) { return lq.id === rq.id; })) {
+              localSess.questions.push(rq);
+            }
+          });
+        } else {
+          // New session from remote
+          localSubj.sessions.push(rsess);
+        }
+      });
+    } else {
+      // New subject from remote
+      updatedData.subjects.push(rs);
+    }
+  });
   var jsonStr = JSON.stringify(updatedData, null, 2);
   var encoded = btoa(unescape(encodeURIComponent(jsonStr)));
   var putResp = await fetch('https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json', {
