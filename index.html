@@ -831,6 +831,8 @@ function saveQuestion() {
 
 // ── Batch Editor ──
 let batchResults = [];
+let pdfTextContent = '';
+let pdfFileName = '';
 
 async function batchGenerateAnswers() {
   var questions = document.getElementById('qe-batch-questions').value.trim();
@@ -851,27 +853,32 @@ async function batchGenerateAnswers() {
     document.getElementById('qe-batch-progress').textContent = '正在查证 ' + (i+1) + '/' + lines.length + '...';
 
     var context = '', sourceName = '';
-    try {
-      var wikiUrl = 'https://zh.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=3&format=json&origin=*';
-      var wr = await fetch(wikiUrl);
-      var wdata = await wr.json();
-      var titles = wdata[1] || [];
-      if (titles.length > 0) {
-        var contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
-        var cr = await fetch(contentUrl);
-        var cdata = await cr.json();
-        var pages = (cdata.query && cdata.query.pages) || {};
-        var page = Object.values(pages)[0];
-        if (page && page.extract) { context = page.extract.substring(0, 2000); sourceName = '中文维基百科'; }
-      }
-      if (!context) {
-        try {
-          var baiduUrl = 'https://r.jina.ai/https://baike.baidu.com/item/' + encodeURIComponent(q.replace(/[?？]/g,''));
-          var br = await fetch(baiduUrl);
-          if (br.ok) { var bt = await br.text(); if (bt && bt.length > 200) { context = bt.substring(0, 2500); sourceName = '百度百科'; } }
-        } catch(e) {}
-      }
-    } catch(e) {}
+    if (pdfTextContent) {
+      context = pdfTextContent.substring(0, 2500);
+      sourceName = 'PDF 资料';
+    } else {
+      try {
+        var wikiUrl = 'https://zh.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=3&format=json&origin=*';
+        var wr = await fetch(wikiUrl);
+        var wdata = await wr.json();
+        var titles = wdata[1] || [];
+        if (titles.length > 0) {
+          var contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
+          var cr = await fetch(contentUrl);
+          var cdata = await cr.json();
+          var pages = (cdata.query && cdata.query.pages) || {};
+          var page = Object.values(pages)[0];
+          if (page && page.extract) { context = page.extract.substring(0, 2000); sourceName = '中文维基百科'; }
+        }
+        if (!context) {
+          try {
+            var baiduUrl = 'https://r.jina.ai/https://baike.baidu.com/item/' + encodeURIComponent(q.replace(/[?？]/g,''));
+            var br = await fetch(baiduUrl);
+            if (br.ok) { var bt = await br.text(); if (bt && bt.length > 200) { context = bt.substring(0, 2500); sourceName = '百度百科'; } }
+          } catch(e) {}
+        }
+      } catch(e) {}
+    }
 
     try {
       var prompt = context
@@ -949,6 +956,96 @@ function batchSaveAll() {
     document.getElementById('qe-overlay').classList.remove('show');
     setTimeout(function() { location.reload(); }, 600);
   } catch(e) { alert('保存失败: ' + e.message); }
+}
+
+// ── PDF Import ──
+let pdfLibLoaded = false;
+
+function importPDF() {
+  document.getElementById('pdf-file-input').click();
+}
+
+async function handlePDFFile(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  pdfFileName = file.name;
+
+  // Load pdf.js on first use
+  if (!pdfLibLoaded) {
+    document.getElementById('pdf-import-btn').textContent = '⏳ 加载 PDF 引擎...';
+    try {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfLibLoaded = true;
+    } catch(e) {
+      alert('PDF 引擎加载失败: ' + e.message);
+      document.getElementById('pdf-import-btn').textContent = '📄 从 PDF 导入';
+      return;
+    }
+  }
+
+  document.getElementById('pdf-import-btn').textContent = '📖 读取中...';
+  try {
+    var arrayBuffer = await file.arrayBuffer();
+    var pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    var fullText = '';
+    for (var i = 1; i <= pdf.numPages; i++) {
+      var page = await pdf.getPage(i);
+      var content = await page.getTextContent();
+      var pageText = content.items.map(function(item) { return item.str; }).join(' ');
+      fullText += pageText + '\n\n';
+    }
+    pdfTextContent = fullText.trim();
+
+    // Show preview (first 200 chars)
+    document.getElementById('pdf-preview').style.display = '';
+    document.getElementById('pdf-filename').textContent = pdfFileName + ' (' + pdf.numPages + '页, 共' + pdfTextContent.length + '字)';
+    var preview = document.getElementById('pdf-text-preview');
+    preview.textContent = pdfTextContent.substring(0, 200) + (pdfTextContent.length > 200 ? '...' : '');
+    preview.style.maxHeight = '120px';
+    var expandBtn = document.getElementById('pdf-expand-btn');
+    expandBtn.style.display = pdfTextContent.length > 200 ? '' : 'none';
+    expandBtn.dataset.expanded = 'false';
+
+    document.getElementById('pdf-import-btn').textContent = '📄 重新导入';
+  } catch(e) {
+    alert('PDF 读取失败: ' + e.message);
+    clearPDF();
+  }
+}
+
+function togglePDFPreview() {
+  var btn = document.getElementById('pdf-expand-btn');
+  var preview = document.getElementById('pdf-text-preview');
+  if (btn.dataset.expanded === 'true') {
+    preview.textContent = pdfTextContent.substring(0, 200) + (pdfTextContent.length > 200 ? '...' : '');
+    preview.style.maxHeight = '120px';
+    btn.textContent = '展开全部 ▾';
+    btn.dataset.expanded = 'false';
+  } else {
+    preview.textContent = pdfTextContent;
+    preview.style.maxHeight = 'none';
+    btn.textContent = '收起 ▴';
+    btn.dataset.expanded = 'true';
+  }
+}
+
+function clearPDF() {
+  pdfTextContent = '';
+  pdfFileName = '';
+  document.getElementById('pdf-preview').style.display = 'none';
+  document.getElementById('pdf-file-input').value = '';
+  document.getElementById('pdf-import-btn').textContent = '📄 从 PDF 导入';
+}
+
+function loadScript(src) {
+  return new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = function() { reject(new Error('Failed to load ' + src)); };
+    document.head.appendChild(s);
+  });
 }
 
 function exportQuestions() {
@@ -1935,6 +2032,19 @@ loadData();
     <div id="qe-batch-panel" style="display:none;">
       <label>题目（每行一题）</label>
       <textarea id="qe-batch-questions" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;box-sizing:border-box;min-height:120px;resize:vertical;line-height:1.6;" placeholder="每行一题&#10;例如：&#10;什么是GDP？&#10;通货膨胀的定义是什么？"></textarea>
+
+      <!-- PDF Import -->
+      <button class="qe-btn-pdf" onclick="importPDF()" id="pdf-import-btn" style="display:flex;align-items:center;gap:6px;width:100%;padding:10px;border:1px dashed var(--border);border-radius:10px;background:var(--surface2);color:var(--ink);font-size:14px;cursor:pointer;font-family:inherit;justify-content:center;">📄 从 PDF 导入</button>
+      <input type="file" id="pdf-file-input" accept=".pdf" style="display:none">
+      <div id="pdf-preview" style="display:none;margin-top:8px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--surface);font-size:13px;line-height:1.6;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span id="pdf-filename" style="font-weight:600;font-size:13px;color:var(--ink-blue);word-break:break-all;"></span>
+          <button onclick="clearPDF()" style="background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;padding:2px 6px;white-space:nowrap;">✕ 清除</button>
+        </div>
+        <div id="pdf-text-preview" style="color:var(--ink-muted);max-height:120px;overflow-y:auto;font-size:12px;white-space:pre-wrap;word-break:break-word;"></div>
+        <button id="pdf-expand-btn" onclick="togglePDFPreview()" style="display:none;background:none;border:none;color:var(--ink-blue);font-size:12px;cursor:pointer;margin-top:4px;padding:0;">展开全部 ▾</button>
+      </div>
+
       <div class="qe-batch-progress" id="qe-batch-progress" style="text-align:center;color:var(--ink-blue);font-size:14px;padding:8px;"></div>
       <div id="qe-batch-results"></div>
       <div class="qe-actions" style="display:flex;gap:10px;margin-top:12px;">
