@@ -1423,6 +1423,29 @@ async function loadData() {
         }
       }
     } catch(e) {}
+    // Background: sync local-only questions to GitHub
+    try {
+      var _syncGt = getGHToken();
+      var _hasLocal = false;
+      try { var _lc = JSON.parse(localStorage.getItem('customQuestions') || '{}'); _hasLocal = Object.keys(_lc).length > 0; } catch(e) {}
+      if (_syncGt && _hasLocal) {
+        try { var _lc2 = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+          for (var _sid in _lc2) {
+            var _subj = data.subjects.find(function(s) { return s.id === _sid; });
+            if (!_subj) { _subj = { id: _sid, name: _sid, sessions: [] }; data.subjects.push(_subj); }
+            _lc2[_sid].forEach(function(_entry) {
+              var _sess = _subj.sessions.find(function(s) { return s.date === _entry.section; });
+              if (!_sess) { _sess = { date: _entry.section, label: _entry.section, questions: [] }; _subj.sessions.push(_sess); }
+              if (!_sess.questions.find(function(q) { return q.id === _entry.id; })) {
+                _sess.questions.push({ id: _entry.id, question: _entry.question, answer: _entry.answer, tips: _entry.tips || '', section: _entry.section });
+              }
+            });
+          }
+          await syncToGitHub(data, '\uD83D\uDD04 \u540c\u6b65\u672c\u5730\u9898\u76ee');
+          localStorage.removeItem('customQuestions');
+        } catch(e_sync) { console.log('Background sync failed:', e_sync); }
+      }
+    } catch(e) {}
     document.getElementById('js-status').textContent = 'Data loaded ✓ · ' + data.subjects.length + ' subjects · ' + data.subjects.reduce(function(a,s){return a+s.sessions.reduce(function(b,ss){return b+ss.questions.length},0)},0) + ' questions'; document.getElementById('js-status').style.background = '#5cb85c'; document.getElementById('js-status').style.color = '#fff';
     renderSubjects();
     renderStats();
