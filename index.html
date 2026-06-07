@@ -966,14 +966,45 @@ function indexPDFText(text) {
 }
 
 function getPDFContext(question) {
-  if (pdfChunks.length === 0) return pdfTextContent.substring(0, 8000);
+  if (pdfChunks.length === 0) return pdfTextContent.substring(0, 10000);
   var qFreq = getCharFreq(question);
   var scores = pdfChunks.map(function(chunk, idx) {
     return { s: keywordScore(getCharFreq(chunk), qFreq), i: idx };
   });
   scores.sort(function(a, b) { return b.s - a.s; });
-  // Take top 8 chunks — more context is better than missing content
-  return scores.slice(0, 8).map(function(sc) { return pdfChunks[sc.i]; }).join('\n\n---\n\n');
+
+  // Cascade 1: top 8 precise matches
+  var best = scores[0].s;
+  var taken = {};
+  var result = [];
+  function addChunk(i) {
+    if (taken[i]) return;
+    taken[i] = true;
+    result.push(pdfChunks[i]);
+  }
+  scores.slice(0, 8).forEach(function(sc) { addChunk(sc.i); });
+
+  // Cascade 2: if best match is weak, expand to top 16 + neighbors
+  if (best < 0.3) {
+    scores.slice(8, 16).forEach(function(sc) { addChunk(sc.i); });
+    // Also grab chunks adjacent to matched ones
+    scores.slice(0, 8).forEach(function(sc) {
+      if (sc.i > 0) addChunk(sc.i - 1);
+      if (sc.i < pdfChunks.length - 1) addChunk(sc.i + 1);
+    });
+  }
+
+  // Cascade 3: if still poor, grab broad coverage
+  if (result.length < 5) {
+    var mid = Math.floor(pdfChunks.length / 3);
+    var mid2 = Math.floor(pdfChunks.length * 2 / 3);
+    addChunk(0);
+    if (mid > 0) addChunk(mid);
+    if (mid2 > 0) addChunk(mid2);
+    addChunk(pdfChunks.length - 1);
+  }
+
+  return result.join('\n\n---\n\n');
 }
 
 async function batchGenerateAnswers() {
@@ -1127,12 +1158,24 @@ async function batchSaveAll() {
       if (!custom[sid]) custom[sid] = [];
       newQuestions.forEach(function(q) { custom[sid].push(q); });
       localStorage.setItem('customQuestions', JSON.stringify(custom));
-    } catch(e) { alert('保存失败: ' + e.message); return; }
+    } catch(e) { showBatchStatus('⚠️ 保存失败: ' + e.message, false); return; }
   }
 
-  alert(saved ? '✅ 已保存 ' + batchResults.length + ' 题到 GitHub，所有设备同步' : ('⚠️ 已保存到本地: ' + syncErr));
-  document.getElementById('qe-overlay').classList.remove('show');
-  setTimeout(function() { location.reload(); }, 600);
+  showBatchStatus(saved ? '✅ 已保存 ' + batchResults.length + ' 题到 GitHub' : '⚠️ ' + syncErr + '（已存本地）', saved);
+  if (saved) {
+    document.getElementById('qe-overlay').classList.remove('show');
+    setTimeout(function() { location.reload(); }, 1000);
+  }
+}
+
+function showBatchStatus(msg, success) {
+  var el = document.getElementById('qe-save-status');
+  el.style.display = '';
+  el.textContent = msg;
+  el.style.background = success ? 'var(--green-light)' : 'var(--red-light)';
+  el.style.color = success ? 'var(--green)' : 'var(--red)';
+  var saveBtn = document.getElementById('qe-batch-save-btn');
+  if (saveBtn) saveBtn.disabled = true;
 }
 
 // ── PDF Import ──
@@ -1601,10 +1644,18 @@ function quitQuiz() {
 
 // ── Quiz ──
 
+function getOverriddenQ(q) {
+  var o = getOverrides ? getOverrides() : {};
+  var key = (currentSubject ? currentSubject.id + ':' : '') + q.id;
+  if (o[key]) { q = Object.assign({}, q, o[key]); }
+  return q;
+}
+
 function renderQuestion() {
   const qs = sessionQuestions || currentSession.questions;
   if (!currentSession || currentIndex >= qs.length) { showResult(); return; }
-  const q = qs[currentIndex];
+  var q = qs[currentIndex];
+  q = getOverriddenQ(q);
   document.getElementById('quiz-progress').textContent = `${currentIndex + 1}/${qs.length}`;
   document.getElementById('quiz-section').textContent = q.section || '';
   const statusIcon = answers[q.id] ? (answers[q.id] === 'correct' ? ' ✅' : ' ❌') : '';
@@ -2230,6 +2281,60 @@ function setupGithubSync() {
   } catch(e) { alert('保存失败: ' + e.message); }
 }
 
+// ── Question Overrides ──
+function getOverrides() { try { return JSON.parse(localStorage.getItem('qOverrides') || '{}'); } catch(e) { return {}; } }
+
+function editAnyQuestion(sid, qid) {
+  // Find question data
+  var q = null;
+  var subj = data.subjects.find(function(s) { return s.id === sid; });
+  if (subj) {
+    for (var i = 0; i < subj.sessions.length; i++) {
+      q = subj.sessions[i].questions.find(function(x) { return x.id === qid; });
+      if (q) break;
+    }
+  }
+  if (!q) { alert('题目不存在'); return; }
+
+  // Check if it's a custom question or built-in
+  var custom = getCustomQuestions();
+  var isCustom = custom[sid] && custom[sid].find(function(x) { return x.id === qid; });
+  if (isCustom) {
+    editCustomQuestion(sid, qid);
+    return;
+  }
+
+  // Built-in: use override
+  var overrides = getOverrides();
+  var existing = overrides[sid + ':' + qid] || {};
+  closeQuestionManager();
+  openQEditor(false);
+  setTimeout(function() {
+    document.getElementById('qe-subject').value = sid;
+    document.getElementById('qe-section').value = q.section || '';
+    document.getElementById('qe-question').value = existing.question || q.question || '';
+    document.getElementById('qe-answer').value = existing.answer || q.answer || '';
+    document.getElementById('qe-tips').value = existing.tips || q.tips || '';
+    document.getElementById('qe-saved').textContent = '✏️ 修改内置题保存后将覆盖原答案';
+    document.getElementById('qe-saved').style.display = 'block';
+    // Override save handler
+    var origSave = saveQuestion;
+    saveQuestion = async function() {
+      var newQ = document.getElementById('qe-question').value.trim();
+      var newA = document.getElementById('qe-answer').value.trim();
+      var newT = document.getElementById('qe-tips').value.trim();
+      if (!newQ || !newA) { alert('请填写题目和答案'); return; }
+      var overrides = getOverrides();
+      overrides[sid + ':' + qid] = { question: newQ, answer: newA, tips: newT };
+      localStorage.setItem('qOverrides', JSON.stringify(overrides));
+      document.getElementById('qe-saved').textContent = '✅ 已覆盖内置题答案';
+      document.getElementById('qe-saved').style.display = 'block';
+      setTimeout(function() { location.reload(); }, 600);
+    };
+    setTimeout(function() { saveQuestion = origSave; }, 60000); // reset after 1min
+  }, 100);
+}
+
 // ── Question Manager ──
 function getCustomQuestions() {
   try { return JSON.parse(localStorage.getItem('customQuestions') || '{}'); } catch(e) { return {}; }
@@ -2302,7 +2407,8 @@ function renderQuestionManager() {
       html += '<div class="qm-sess-body" id="qmsessb-' + si + '-' + sei + '">';
 
       for (var qi = 0; qi < qs.length; qi++) {
-        html += '<div class="qm-q"><span class="qm-q-text">' + qs[qi].question + '</span></div>';
+        var overridden = (getOverrides() || {})[subj.id + ':' + qs[qi].id];
+        html += '<div class="qm-q' + (overridden ? ' qm-q-local' : '') + '"><span class="qm-q-text' + (overridden ? '' : '') + '">' + (overridden ? '✏️ ' : '') + qs[qi].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editAnyQuestion(\'' + subj.id + '\',\'' + qs[qi].id + '\')">✏️</button></div></div>';
       }
       for (var ci = 0; ci < customInSession.length; ci++) {
         var cq = customInSession[ci];
@@ -2419,6 +2525,7 @@ loadData();
       </div>
 
       <div class="qe-batch-progress" id="qe-batch-progress" style="text-align:center;color:var(--ink-blue);font-size:14px;padding:8px;"></div>
+      <div id="qe-save-status" style="display:none;text-align:center;padding:8px 0;font-size:13px;font-weight:500;border-radius:8px;margin:4px 0;"></div>
       <div id="qe-batch-results"></div>
       <div class="qe-actions" style="display:flex;gap:10px;margin-top:12px;">
         <button class="qe-btn-ai" onclick="batchGenerateAnswers()" id="qe-batch-gen-btn">🤖 批量查证生成</button>
