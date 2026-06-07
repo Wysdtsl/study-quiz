@@ -459,6 +459,31 @@
   .qe-list-item { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .qe-list-item:last-child { border-bottom: none; }
 
+  /* Question Manager */
+  .qm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; align-items: flex-start; justify-content: center; padding-top: 10vh; }
+  .qm-overlay.show { display: flex; }
+  .qm-sheet { background: var(--surface); border-radius: 16px; width: 100%; max-width: 600px; max-height: 80vh; overflow-y: auto; margin: 0 18px; padding: 20px; }
+  .qm-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .qm-head h3 { font-size: 18px; font-weight: 600; }
+  .qm-head .x { background: none; border: none; font-size: 20px; color: var(--ink-muted); cursor: pointer; padding: 4px; }
+  .qm-subj { margin-bottom: 16px; }
+  .qm-subj-name { font-size: 15px; font-weight: 600; padding: 8px 0; color: var(--ink-blue); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .qm-subj-name::before { content: '▸'; font-size: 12px; transition: transform .2s; }
+  .qm-subj-name.open::before { transform: rotate(90deg); }
+  .qm-sess { margin-left: 16px; margin-bottom: 8px; }
+  .qm-sess-name { font-size: 13px; font-weight: 600; padding: 6px 0; color: var(--ink); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .qm-sess-name::before { content: '▸'; font-size: 11px; transition: transform .2s; }
+  .qm-sess-name.open::before { transform: rotate(90deg); }
+  .qm-q { font-size: 13px; padding: 6px 8px; border-left: 2px solid var(--border); margin: 2px 0 2px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .qm-q-local { border-left-color: var(--amber); background: var(--amber-light); border-radius: 0 6px 6px 0; }
+  .qm-q-text { flex: 1; min-width: 0; line-height: 1.5; }
+  .qm-q-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .qm-q-actions button { background: none; border: none; font-size: 12px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+  .qm-q-actions .edit { color: var(--ink-blue); }
+  .qm-q-actions .del { color: var(--red); }
+  .qm-q-actions button:hover { background: var(--surface2); }
+  .qm-empty { text-align: center; padding: 40px 0; color: var(--ink-muted); font-size: 14px; }
+
   </style>
 </head>
 <body><div id="js-status" style="background:#f0ad4e;color:#000;padding:8px;font-size:14px;text-align:center;">JS not started yet...</div>
@@ -477,6 +502,7 @@
         <button class="btn btn-out" onclick="showNotes()">📝 笔记</button>
       </div>
       <button class="btn btn-out" onclick="showMap()">世界地图</button>
+      <button class="btn btn-out" onclick="openQuestionManager()" style="margin-top:8px;">📋 题目管理</button>
       <div class="home-actions-row" style="margin-top:8px;">
         <button class="btn btn-primary" onclick="openQEditor()" style="flex:1;">＋ 添加题目</button>
         <button class="btn btn-out" onclick="exportQuestions()" style="flex:1;">📥 导出题库</button>
@@ -2094,6 +2120,133 @@ function escapeHtml(s) {
   return d.innerHTML;
 }
 
+// ── Question Manager ──
+function getCustomQuestions() {
+  try { return JSON.parse(localStorage.getItem('customQuestions') || '{}'); } catch(e) { return {}; }
+}
+
+function openQuestionManager() {
+  const AUTH_KEY = 'qe_authed', EDITOR_PW = 'wys123456';
+  if (!localStorage.getItem(AUTH_KEY)) {
+    const input = prompt('请输入管理密码：');
+    if (input !== EDITOR_PW) { alert('密码错误'); return; }
+    localStorage.setItem(AUTH_KEY, '1');
+  }
+  renderQuestionManager();
+  document.getElementById('qm-overlay').classList.add('show');
+}
+
+function closeQuestionManager(e) {
+  if (!e || e.target === document.getElementById('qm-overlay')) {
+    document.getElementById('qm-overlay').classList.remove('show');
+  }
+}
+
+function renderQuestionManager() {
+  var custom = getCustomQuestions();
+  var html = '';
+
+  for (var si = 0; si < data.subjects.length; si++) {
+    var subj = data.subjects[si];
+    html += '<div class="qm-subj"><div class="qm-subj-name" onclick="toggleQMSubj(' + si + ')" id="qms-' + si + '">' + subj.name + ' <span style="font-weight:400;font-size:12px;color:var(--ink-muted);">' + subj.sessions.length + ' 章</span></div>';
+    html += '<div id="qmsc-' + si + '" style="display:none;">';
+
+    for (var sei = 0; sei < subj.sessions.length; sei++) {
+      var sess = subj.sessions[sei];
+      var qs = sess.questions || [];
+      var customInSession = (custom[subj.id] || []).filter(function(q) { return q.section === sess.date; });
+      html += '<div class="qm-sess"><div class="qm-sess-name" onclick="toggleQMSess(' + si + ',' + sei + ')" id="qmsess-' + si + '-' + sei + '">' + sess.label + ' <span style="font-weight:400;font-size:12px;color:var(--ink-muted);">' + qs.length + ' 题' + (customInSession.length ? ' +' + customInSession.length + ' 本地' : '') + '</span></div>';
+      html += '<div id="qmsessc-' + si + '-' + sei + '" style="display:none;">';
+
+      // Built-in questions
+      for (var qi = 0; qi < qs.length; qi++) {
+        var q = qs[qi];
+        html += '<div class="qm-q"><span class="qm-q-text">' + q.question + '</span></div>';
+      }
+
+      // Custom questions in this session
+      for (var ci = 0; ci < customInSession.length; ci++) {
+        var cq = customInSession[ci];
+        html += '<div class="qm-q qm-q-local"><span class="qm-q-text">📌 ' + cq.question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">🗑</button></div></div>';
+      }
+
+      html += '</div></div>'; // close session content + session
+    }
+
+    // Show subject-level custom questions (those not tied to a specific session section)
+    var subjCustom = (custom[subj.id] || []).filter(function(q) { return !subj.sessions.some(function(s) { return s.date === q.section; }); });
+    if (subjCustom.length > 0) {
+      html += '<div class="qm-sess"><div class="qm-sess-name" onclick="toggleQMSess(' + si + ',\'orphan\')" id="qmsess-' + si + '-orphan">📌 本地题 <span style="font-weight:400;font-size:12px;color:var(--ink-muted);">' + subjCustom.length + ' 题</span></div>';
+      html += '<div id="qmsessc-' + si + '-orphan" style="display:none;">';
+      for (var ci = 0; ci < subjCustom.length; ci++) {
+        var cq = subjCustom[ci];
+        html += '<div class="qm-q qm-q-local"><span class="qm-q-text">📌 ' + cq.question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">✏️</button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">🗑</button></div></div>';
+      }
+      html += '</div></div>';
+    }
+
+    html += '</div></div>'; // close subject content + subject
+  }
+
+  document.getElementById('qm-content').innerHTML = html || '<div class="qm-empty">暂无题目数据</div>';
+}
+
+function toggleQMSubj(idx) {
+  var name = document.getElementById('qms-' + idx);
+  var content = document.getElementById('qmsc-' + idx);
+  if (content.style.display === 'none') {
+    content.style.display = '';
+    name.classList.add('open');
+  } else {
+    content.style.display = 'none';
+    name.classList.remove('open');
+  }
+}
+
+function toggleQMSess(si, sei) {
+  var name = document.getElementById('qmsess-' + si + '-' + sei);
+  var content = document.getElementById('qmsessc-' + si + '-' + sei);
+  if (!name || !content) return;
+  if (content.style.display === 'none') {
+    content.style.display = '';
+    name.classList.add('open');
+  } else {
+    content.style.display = 'none';
+    name.classList.remove('open');
+  }
+}
+
+function deleteCustomQuestion(sid, id) {
+  if (!confirm('确定删除这道题吗？')) return;
+  try {
+    var custom = getCustomQuestions();
+    if (custom[sid]) {
+      custom[sid] = custom[sid].filter(function(q) { return q.id !== id; });
+      if (custom[sid].length === 0) delete custom[sid];
+      localStorage.setItem('customQuestions', JSON.stringify(custom));
+      renderQuestionManager();
+    }
+  } catch(e) { alert('删除失败: ' + e.message); }
+}
+
+function editCustomQuestion(sid, id) {
+  try {
+    var custom = getCustomQuestions();
+    var q = (custom[sid] || []).find(function(q) { return q.id === id; });
+    if (!q) { alert('题目不存在'); return; }
+    // Close manager, pre-fill editor
+    closeQuestionManager();
+    openQEditor(false);
+    setTimeout(function() {
+      document.getElementById('qe-subject').value = sid;
+      document.getElementById('qe-section').value = q.section || '';
+      document.getElementById('qe-question').value = q.question || '';
+      document.getElementById('qe-answer').value = q.answer || '';
+      document.getElementById('qe-tips').value = q.tips || '';
+    }, 100);
+  } catch(e) { alert('编辑失败: ' + e.message); }
+}
+
 loadData();
 </script>
 <script src="/study-quiz/lib/leaflet.min.js"></script>
@@ -2154,5 +2307,16 @@ loadData();
 </div>
 
 <button class="fab-add" id="fab-add" onclick="openQEditor()" title="添加题目">＋</button>
+
+<!-- Question Manager -->
+<div class="qm-overlay" id="qm-overlay" onclick="closeQuestionManager(event)">
+  <div class="qm-sheet" onclick="event.stopPropagation()">
+    <div class="qm-head">
+      <h3>📋 题目管理</h3>
+      <button class="x" onclick="closeQuestionManager()">✕</button>
+    </div>
+    <div id="qm-content"><div class="qm-empty">加载中...</div></div>
+  </div>
+</div>
 
 <!-- Batch Edit Modal -->
