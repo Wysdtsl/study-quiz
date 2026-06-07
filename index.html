@@ -840,7 +840,7 @@ async function batchGenerateAnswers() {
   try { var raw = localStorage.getItem('chat_api_key'); if (raw) chatApiKey = atob(raw); } catch(e) {}
   if (!chatApiKey) { alert('请先在聊天面板配置 DeepSeek API Key'); return; }
 
-  var lines = questions.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 3; });
+  var lines = questions.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
   if (lines.length === 0) { alert('请每行输入一题'); return; }
 
   var btn = document.getElementById('qe-batch-gen-btn');
@@ -929,11 +929,11 @@ async function batchGenerateAnswers() {
       batchResults.push({ question: q, answer: '生成失败: ' + e.message, tips: '' });
     }
 
-    renderBatchResults();
+    try { renderBatchResults(); } catch(e) {}
     await new Promise(function(r) { setTimeout(r, 300); });
   }
 
-  document.getElementById('qe-batch-progress').textContent = '✅ 完成 ' + lines.length + ' 题';
+  document.getElementById('qe-batch-progress').textContent = '✅ 完成 ' + batchResults.length + ' 题';
   document.getElementById('qe-batch-save-btn').style.display = '';
   btn.disabled = false;
 }
