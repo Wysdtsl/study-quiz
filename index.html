@@ -913,7 +913,12 @@ async function saveQuestion() {
   document.getElementById('qe-question').value = '';
   document.getElementById('qe-answer').value = '';
   document.getElementById('qe-tips').value = '';
-  setTimeout(function() { location.reload(); }, saved ? 800 : 1500);
+  if (saved) {
+    alert('✅ 保存成功！已同步到 GitHub，即将刷新页面。');
+    setTimeout(function() { location.reload(); }, 500);
+  } else {
+    alert('⚠️ 保存失败：' + syncErr + '。题目已保存到本地，其他设备不可见。');
+  }
 }
 
 // ── Batch Editor ──
@@ -1199,8 +1204,13 @@ async function batchSaveAll() {
 
   showBatchStatus(saved ? '✅ 已保存 ' + batchResults.length + ' 题到 GitHub' : '⚠️ ' + syncErr + '（已存本地）', saved);
   if (saved) {
+    alert('✅ 保存成功！' + batchResults.length + '道题已同步到 GitHub，即将刷新页面。');
     document.getElementById('qe-overlay').classList.remove('show');
-    setTimeout(function() { location.reload(); }, 1000);
+    setTimeout(function() { location.reload(); }, 500);
+  } else {
+    alert('⚠️ 保存失败：' + syncErr + '。题目已保存到本地，其他设备不可见。');
+    var saveBtn = document.getElementById('qe-batch-save-btn');
+    if (saveBtn) saveBtn.disabled = false;
   }
 }
 
