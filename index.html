@@ -2339,6 +2339,7 @@ function editAnyQuestion(sid, qid) {
 }
 
 // ── Hidden Questions ──
+var _qmRendering = false;
 function getHiddenIds() { try { return JSON.parse(localStorage.getItem('qHidden') || '[]'); } catch(e) { return []; } }
 function isHidden(qid) { return getHiddenIds().indexOf(qid) > -1; }
 function toggleHideQuestion(qid) {
@@ -2346,8 +2347,9 @@ function toggleHideQuestion(qid) {
   var idx = hidden.indexOf(qid);
   if (idx > -1) { hidden.splice(idx, 1); } else { hidden.push(qid); }
   localStorage.setItem('qHidden', JSON.stringify(hidden));
-  try { renderQuestionManager(); } catch(e) {}
+  _qmRendering = true; try { renderQuestionManager(); } catch(e) {}
   try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
+  setTimeout(function() { _qmRendering = false; }, 200);
 }
 
 // ── Question Manager ──
@@ -2377,6 +2379,7 @@ function openQuestionManager() {
 }
 
 function closeQuestionManager(e) {
+  if (_qmRendering) return;
   if (!e || e.target === document.getElementById('qm-overlay')) {
     document.getElementById('qm-overlay').classList.remove('show');
   }
@@ -2479,7 +2482,9 @@ function deleteCustomQuestion(sid, id) {
       localStorage.setItem('customQuestions', JSON.stringify(custom));
     }
   } catch(e) { alert('删除失败: ' + e.message); }
-  try { renderQuestionManager(); } catch(e) {}
+  _qmRendering = true; try { renderQuestionManager(); } catch(e) {}
+  try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
+  setTimeout(function() { _qmRendering = false; }, 200);
 }
 
 function deleteAnyQuestion(sid, qid) {
@@ -2487,7 +2492,6 @@ function deleteAnyQuestion(sid, qid) {
     var custom = getCustomQuestions();
     if (custom[sid] && custom[sid].find(function(q) { return q.id === qid; })) {
       deleteCustomQuestion(sid, qid);
-      try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
       return;
     }
     var hidden = getHiddenIds();
@@ -2498,7 +2502,6 @@ function deleteAnyQuestion(sid, qid) {
       toggleHideQuestion(qid);
     }
   } catch(e) { alert('操作失败: ' + e.message); }
-  try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
 }
 
 function editCustomQuestion(sid, id) {
