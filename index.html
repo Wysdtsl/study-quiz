@@ -1410,36 +1410,6 @@ async function loadData() {
         }
       }
     } catch(e) {}
-    // Background sync from GitHub API after render (non-blocking)
-    setTimeout(function() {
-      try {
-        var _gt2 = getGHToken();
-        if (_gt2) {
-          fetch('https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json', {
-            headers: { 'Authorization': 'Bearer ' + _gt2, 'Accept': 'application/vnd.github.v3+json' }
-          }).then(function(_gr2) { return _gr2.json(); }).then(function(_gf2) {
-            var _remote2 = JSON.parse(atob(_gf2.content));
-            _remote2.subjects.forEach(function(_rs2) {
-              var _ls2 = data.subjects.find(function(s) { return s.id === _rs2.id; });
-              if (_ls2) {
-                _rs2.sessions.forEach(function(_rsess2) {
-                  var _lss2 = _ls2.sessions.find(function(s) { return s.date === _rsess2.date; });
-                  if (_lss2) {
-                    _rsess2.questions.forEach(function(_rq2) {
-                      if (!_lss2.questions.find(function(lq) { return lq.id === _rq2.id; })) {
-                        _lss2.questions.push(_rq2);
-                      }
-                    });
-                  } else { _ls2.sessions.push(_rsess2); }
-                });
-              } else { data.subjects.push(_rs2); }
-            });
-            renderSubjects();
-            renderStats();
-          }).catch(function() {});
-        }
-      } catch(e) {}
-    }, 100);
     document.getElementById('js-status').textContent = 'Data loaded ✓ · ' + data.subjects.length + ' subjects · ' + data.subjects.reduce(function(a,s){return a+s.sessions.reduce(function(b,ss){return b+ss.questions.length},0)},0) + ' questions'; document.getElementById('js-status').style.background = '#5cb85c'; document.getElementById('js-status').style.color = '#fff';
     renderSubjects();
     renderStats();
