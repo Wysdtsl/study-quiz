@@ -979,7 +979,7 @@ async function handlePDFFile(event) {
       pdfLibLoaded = true;
     } catch(e) {
       alert('PDF 引擎加载失败: ' + e.message);
-      document.getElementById('pdf-import-btn').textContent = '📄 从 PDF 导入';
+      clearPDF();
       return;
     }
   }
@@ -1007,7 +1007,11 @@ async function handlePDFFile(event) {
     expandBtn.style.display = pdfTextContent.length > 200 ? '' : 'none';
     expandBtn.dataset.expanded = 'false';
 
-    document.getElementById('pdf-import-btn').textContent = '📄 重新导入';
+    var btn = document.getElementById('pdf-import-btn');
+    btn.textContent = '✅ PDF 已导入：' + pdfFileName;
+    btn.style.border = '1px solid var(--green)';
+    btn.style.background = 'var(--green-light)';
+    btn.style.color = 'var(--green)';
   } catch(e) {
     alert('PDF 读取失败: ' + e.message);
     clearPDF();
@@ -1035,7 +1039,11 @@ function clearPDF() {
   pdfFileName = '';
   document.getElementById('pdf-preview').style.display = 'none';
   document.getElementById('pdf-file-input').value = '';
-  document.getElementById('pdf-import-btn').textContent = '📄 从 PDF 导入';
+  var btn = document.getElementById('pdf-import-btn');
+  btn.textContent = '📄 从 PDF 导入';
+  btn.style.border = '1px dashed var(--border)';
+  btn.style.background = 'var(--surface2)';
+  btn.style.color = 'var(--ink)';
 }
 
 function loadScript(src) {
