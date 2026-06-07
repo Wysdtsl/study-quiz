@@ -2347,6 +2347,17 @@ function removeUserAddedId(id) {
 async function syncToGitHub(updatedData, msg) {
   var token = getGHToken();
   if (!token) throw new Error('未配置 GitHub Token，请先点击 🔗 设置');
+  // Dedup local data before merging (fixes duplicate accumulation)
+  updatedData.subjects.forEach(function(_s) {
+    _s.sessions.forEach(function(_ss) {
+      var _seen = {};
+      _ss.questions = _ss.questions.filter(function(_q) {
+        if (_seen[_q.id]) return false;
+        _seen[_q.id] = true;
+        return true;
+      });
+    });
+  });
   var _apiUrl = 'https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json';
   var _proxyUrl = 'https://gh-proxy.org/https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json';
 
