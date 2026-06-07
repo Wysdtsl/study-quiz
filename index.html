@@ -2345,8 +2345,38 @@ function isHidden(qid) { return getHiddenIds().indexOf(qid) > -1; }
 function toggleHideQuestion(qid) {
   var hidden = getHiddenIds();
   var idx = hidden.indexOf(qid);
+  var hiding = idx === -1;
   if (idx > -1) { hidden.splice(idx, 1); } else { hidden.push(qid); }
   localStorage.setItem('qHidden', JSON.stringify(hidden));
+  // Surgical DOM update if question manager is showing
+  var _ov = document.getElementById('qm-overlay');
+  if (_ov && _ov.classList.contains('show')) {
+    var _btns = document.querySelectorAll('#qm-content .del, #qm-content .edit');
+    for (var _bi = 0; _bi < _btns.length; _bi++) {
+      var _oc = _btns[_bi].getAttribute('onclick') || '';
+      if (_oc.indexOf(qid) > -1) {
+        var _el = _btns[_bi].closest('.qm-q');
+        if (_el) {
+          var _ts = _el.querySelector('.qm-q-text');
+          if (_ts) {
+            if (hiding) {
+              _ts.style.textDecoration = 'line-through';
+              _ts.style.opacity = '.5';
+              _ts.textContent = '\u{1F6AB} ' + _ts.textContent.replace(/^[\u270F\uFE0F\u{1F6AB}\s]+/, '');
+              _el.classList.add('qm-q-local');
+            } else {
+              _ts.textContent = _ts.textContent.replace(/^\u{1F6AB}\s*/, '');
+              _ts.style.textDecoration = '';
+              _ts.style.opacity = '';
+              if (!_ts.textContent.startsWith('\u270F\uFE0F')) _el.classList.remove('qm-q-local');
+            }
+          }
+          return;
+        }
+      }
+    }
+  }
+  // Fallback: full re-render
   _qmRendering = true; try { renderQuestionManager(); } catch(e) {}
   try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
   setTimeout(function() { _qmRendering = false; }, 200);
@@ -2482,9 +2512,50 @@ function deleteCustomQuestion(sid, id) {
       localStorage.setItem('customQuestions', JSON.stringify(custom));
     }
   } catch(e) { alert('删除失败: ' + e.message); }
-  _qmRendering = true; try { renderQuestionManager(); } catch(e) {}
-  try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
-  setTimeout(function() { _qmRendering = false; }, 200);
+  // Surgically remove DOM element instead of full re-render
+  var _removed = false;
+  var _btns = document.querySelectorAll('#qm-content .del');
+  for (var _bi = 0; _bi < _btns.length && !_removed; _bi++) {
+    var _oc = _btns[_bi].getAttribute('onclick') || '';
+    if (_oc.indexOf("'" + id + "'") > -1) {
+      var _qmQ = _btns[_bi].closest('.qm-q');
+      if (_qmQ) {
+        var _sessBody = _qmQ.closest('.qm-sess-body');
+        var _subjBody = (_sessBody || _qmQ).closest('.qm-subj-body');
+        var _subj = _subjBody && _subjBody.closest('.qm-subj');
+        _qmQ.remove();
+        _removed = true;
+        if (_sessBody) {
+          var _sh = _sessBody.previousElementSibling;
+          if (_sh) {
+            var _ce = _sh.querySelector('.qm-sess-count');
+            if (_ce) {
+              var _rem = _sessBody.querySelectorAll('.qm-q').length;
+              var _m = _ce.textContent.match(/^(\d+) 题/);
+              if (_m) _ce.textContent = _ce.textContent.replace(_m[1], String(_rem));
+            }
+          }
+          if (!_sessBody.querySelector('.qm-q')) {
+            var _sess = _sessBody.closest('.qm-sess');
+            if (_sess) _sess.remove();
+          }
+        }
+        if (_subjBody && _subj) {
+          var _meta = _subj.querySelector('.qm-subj-meta');
+          if (_meta) {
+            var _tq = _subjBody.querySelectorAll('.qm-q').length;
+            var _cq = _subjBody.querySelectorAll('.qm-q-local').length;
+            _meta.innerHTML = _subj.querySelectorAll('.qm-sess').length + ' 章 \xb7 ' + _tq + ' 题' + (_cq ? ' \xb7 <b style="color:var(--amber);">本地 ' + _cq + ' 题</b>' : '');
+          }
+        }
+      }
+    }
+  }
+  if (!_removed) {
+    _qmRendering = true; try { renderQuestionManager(); } catch(e) {}
+    try { document.getElementById('qm-overlay').classList.add('show'); } catch(e) {}
+    setTimeout(function() { _qmRendering = false; }, 200);
+  }
 }
 
 function deleteAnyQuestion(sid, qid) {
