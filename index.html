@@ -885,6 +885,7 @@ async function saveQuestion() {
         sess.questions.push(entry);
       }
       await syncToGitHub(data, '✨ 添加题目: ' + question);
+      addUserAddedId(id);
       saved = true;
     } catch(e) { syncErr = e.message; }
   }
@@ -1148,6 +1149,7 @@ async function batchSaveAll() {
         newQuestions.forEach(function(q) { sess.questions.push(q); });
       }
       await syncToGitHub(data, '📋 批量添加 ' + batchResults.length + ' 题到 ' + section);
+      newQuestions.forEach(function(q) { addUserAddedId(q.id); });
       saved = true;
     } catch(e) { syncErr = e.message; }
   }
@@ -2252,6 +2254,20 @@ function escapeHtml(s) {
 // ── GitHub Sync ──
 function getGHToken() { try { var r = localStorage.getItem('gh_token'); return r ? atob(r) : ''; } catch(e) { return ''; } }
 
+// Track user-added question IDs (for cross-device sync)
+function getUserAddedIds() {
+  try { return JSON.parse(localStorage.getItem('userAddedIds') || '[]'); } catch(e) { return []; }
+}
+function addUserAddedId(id) {
+  var ids = getUserAddedIds();
+  if (ids.indexOf(id) === -1) { ids.push(id); localStorage.setItem('userAddedIds', JSON.stringify(ids)); }
+}
+function removeUserAddedId(id) {
+  var ids = getUserAddedIds();
+  var idx = ids.indexOf(id);
+  if (idx > -1) { ids.splice(idx, 1); localStorage.setItem('userAddedIds', JSON.stringify(ids)); }
+}
+
 async function syncToGitHub(updatedData, msg) {
   var token = getGHToken();
   if (!token) throw new Error('未配置 GitHub Token，请先点击 🔗 设置');
@@ -2425,6 +2441,7 @@ function getSubjectIconCls(name) {
 
 function renderQuestionManager() {
   var custom = getCustomQuestions();
+  var userAddedIds = getUserAddedIds();
   var html = '<div class="qm-body">';
   var totalBuiltin = 0, totalCustom = 0;
 
@@ -2459,7 +2476,8 @@ function renderQuestionManager() {
         var overridden = (getOverrides() || {})[subj.id + ':' + qid];
         var hidden = isHidden(qid);
         var cls = overridden ? ' qm-q-local' : (hidden ? ' qm-q' : '');
-        html += '<div class="qm-q' + (overridden || hidden ? ' qm-q-local' : '') + '"><span class="qm-q-text" style="' + (hidden ? 'text-decoration:line-through;opacity:.5;' : '') + '">' + (overridden ? '✏️ ' : '') + (hidden ? '🚫 ' : '') + qs[qi].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editAnyQuestion(\'' + subj.id + '\',\'' + qid + '\')">✏️</button><button class="del" onclick="deleteAnyQuestion(\'' + subj.id + '\',\'' + qid + '\')">🗑</button></div></div>';
+        var _delFn = userAddedIds.indexOf(qid) > -1 ? 'deleteCustomQuestion' : 'deleteAnyQuestion';
+        html += '<div class="qm-q' + (overridden || hidden ? ' qm-q-local' : '') + '"><span class="qm-q-text" style="' + (hidden ? 'text-decoration:line-through;opacity:.5;' : '') + '">' + (overridden ? '✏️ ' : '') + (hidden ? '🚫 ' : '') + qs[qi].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editAnyQuestion(\'' + subj.id + '\',\'' + qid + '\')">✏️</button><button class="del" onclick="' + _delFn + '(\'' + subj.id + '\',\'' + qid + '\')">🗑</button></div></div>';
       }
       for (var ci = 0; ci < customInSession.length; ci++) {
         var cq = customInSession[ci];
@@ -2512,6 +2530,28 @@ function deleteCustomQuestion(sid, id) {
       localStorage.setItem('customQuestions', JSON.stringify(custom));
     }
   } catch(e) { alert('删除失败: ' + e.message); }
+  // Sync deletion to GitHub
+  removeUserAddedId(id);
+  var _foundInData = false;
+  for (var _si = 0; _si < data.subjects.length && !_foundInData; _si++) {
+    if (data.subjects[_si].id === sid) {
+      for (var _sei = 0; _sei < data.subjects[_si].sessions.length && !_foundInData; _sei++) {
+        var _sess = data.subjects[_si].sessions[_sei];
+        for (var _qi = 0; _qi < _sess.questions.length; _qi++) {
+          if (_sess.questions[_qi].id === id) {
+            _sess.questions.splice(_qi, 1);
+            _foundInData = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+  if (_foundInData && getGHToken()) {
+    syncToGitHub(data, '🗑 删除题目').catch(function(e) {
+      console.error('GitHub sync failed:', e);
+    });
+  }
   // Surgically remove DOM element instead of full re-render
   var _removed = false;
   var _btns = document.querySelectorAll('#qm-content .del');
@@ -2562,6 +2602,11 @@ function deleteAnyQuestion(sid, qid) {
   try {
     var custom = getCustomQuestions();
     if (custom[sid] && custom[sid].find(function(q) { return q.id === qid; })) {
+      deleteCustomQuestion(sid, qid);
+      return;
+    }
+    // Check if synced user-added question (in data but not in localStorage)
+    if (getUserAddedIds().indexOf(qid) > -1) {
       deleteCustomQuestion(sid, qid);
       return;
     }
