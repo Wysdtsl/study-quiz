@@ -880,7 +880,7 @@ function keywordScore(chunkFreq, questionFreq) {
 }
 
 function indexPDFText(text) {
-  pdfChunks = splitIntoChunks(text, 300);
+  pdfChunks = splitIntoChunks(text, 500);
   pdfIndexReady = true;
   var statusEl = document.getElementById('pdf-index-status');
   if (statusEl) { statusEl.style.display = ''; statusEl.textContent = '✅ 索引完成 (' + pdfChunks.length + ' 段)'; }
@@ -893,9 +893,12 @@ function getPDFContext(question) {
     return { s: keywordScore(getCharFreq(chunk), qFreq), i: idx };
   });
   scores.sort(function(a, b) { return b.s - a.s; });
-  var top = scores.slice(0, 3);
-  var result = top.map(function(sc) { return pdfChunks[sc.i]; }).join('\n\n---\n\n');
-  return result || pdfTextContent.substring(0, 5000);
+  var top = scores.slice(0, 5);
+  // If best score is too low, fall back to broader context
+  var result = top[0] && top[0].s > 0.5
+    ? top.map(function(sc) { return pdfChunks[sc.i]; }).join('\n\n---\n\n')
+    : pdfTextContent.substring(0, 5000);
+  return result;
 }
 
 async function batchGenerateAnswers() {
@@ -961,7 +964,7 @@ async function batchGenerateAnswers() {
       var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
       var answer = '', tips = '';
       if (text) {
-        try { var p = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim()); answer = p.answer || ''; tips = p.tips || ''; } catch(err) { var pts = text.split('\n\n'); answer = pts[0] || text; tips = pts.slice(1).join(' ') || ''; }
+        try { var p = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim()); answer = p.answer || ''; tips = p.tips || ''; } catch(err) { answer = text.replace(/^["']|["']$/g,''); tips = ''; }
         if (context) tips += '\n✅ ' + sourceName + ' 核实';
         else tips += '\n⚠️ 基于模型知识';
       } else {
