@@ -2171,12 +2171,12 @@ function closeQuestionManager(e) {
   }
 }
 
-function getSubjectIcon(name) {
-  if (name.indexOf('地理') > -1) return { icon: '🌍', cls: 'geo' };
-  if (name.indexOf('马克思') > -1) return { icon: '📕', cls: 'pol' };
-  if (name.indexOf('毛泽东') > -1 || name.indexOf('中共') > -1) return { icon: '📗', cls: 'his' };
-  if (name.indexOf('中国') > -1) return { icon: '📘', cls: 'eco' };
-  return { icon: '📚', cls: 'def' };
+function getSubjectIconCls(name) {
+  if (name.indexOf('地理') > -1) return 'geo';
+  if (name.indexOf('马克思') > -1) return 'pol';
+  if (name.indexOf('毛泽东') > -1 || name.indexOf('中共') > -1) return 'his';
+  if (name.indexOf('中国') > -1) return 'eco';
+  return 'def';
 }
 
 function renderQuestionManager() {
@@ -2191,11 +2191,10 @@ function renderQuestionManager() {
     subj.sessions.forEach(function(s) { subjTotalQ += s.questions.length; });
     totalBuiltin += subjTotalQ;
     totalCustom += subjCustom.length;
-    var iconData = getSubjectIcon(subj.name);
 
     html += '<div class="qm-subj">';
     html += '<div class="qm-subj-header" onclick="toggleQMSubj(' + si + ')">';
-    html += '<div class="qm-subj-icon ' + iconData.cls + '">' + iconData.icon + '</div>';
+    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '">' + (subj.icon || '📖') + '</div>';
     html += '<div class="qm-subj-info"><div class="qm-subj-name">' + subj.name + '</div><div class="qm-subj-meta">' + subj.sessions.length + ' 章 · ' + subjTotalQ + ' 题' + (subjCustom.length ? ' · <b style="color:var(--amber);">本地 ' + subjCustom.length + ' 题</b>' : '') + '</div></div>';
     html += '<div class="qm-subj-arrow" id="qma-' + si + '">▼</div></div>';
     html += '<div class="qm-subj-body" id="qmsb-' + si + '">';
