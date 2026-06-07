@@ -1625,8 +1625,11 @@ function renderSessions() {
 function selectSession(date) {
   currentSession = currentSubject.sessions.find(s => s.date === date);
   loadProgress(currentSubject.id, date);
-  currentIndex = Math.min(currentIndex, currentSession.questions.length - 1);
-  sessionQuestions = null;
+  // Filter out hidden questions
+  var hidden = getHiddenIds();
+  sessionQuestions = currentSession.questions.filter(function(q) { return hidden.indexOf(q.id) === -1; });
+  if (sessionQuestions.length === 0) sessionQuestions = currentSession.questions;
+  currentIndex = Math.min(currentIndex, sessionQuestions.length - 1);
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-quiz').classList.add('active');
   document.getElementById('quiz-title').textContent = currentSubject.name;
@@ -2335,6 +2338,17 @@ function editAnyQuestion(sid, qid) {
   }, 100);
 }
 
+// ── Hidden Questions ──
+function getHiddenIds() { try { return JSON.parse(localStorage.getItem('qHidden') || '[]'); } catch(e) { return []; } }
+function isHidden(qid) { return getHiddenIds().indexOf(qid) > -1; }
+function toggleHideQuestion(qid) {
+  var hidden = getHiddenIds();
+  var idx = hidden.indexOf(qid);
+  if (idx > -1) { hidden.splice(idx, 1); } else { hidden.push(qid); }
+  localStorage.setItem('qHidden', JSON.stringify(hidden));
+  renderQuestionManager();
+}
+
 // ── Question Manager ──
 function getCustomQuestions() {
   try { return JSON.parse(localStorage.getItem('customQuestions') || '{}'); } catch(e) { return {}; }
@@ -2407,8 +2421,11 @@ function renderQuestionManager() {
       html += '<div class="qm-sess-body" id="qmsessb-' + si + '-' + sei + '">';
 
       for (var qi = 0; qi < qs.length; qi++) {
-        var overridden = (getOverrides() || {})[subj.id + ':' + qs[qi].id];
-        html += '<div class="qm-q' + (overridden ? ' qm-q-local' : '') + '"><span class="qm-q-text' + (overridden ? '' : '') + '">' + (overridden ? '✏️ ' : '') + qs[qi].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editAnyQuestion(\'' + subj.id + '\',\'' + qs[qi].id + '\')">✏️</button></div></div>';
+        var qid = qs[qi].id;
+        var overridden = (getOverrides() || {})[subj.id + ':' + qid];
+        var hidden = isHidden(qid);
+        var cls = overridden ? ' qm-q-local' : (hidden ? ' qm-q' : '');
+        html += '<div class="qm-q' + (overridden || hidden ? ' qm-q-local' : '') + '"><span class="qm-q-text" style="' + (hidden ? 'text-decoration:line-through;opacity:.5;' : '') + '">' + (overridden ? '✏️ ' : '') + (hidden ? '🚫 ' : '') + qs[qi].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editAnyQuestion(\'' + subj.id + '\',\'' + qid + '\')">✏️</button><button class="del" onclick="deleteAnyQuestion(\'' + subj.id + '\',\'' + qid + '\')">🗑</button></div></div>';
       }
       for (var ci = 0; ci < customInSession.length; ci++) {
         var cq = customInSession[ci];
@@ -2462,6 +2479,24 @@ function deleteCustomQuestion(sid, id) {
       renderQuestionManager();
     }
   } catch(e) { alert('删除失败: ' + e.message); }
+}
+
+function deleteAnyQuestion(sid, qid) {
+  // Check if custom
+  var custom = getCustomQuestions();
+  if (custom[sid] && custom[sid].find(function(q) { return q.id === qid; })) {
+    deleteCustomQuestion(sid, qid);
+    return;
+  }
+  // Built-in: toggle hidden
+  var hidden = getHiddenIds();
+  if (hidden.indexOf(qid) > -1) {
+    // Unhide
+    toggleHideQuestion(qid);
+  } else {
+    if (!confirm('确定隐藏这道内置题吗？（可在题目管理中恢复）')) return;
+    toggleHideQuestion(qid);
+  }
 }
 
 function editCustomQuestion(sid, id) {
