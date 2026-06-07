@@ -954,7 +954,7 @@ async function batchGenerateAnswers() {
       var resp = await fetch(DEEPSEEK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
-        body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '考试题库查证助手。答案准确简洁。' }, { role: 'user', content: prompt }], max_tokens: 600, temperature: 0.3 })
+        body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '你是考试题库查证助手。答案准确简洁，用<b>标签加粗关键词。适合表格的内容用HTML表格（<table><tr><th>...</th></tr><tr><td>...</td></tr></table>）。返回JSON：{"answer":"答案","tips":"记忆提示"}' }, { role: 'user', content: prompt }], max_tokens: 600, temperature: 0.3 })
       });
       var data = await resp.json();
       var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
