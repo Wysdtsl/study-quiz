@@ -1410,6 +1410,19 @@ async function loadData() {
         }
       }
     } catch(e) {}
+    // Dedup loaded data (prevent duplicate accumulation from corrupted questions.json)
+    try {
+      data.subjects.forEach(function(_s) {
+        _s.sessions.forEach(function(_ss) {
+          var _seen = {};
+          _ss.questions = _ss.questions.filter(function(_q) {
+            if (_seen[_q.id]) return false;
+            _seen[_q.id] = true;
+            return true;
+          });
+        });
+      });
+    } catch(e) {}
     document.getElementById('js-status').textContent = 'Data loaded ✓ · ' + data.subjects.length + ' subjects · ' + data.subjects.reduce(function(a,s){return a+s.sessions.reduce(function(b,ss){return b+ss.questions.length},0)},0) + ' questions'; document.getElementById('js-status').style.background = '#5cb85c'; document.getElementById('js-status').style.color = '#fff';
     renderSubjects();
     renderStats();
