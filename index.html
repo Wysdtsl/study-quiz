@@ -548,6 +548,7 @@
         <button class="btn btn-out" onclick="exportData()">导出答题记录</button>
         <button class="btn btn-out" onclick="document.getElementById('import-input').click()">导入答题记录</button>
       </div>
+      <button class="btn btn-out" onclick="if(confirm('Reset local data and reload?'))resetData()">↻ Reset & Reload</button>
       <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)">
     </div>
 
@@ -1387,6 +1388,12 @@ function exportQuestions() {
   } catch(e) { alert('导出失败: ' + e.message); }
 }
 
+async function resetData() {
+  localStorage.clear();
+  sessionStorage.clear();
+  caches.keys().then(function(keys) { keys.forEach(function(k) { caches.delete(k); }); }).catch(function(){});
+  location.reload(true);
+}
 async function loadData() {
   document.getElementById('js-status').textContent = 'Loading data...';
   try {
@@ -2932,7 +2939,7 @@ loadData();
       <h3>📋 题目管理</h3>
       <div style="display:flex;gap:6px;align-items:center;">
         <button class="x" onclick="setupGithubSync()" title="GitHub 同步设置" style="font-size:14px;width:auto;padding:0 10px;">🔗</button>
-        <button class="x" onclick="closeQuestionManager()">✕</button>
+        <button class="x" onclick="location.reload()" title="刷新页面" style="font-size:14px;width:auto;padding:0 10px;">↻</button><button class="x" onclick="closeQuestionManager()">✕</button>
       </div>
     </div>
     <div id="qm-sync-status" style="display:none;padding:0 20px 8px;font-size:12px;color:var(--green);"></div>
