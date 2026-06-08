@@ -503,6 +503,8 @@
   .qm-sess-count { font-size: 12px; color: var(--ink-muted); background: var(--surface2); padding: 2px 8px; border-radius: 10px; }
   .qm-sess-arrow { font-size: 12px; color: var(--ink-lighter); transition: transform .25s cubic-bezier(.4,0,.2,1); }
   .qm-sess-arrow.open { transform: rotate(180deg); }
+  .sess-select-all { font-size: 12px; color: var(--ink-muted); cursor: pointer; padding: 4px 6px; user-select: none; margin-left: auto; }
+  .sess-select-all:hover { color: var(--ink-blue); }
   .qm-sess-body { padding: 2px 0 8px 12px; display: none; }
   .qm-sess-body.open { display: block; }
 
@@ -761,6 +763,7 @@ function openQEditor(batchMode) {
   }
   const sel = document.getElementById('qe-subject');
   sel.innerHTML = data.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  try { var _ls = localStorage.getItem('qe_last_subject'); if (_ls && document.querySelector('#qe-subject option[value="' + _ls + '"]')) sel.value = _ls; } catch(e) {}
   
   // Populate section suggestions
   secInput = document.getElementById('qe-section');
@@ -2560,6 +2563,28 @@ function getSubjectIconCls(name) {
   return 'def';
 }
 
+function addSubject() {
+  var name = prompt('请输入新科目名称：');
+  if (!name || !name.trim()) return;
+  name = name.trim();
+  // Check for duplicates
+  if (data.subjects.find(function(s) { return s.name === name || s.id === name; })) {
+    alert('科目 "' + name + '" 已存在');
+    return;
+  }
+  var id = name.replace(/[^a-zA-Z0-9_\u4e00-\u9fff]/g, '_').toLowerCase();
+  // Ensure unique ID
+  var _suffix = 0;
+  while (data.subjects.find(function(s) { return s.id === id + (_suffix || ''); })) { _suffix++; }
+  data.subjects.push({ id: id + (_suffix || ''), name: name, sessions: [] });
+  // Try to sync to GitHub
+  if (getGHToken()) {
+    syncToGitHub(data, '📚 新增科目: ' + name).catch(function(e) {});
+  }
+  renderQuestionManager();
+  document.getElementById('qm-overlay').classList.add('show');
+}
+
 function renderQuestionManager() {
   var custom = getCustomQuestions();
   var userAddedIds = getUserAddedIds();
@@ -2589,7 +2614,7 @@ function renderQuestionManager() {
       html += '<div class="qm-sess-header" onclick="toggleQMSess(' + si + ',' + sei + ')">';
       html += '<span class="qm-sess-name">' + sess.label + '</span>';
       html += '<span class="qm-sess-count">' + qs.length + ' 题' + (customInSession.length ? ' · 本地 ' + customInSession.length : '') + '</span>';
-      html += '<span class="qm-sess-arrow" id="qmsa-' + si + '-' + sei + '">▼</span></div>';
+      html += '<span class="qm-sess-arrow" id="qmsa-' + si + '-' + sei + '">▼</span><label class="sess-select-all" onclick="event.stopPropagation();selectAllInSess(' + si + ',' + sei + ')">全选</label></div>';
       html += '<div class="qm-sess-body" id="qmsessb-' + si + '-' + sei + '">';
 
       for (var qi = 0; qi < qs.length; qi++) {
@@ -2610,7 +2635,7 @@ function renderQuestionManager() {
     // Orphan custom questions (no matching session)
     var orphans = subjCustom.filter(function(q) { return !subj.sessions.some(function(s) { return s.date === q.section; }); });
     if (orphans.length > 0) {
-      html += '<div class="qm-sess"><div class="qm-sess-header" onclick="toggleQMSess(' + si + ',\'o\')"><span class="qm-sess-name">其他</span><span class="qm-sess-count">本地 ' + orphans.length + ' 题</span><span class="qm-sess-arrow" id="qmsa-' + si + '-o">▼</span></div>';
+      html += '<div class="qm-sess"><div class="qm-sess-header" onclick="toggleQMSess(' + si + ',\'o\')"><span class="qm-sess-name">其他</span><span class="qm-sess-count">本地 ' + orphans.length + ' 题</span><span class="qm-sess-arrow" id="qmsa-' + si + '-o">▼</span><label class="sess-select-all" onclick="event.stopPropagation();selectAllInSess(' + si + ',' + sei + ')">全选</label></div>';
       html += '<div class="qm-sess-body" id="qmsessb-' + si + '-o">';
       for (var ci = 0; ci < orphans.length; ci++) {
         html += '<div class="qm-q qm-q-local"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + orphans[ci].id + '" onchange="onBatchCheck()"></label><span class="qm-q-badge">本地</span><span class="qm-q-text">' + orphans[ci].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')"><img src="/study-quiz/icons/xiugaianniu.svg" alt="Edit" style="width:14px;height:14px;display:block;"></button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')"><img src="/study-quiz/icons/Icon.svg" alt="Delete" style="width:14px;height:14px;display:block;"></button></div></div>';
@@ -2666,6 +2691,15 @@ function onBatchCheck() {
   var count = document.getElementById('qm-batch-count');
   if (count) count.textContent = '已选 ' + checked + ' 题';
   if (bar) bar.classList.toggle('has-checked', checked > 0);
+}
+
+function selectAllInSess(si, sei) {
+  var body = document.getElementById('qmsessb-' + si + '-' + sei);
+  if (!body) return;
+  var cbs = body.querySelectorAll('.qm-cb');
+  var someUnchecked = Array.from(cbs).some(function(cb) { return !cb.checked; });
+  cbs.forEach(function(cb) { cb.checked = !someUnchecked; });
+  onBatchCheck();
 }
 
 function batchDeleteQuestions() {
@@ -2848,7 +2882,7 @@ loadData();
   <div class="qe-sheet" onclick="event.stopPropagation()">
     <h3>✏️ 添加题目</h3>
     <label>科目</label>
-    <select id="qe-subject"></select>
+    <select id="qe-subject" onchange="try{localStorage.setItem('qe_last_subject',this.value)}catch(e){}"></select>
     <div id="qe-section-field">
       <label>章节 (可填已有或新建)</label>
       <input type="text" id="qe-section" placeholder="如：秦汉时期">
@@ -2915,6 +2949,7 @@ loadData();
     <div class="qm-head">
       <h3>📋 题目管理</h3>
       <div style="display:flex;gap:6px;align-items:center;">
+        <button class="x" onclick="addSubject()" title="新增科目" style="font-size:14px;width:auto;padding:0 10px;">＋</button>
         <button class="x" onclick="setupGithubSync()" title="GitHub 同步设置" style="font-size:14px;width:auto;padding:0 10px;">🔗</button>
         <button class="x" onclick="location.reload()" title="刷新页面" style="font-size:14px;width:auto;padding:0 10px;">↻</button><button class="x" onclick="closeQuestionManager()">✕</button>
       </div>
