@@ -829,11 +829,11 @@ async function aiFillQA(e) {
       body: JSON.stringify({
         model: 'deepseek-v4-flash',
         messages: [
-          { role: 'system', content: '你是考试题库查证助手。答案要准确简洁，用<b>标签加粗关键词。适合表格的内容用HTML表格（<table><tr><th>...</th></tr><tr><td>...</td></tr></table>）。返回JSON：{"answer":"答案","tips":"记忆提示"}' },
+          { role: 'system', content: '你是考试题库查证助手。用<b>标签加粗关键词。适合表格的内容用HTML表格（<table><tr><th>...</th></tr><tr><td>...</td></tr></table>）。返回JSON：{"answer":"答案","tips":"记忆提示"}。答案要包含资料中的所有相关细节，列全举例、代表作等，不要精简概括。' },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 800,
-        temperature: 0.3
+        max_tokens: 2048,
+        temperature: 0.1
       }),
       signal: controller.signal
     });
@@ -1091,7 +1091,7 @@ async function batchGenerateAnswers() {
       if (sourceName && sourceName.indexOf('PDF + ') === 0) {
         prompt = '\u4f60\u6709\u4e24\u4efd\u8d44\u6599\uff1aPDF\u6559\u6750\u548c' + sourceName.replace('PDF + ', '') + '\u3002\u8bf7\u53c2\u7167PDF\u6559\u6750\u5185\u5bb9\u56de\u7b54\u95ee\u9898\uff0c\u7136\u540e\u7528\u7f51\u7edc\u8d44\u6599\u8fdb\u884c\u4ea4\u53c9\u9a8c\u8bc1\u3002\u5982\u679c\u4e24\u8005\u4e00\u81f4\uff0c\u76f4\u63a5\u7ed9\u51fa\u7b54\u6848\uff1b\u5982\u679c\u5b58\u5728\u5dee\u5f02\uff0c\u4ee5\u7f51\u7edc\u6743\u5a01\u8d44\u6599\u4e3a\u51c6\u5e76\u5728tips\u4e2d\u8bf4\u660e\u5dee\u5f02\u3002\u8fd4\u56deJSON\uff1a{\"answer\":\"\u7b54\u6848\uff08\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\uff09\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\n\n\U0001f4c4PDF\u6559\u6750\uff1a' + _pdfCtx + '\n\n\U0001f310' + sourceName.replace('PDF + ', '') + '\uff1a' + _webCtx + '\n\n\u2753\u95ee\u9898\uff1a' + q;
       } else if (sourceName === 'PDF \u8d44\u6599') {
-        prompt = '\u4ee5\u4e0b\u662fPDF\u6559\u6750\u5185\u5bb9\uff0c\u8bf7\u4ee5\u5176\u4e3a\u4e3b\u8fdb\u884c\u56de\u7b54\u3002\u7b54\u6848\u7684\u7ea680%\u6765\u81eaPDF\u539f\u6587\u3002\u53e6\u591620%\u5982\u679c\u7f51\u7edc\u67e5\u8bc1\u5230\u6743\u5a01\u6765\u6e90\uff08\u7ef4\u57fa\u767e\u79d1/\u767e\u5ea6\u767e\u79d1\uff09\uff0c\u4ee5\u7f51\u7edc\u4e3a\u51c6\uff1b\u5982\u679c\u7f51\u7edc\u67e5\u4e0d\u5230\uff0c\u7528AI\u77e5\u8bc6\u8865\u5145\u4f46\u5728tips\u4e2d\u6ce8\u660e\u201cAI\u57fa\u4e8e\u6a21\u578b\u77e5\u8bc6\u201d\u3002\u5982\u679cPDF\u4e2d\u6ca1\u6709\u76f8\u5173\u5185\u5bb9\uff0c\u4e5f\u5728tips\u4e2d\u6ce8\u660e\u201cPDF\u672a\u627e\u5230\u201d' + context + '\n\n\u2753\u95ee\u9898\uff1a' + q;
+        prompt = '\u4ee5\u4e0b\u662fPDF\u6559\u6750\u5185\u5bb9\uff0c\u8bf7\u4ee5\u5176\u4e3a\u4e3b\u8fdb\u884c\u56de\u7b54\u3002\u7b54\u6848\u7684\u7ea680%\u6765\u81eaPDF\u539f\u6587\u3002\u53e6\u591620%\u5982\u679c\u7f51\u7edc\u67e5\u8bc1\u5230\u6743\u5a01\u6765\u6e90\uff08\u7ef4\u57fa\u767e\u79d1/\u767e\u5ea6\u767e\u79d1\uff09\uff0c\u4ee5\u7f51\u7edc\u4e3a\u51c6\uff1b\u5982\u679c\u7f51\u7edc\u67e5\u4e0d\u5230\uff0c\u7528AI\u77e5\u8bc6\u8865\u5145\u4f46\u5728tips\u4e2d\u6ce8\u660e\u201cAI\u57fa\u4e8e\u6a21\u578b\u77e5\u8bc6\u201d\u3002\u5982\u679cPDF\u4e2d\u6ca1\u6709\u76f8\u5173\u5185\u5bb9\uff0c\u4e5f\u5728tips\u4e2d\u6ce8\u660e\u201cPDF\u672a\u627e\u5230\u201d\u5305\u542bPDF\u4e2d\u6240\u6709\u76f8\u5173\u7ec6\u8282\uff0c\u5217\u5168\u4e3e\u4f8b\u3001\u4ee3\u8868\u4f5c\u7b49\uff0c\u4e0d\u8981\u7cbe\u7b80\u6982\u62ec\u3002' + context + '\n\n\u2753\u95ee\u9898\uff1a' + q;
       } else if (context) {
         prompt = '\u6839\u636e\u4ee5\u4e0b\u8d44\u6599\u56de\u7b54\u95ee\u9898\u3002\u8fd4\u56deJSON\uff1a{\"answer\":\"\u7b54\u6848\uff08\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\uff09\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\n\n\U0001f4da\u8d44\u6599\uff1a' + context + '\n\n\u2753\u95ee\u9898\uff1a' + q;
       } else {
@@ -1105,7 +1105,7 @@ async function batchGenerateAnswers() {
           method: 'POST',
           signal: _controller.signal,
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
-          body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '\u4f60\u662f\u8003\u8bd5\u9898\u5e93\u67e5\u8bc1\u52a9\u624b\u3002\u7b54\u6848\u51c6\u786e\u7b80\u6d01\uff0c\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\u3002\u9002\u5408\u8868\u683c\u7684\u5185\u5bb9\u7528HTML\u8868\u683c\uff08<table><tr><th>...</th></tr><tr><td>...</td></tr></table>\uff09\u3002\u8fd4\u56deJSON\uff1a{\"answer\":\"\u7b54\u6848\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\u3002\u6ce8\u610f\uff1a\u8d44\u6599\u53ef\u80fd\u5305\u542b\u591a\u4e2a\u7ae0\u8282\u5185\u5bb9\uff0c\u8bf7\u4ece\u4e2d\u63d0\u53d6\u4e0e\u95ee\u9898\u6700\u76f8\u5173\u7684\u90e8\u5206\u4f5c\u4e3a\u7b54\u6848\u3002' }, { role: 'user', content: prompt }], max_tokens: 1024, temperature: 0.1 })
+          body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '\u4f60\u662f\u8003\u8bd5\u9898\u5e93\u67e5\u8bc1\u52a9\u624b\u3002\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\u3002\u9002\u5408\u8868\u683c\u7684\u5185\u5bb9\u7528HTML\u8868\u683c\uff08<table><tr><th>...</th></tr><tr><td>...</td></tr></table>\uff09\u3002\u8fd4\u56deJSON\uff1a{\"answer\":\"\u7b54\u6848\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\u3002\u7b54\u6848\u8981\u5305\u542bPDF\u8d44\u6599\u4e2d\u7684\u6240\u6709\u76f8\u5173\u7ec6\u8282\uff0c\u5217\u5168\u4e3e\u4f8b\u3001\u4ee3\u8868\u4f5c\u3001\u6570\u636e\u7b49\uff0c\u4e0d\u8981\u7cbe\u7b80\u6982\u62ec\u3002' }, { role: 'user', content: prompt }], max_tokens: 2048, temperature: 0.1 })
         });
         var data = await resp.json();
       } finally { clearTimeout(_timeoutId); }
