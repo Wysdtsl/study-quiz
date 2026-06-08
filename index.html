@@ -889,44 +889,24 @@ async function saveQuestion() {
     if (!sess3) { sess3 = { date: section, label: section, questions: [] }; subj3.sessions.push(sess3); }
     sess3.questions.push(entry);
   }
-  // Save to localStorage always
+  //   // Must sync to GitHub - no local fallback
+  if (!getGHToken()) { alert('请先点击 🔗 配置 GitHub Token'); return; }
   try {
-    const custom3 = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-    if (!custom3[sid]) custom3[sid] = [];
-    if (!custom3[sid].find(function(x) { return x.id === entry.id; })) {
-      custom3[sid].push(entry);
-    }
-    localStorage.setItem('customQuestions', JSON.stringify(custom3));
-  } catch(e) {}
-  // Try GitHub sync (bonus)
-  var ghOk2 = false;
-  if (getGHToken()) {
-    try {
-      await syncToGitHub(data, '✨ 添加题目: ' + question);
-      addUserAddedId(id);
-      ghOk2 = true;
-    } catch(e) { syncErr = e.message; }
-  }
-
-  // Show success
-  document.getElementById('qe-saved').style.display = 'block';
-  document.getElementById('qe-saved').textContent = ghOk2 ? '✅ 已保存到 GitHub，刷新后所有设备可见' : ('✅ 已保存到本地' + (syncErr ? ', GitHub: ' + syncErr : ''));
-  document.getElementById('qe-question').value = '';
-  document.getElementById('qe-answer').value = '';
-  document.getElementById('qe-tips').value = '';
-  if (ghOk2) {
+    await syncToGitHub(data, '✨ 添加题目: ' + question);
+    addUserAddedId(id);
+    document.getElementById('qe-saved').style.display = 'block';
+    document.getElementById('qe-saved').textContent = '✅ 已保存到 GitHub，所有设备可见';
+    document.getElementById('qe-question').value = '';
+    document.getElementById('qe-answer').value = '';
+    document.getElementById('qe-tips').value = '';
     alert('✅ 保存成功！已同步到 GitHub，所有设备刷新后可见。');
     closeQEditor();
     renderSubjects();
     renderStats();
-  } else {
-    alert('✅ 已保存到本地！刷新后可见。' + (syncErr ? ' GitHub: ' + syncErr : ''));
-    closeQEditor();
-    renderSubjects();
-    renderStats();
+  } catch(e) {
+    alert('⚠️ GitHub 同步失败：' + e.message + '。题目未保存。');
   }
 }
-
 // ── Batch Editor ──
 let batchResults = [];
 let pdfTextContent = '';
@@ -1188,38 +1168,24 @@ async function batchSaveAll() {
     if (!sess2) { sess2 = { date: section, label: section, questions: [] }; subj2.sessions.push(sess2); }
     newQuestions.forEach(function(q) { sess2.questions.push(q); });
   }
-  // Save to localStorage always (survives CDN delay)
+  //   // Must sync to GitHub - no local fallback
+  if (!getGHToken()) { alert('请先配置 GitHub Token'); return; }
   try {
-    var custom2 = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-    if (!custom2[sid]) custom2[sid] = [];
-    newQuestions.forEach(function(q) {
-      if (!custom2[sid].find(function(x) { return x.id === q.id; })) {
-        custom2[sid].push(q);
-      }
-    });
-    localStorage.setItem('customQuestions', JSON.stringify(custom2));
-  } catch(e) {}
-  // Try GitHub sync (bonus, not required)
-  var ghOk = false;
-  if (getGHToken()) {
-    try {
-      await syncToGitHub(data, '📋 批量添加 ' + batchResults.length + ' 题到 ' + section);
-      newQuestions.forEach(function(q) { addUserAddedId(q.id); });
-      ghOk = true;
-    } catch(e) { syncErr = e.message; }
-  }
-
-  showBatchStatus(ghOk ? '✅ 已保存 ' + batchResults.length + ' 题到 GitHub' : '⚠️ ' + syncErr + '（已存本地）', ghOk);
-  if (ghOk) {
+    await syncToGitHub(data, '📋 批量添加 ' + batchResults.length + ' 题到 ' + section);
+    newQuestions.forEach(function(q) { addUserAddedId(q.id); });
+    showBatchStatus('✅ 已保存 ' + batchResults.length + ' 题到 GitHub', true);
     alert('✅ 保存成功！' + batchResults.length + '道题已同步到 GitHub，所有设备刷新后可见。');
-  } else {
-    alert('✅ 已保存到本地！刷新后可见。' + (syncErr ? ' GitHub: ' + syncErr : ''));
+    document.getElementById('qe-overlay').classList.remove('show');
+    document.getElementById('qe-batch-results').innerHTML = '';
+    batchResults = [];
+    renderSubjects();
+    renderStats();
+  } catch(e) {
+    showBatchStatus('❌ GitHub 同步失败', false);
+    alert('⚠️ GitHub 同步失败：' + e.message + '。题目未保存。');
+    var saveBtn = document.getElementById('qe-batch-save-btn');
+    if (saveBtn) saveBtn.disabled = false;
   }
-  document.getElementById('qe-overlay').classList.remove('show');
-  document.getElementById('qe-batch-results').innerHTML = '';
-  batchResults = [];
-  renderSubjects();
-  renderStats();
 }
 
 function showBatchStatus(msg, success) {
