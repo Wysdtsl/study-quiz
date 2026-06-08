@@ -925,6 +925,8 @@ async function saveQuestion() {
     renderSubjects();
     renderStats();
   }
+}
+
 // ── Batch Editor ──
 let batchResults = [];
 let pdfTextContent = '';
@@ -1220,6 +1222,8 @@ async function batchSaveAll() {
   batchResults = [];
   renderSubjects();
   renderStats();
+}
+
 function showBatchStatus(msg, success) {
   var el = document.getElementById('qe-save-status');
   el.style.display = '';
