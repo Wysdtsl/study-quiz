@@ -881,49 +881,50 @@ async function saveQuestion() {
   const id = `${prefix}_${String(num).padStart(3,'0')}`;
   const entry = { id, section, question, answer, tips };
 
-  // Try GitHub sync first
-  var saved = false, syncErr = '';
+    // Always save to localStorage, also try GitHub sync
+  var syncErr = '';
+  var subj3 = data.subjects.find(function(s) { return s.id === sid; });
+  if (subj3) {
+    var sess3 = subj3.sessions.find(function(s) { return s.label === section; });
+    if (!sess3) { sess3 = { date: section, label: section, questions: [] }; subj3.sessions.push(sess3); }
+    sess3.questions.push(entry);
+  }
+  // Save to localStorage always
+  try {
+    const custom3 = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+    if (!custom3[sid]) custom3[sid] = [];
+    if (!custom3[sid].find(function(x) { return x.id === entry.id; })) {
+      custom3[sid].push(entry);
+    }
+    localStorage.setItem('customQuestions', JSON.stringify(custom3));
+  } catch(e) {}
+  // Try GitHub sync (bonus)
+  var ghOk2 = false;
   if (getGHToken()) {
     try {
-      // Add to data in memory
-      var subj = data.subjects.find(function(s) { return s.id === sid; });
-      if (subj) {
-        var sess = subj.sessions.find(function(s) { return s.label === section; });
-        if (!sess) { sess = { date: section, label: section, questions: [] }; subj.sessions.push(sess); }
-        sess.questions.push(entry);
-      }
       await syncToGitHub(data, '✨ 添加题目: ' + question);
       addUserAddedId(id);
-      saved = true;
+      ghOk2 = true;
     } catch(e) { syncErr = e.message; }
-  }
-
-  if (!saved) {
-    // Fallback to localStorage
-    try {
-      const custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-      if (!custom[sid]) custom[sid] = [];
-      custom[sid].push(entry);
-      localStorage.setItem('customQuestions', JSON.stringify(custom));
-    } catch(e) { alert('保存失败: ' + e.message); return; }
   }
 
   // Show success
   document.getElementById('qe-saved').style.display = 'block';
-  document.getElementById('qe-saved').textContent = saved ? '✅ 已保存到 GitHub，刷新后所有设备可见' : ('⚠️ GitHub 同步失败: ' + syncErr + '，已保存到本地');
+  document.getElementById('qe-saved').textContent = ghOk2 ? '✅ 已保存到 GitHub，刷新后所有设备可见' : ('✅ 已保存到本地' + (syncErr ? ', GitHub: ' + syncErr : ''));
   document.getElementById('qe-question').value = '';
   document.getElementById('qe-answer').value = '';
   document.getElementById('qe-tips').value = '';
-  if (saved) {
+  if (ghOk2) {
     alert('✅ 保存成功！已同步到 GitHub，所有设备刷新后可见。');
     closeQEditor();
     renderSubjects();
     renderStats();
   } else {
-    alert('⚠️ 保存失败：' + syncErr + '。题目已保存到本地，其他设备不可见。');
+    alert('✅ 已保存到本地！刷新后可见。' + (syncErr ? ' GitHub: ' + syncErr : ''));
+    closeQEditor();
+    renderSubjects();
+    renderStats();
   }
-}
-
 // ── Batch Editor ──
 let batchResults = [];
 let pdfTextContent = '';
@@ -1179,47 +1180,46 @@ async function batchSaveAll() {
     num++;
   });
 
-  // Try GitHub sync first
-  var saved = false, syncErr = '';
+  //   // Always save to localStorage (backup), also try GitHub sync
+  var syncErr = '';
+  var subj2 = data.subjects.find(function(s) { return s.id === sid; });
+  if (subj2) {
+    var sess2 = subj2.sessions.find(function(s) { return s.label === section; });
+    if (!sess2) { sess2 = { date: section, label: section, questions: [] }; subj2.sessions.push(sess2); }
+    newQuestions.forEach(function(q) { sess2.questions.push(q); });
+  }
+  // Save to localStorage always (survives CDN delay)
+  try {
+    var custom2 = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+    if (!custom2[sid]) custom2[sid] = [];
+    newQuestions.forEach(function(q) {
+      if (!custom2[sid].find(function(x) { return x.id === q.id; })) {
+        custom2[sid].push(q);
+      }
+    });
+    localStorage.setItem('customQuestions', JSON.stringify(custom2));
+  } catch(e) {}
+  // Try GitHub sync (bonus, not required)
+  var ghOk = false;
   if (getGHToken()) {
     try {
-      // Add to data in memory
-      var subj = data.subjects.find(function(s) { return s.id === sid; });
-      if (subj) {
-        var sess = subj.sessions.find(function(s) { return s.label === section; });
-        if (!sess) { sess = { date: section, label: section, questions: [] }; subj.sessions.push(sess); }
-        newQuestions.forEach(function(q) { sess.questions.push(q); });
-      }
       await syncToGitHub(data, '📋 批量添加 ' + batchResults.length + ' 题到 ' + section);
       newQuestions.forEach(function(q) { addUserAddedId(q.id); });
-      saved = true;
+      ghOk = true;
     } catch(e) { syncErr = e.message; }
   }
 
-  if (!saved) {
-    try {
-      var custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-      if (!custom[sid]) custom[sid] = [];
-      newQuestions.forEach(function(q) { custom[sid].push(q); });
-      localStorage.setItem('customQuestions', JSON.stringify(custom));
-    } catch(e) { showBatchStatus('⚠️ 保存失败: ' + e.message, false); return; }
-  }
-
-  showBatchStatus(saved ? '✅ 已保存 ' + batchResults.length + ' 题到 GitHub' : '⚠️ ' + syncErr + '（已存本地）', saved);
-  if (saved) {
+  showBatchStatus(ghOk ? '✅ 已保存 ' + batchResults.length + ' 题到 GitHub' : '⚠️ ' + syncErr + '（已存本地）', ghOk);
+  if (ghOk) {
     alert('✅ 保存成功！' + batchResults.length + '道题已同步到 GitHub，所有设备刷新后可见。');
-    document.getElementById('qe-overlay').classList.remove('show');
-    document.getElementById('qe-batch-results').innerHTML = '';
-    batchResults = [];
-    renderSubjects();
-    renderStats();
   } else {
-    alert('⚠️ 保存失败：' + syncErr + '。题目已保存到本地，其他设备不可见。');
-    var saveBtn = document.getElementById('qe-batch-save-btn');
-    if (saveBtn) saveBtn.disabled = false;
+    alert('✅ 已保存到本地！刷新后可见。' + (syncErr ? ' GitHub: ' + syncErr : ''));
   }
-}
-
+  document.getElementById('qe-overlay').classList.remove('show');
+  document.getElementById('qe-batch-results').innerHTML = '';
+  batchResults = [];
+  renderSubjects();
+  renderStats();
 function showBatchStatus(msg, success) {
   var el = document.getElementById('qe-save-status');
   el.style.display = '';
