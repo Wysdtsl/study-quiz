@@ -1080,7 +1080,7 @@ async function batchGenerateAnswers() {
       }
 
       var _controller = new AbortController();
-      var _timeoutId = setTimeout(function() { _controller.abort(); }, 15000);
+      var _timeoutId = setTimeout(function() { _controller.abort(); }, 30000);
       try {
         var resp = await fetch(DEEPSEEK_URL, {
           method: 'POST',
