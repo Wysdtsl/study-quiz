@@ -451,6 +451,14 @@
   .qe-btn-cancel { background: var(--surface2); color: var(--ink); }
   .qe-saved { display: none; text-align: center; padding: 12px; font-size: 14px; color: var(--green); }
   .fab-add { display: none; }
+  .save-progress { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 500; align-items: center; justify-content: center; }
+  .save-progress.show { display: flex; }
+  .save-progress-box { background: var(--surface); border-radius: 16px; padding: 24px; width: 280px; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,.15); }
+  .save-progress-text { font-size: 14px; color: var(--ink); margin-bottom: 12px; }
+  .save-progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .save-progress-fill { height: 100%; background: var(--ink-blue); border-radius: 3px; transition: width .3s; }
+  .qe-btn-save.loading { opacity: .6; pointer-events: none; }
+
   .fab-export { display: none; }
   .fab-export svg { width: 20px; height: 20px; }
   .fab-help { position: fixed; bottom: 136px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: var(--surface2); color: var(--ink-muted); border: 1px solid var(--border); font-size: 14px; cursor: pointer; z-index: 120; display: flex; align-items: center; justify-content: center; }
@@ -1168,19 +1176,31 @@ async function batchSaveAll() {
     if (!sess2) { sess2 = { date: section, label: section, questions: [] }; subj2.sessions.push(sess2); }
     newQuestions.forEach(function(q) { sess2.questions.push(q); });
   }
-  //   // Must sync to GitHub - no local fallback
-  if (!getGHToken()) { alert('请先配置 GitHub Token'); return; }
+  // Show progress bar
+  var _pg = document.getElementById('save-progress');
+  var _pgText = document.getElementById('save-progress-text');
+  var _pgFill = document.getElementById('save-progress-fill');
+  _pg.classList.add('show');
+  _pgText.textContent = '正在保存到 GitHub...';
+  _pgFill.style.width = '30%';
+
+  if (!getGHToken()) { _pg.classList.remove('show'); alert('请先配置 GitHub Token'); return; }
   try {
     await syncToGitHub(data, '📋 批量添加 ' + batchResults.length + ' 题到 ' + section);
+    _pgFill.style.width = '80%';
+    _pgText.textContent = '同步完成，更新界面...';
     newQuestions.forEach(function(q) { addUserAddedId(q.id); });
+    _pgFill.style.width = '100%';
     showBatchStatus('✅ 已保存 ' + batchResults.length + ' 题到 GitHub', true);
-    alert('✅ 保存成功！' + batchResults.length + '道题已同步到 GitHub，所有设备刷新后可见。');
+    _pg.classList.remove('show');
     document.getElementById('qe-overlay').classList.remove('show');
     document.getElementById('qe-batch-results').innerHTML = '';
     batchResults = [];
     renderSubjects();
     renderStats();
+    alert('✅ 保存成功！' + batchResults.length + '道题已同步到 GitHub，所有设备刷新后可见。');
   } catch(e) {
+    _pg.classList.remove('show');
     showBatchStatus('❌ GitHub 同步失败', false);
     alert('⚠️ GitHub 同步失败：' + e.message + '。题目未保存。');
     var saveBtn = document.getElementById('qe-batch-save-btn');
@@ -2880,6 +2900,14 @@ loadData();
 </div>
 
 <button class="fab-add" id="fab-add" onclick="openQEditor()" title="添加题目">＋</button>
+
+<!-- Save Progress -->
+<div class="save-progress" id="save-progress">
+  <div class="save-progress-box">
+    <div class="save-progress-text" id="save-progress-text">正在保存...</div>
+    <div class="save-progress-bar"><div class="save-progress-fill" id="save-progress-fill" style="width:0%"></div></div>
+  </div>
+</div>
 
 <!-- Question Manager -->
 <div class="qm-overlay" id="qm-overlay" onclick="closeQuestionManager(event)">
