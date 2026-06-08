@@ -974,8 +974,8 @@ function keywordScore(chunkFreq, questionFreq) {
 }
 
 function indexPDFText(text) {
-  // Use larger 1500-char chunks for more coherent context windows
-  pdfChunks = splitIntoChunks(text, 1500);
+  // Use 2000-char chunks for more context per chunk
+  pdfChunks = splitIntoChunks(text, 2000);
   pdfIndexReady = true;
   var statusEl = document.getElementById('pdf-index-status');
   if (statusEl) { statusEl.style.display = ''; statusEl.textContent = '✅ 索引完成 (' + pdfChunks.length + ' 段)'; }
@@ -1105,7 +1105,7 @@ async function batchGenerateAnswers() {
           method: 'POST',
           signal: _controller.signal,
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
-          body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '\u4f60\u662f\u8003\u8bd5\u9898\u5e93\u67e5\u8bc1\u52a9\u624b\u3002\u7b54\u6848\u51c6\u786e\u7b80\u6d01\uff0c\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\u3002\u9002\u5408\u8868\u683c\u7684\u5185\u5bb9\u7528HTML\u8868\u683c\uff08<table><tr><th>...</th></tr><tr><td>...</td></tr></table>\uff09\u3002\u8fd4\u56deJSON\uff1a{\"answer\":\"\u7b54\u6848\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\u3002\u6ce8\u610f\uff1a\u8d44\u6599\u53ef\u80fd\u5305\u542b\u591a\u4e2a\u7ae0\u8282\u5185\u5bb9\uff0c\u8bf7\u4ece\u4e2d\u63d0\u53d6\u4e0e\u95ee\u9898\u6700\u76f8\u5173\u7684\u90e8\u5206\u4f5c\u4e3a\u7b54\u6848\u3002' }, { role: 'user', content: prompt }], max_tokens: 1024, temperature: 0.3 })
+          body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '\u4f60\u662f\u8003\u8bd5\u9898\u5e93\u67e5\u8bc1\u52a9\u624b\u3002\u7b54\u6848\u51c6\u786e\u7b80\u6d01\uff0c\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\u3002\u9002\u5408\u8868\u683c\u7684\u5185\u5bb9\u7528HTML\u8868\u683c\uff08<table><tr><th>...</th></tr><tr><td>...</td></tr></table>\uff09\u3002\u8fd4\u56deJSON\uff1a{\"answer\":\"\u7b54\u6848\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\u3002\u6ce8\u610f\uff1a\u8d44\u6599\u53ef\u80fd\u5305\u542b\u591a\u4e2a\u7ae0\u8282\u5185\u5bb9\uff0c\u8bf7\u4ece\u4e2d\u63d0\u53d6\u4e0e\u95ee\u9898\u6700\u76f8\u5173\u7684\u90e8\u5206\u4f5c\u4e3a\u7b54\u6848\u3002' }, { role: 'user', content: prompt }], max_tokens: 1024, temperature: 0.1 })
         });
         var data = await resp.json();
       } finally { clearTimeout(_timeoutId); }
@@ -1269,7 +1269,7 @@ async function handlePDFFile(event) {
       for (var _ti = 0; _ti < content.items.length; _ti++) {
         var _item = content.items[_ti];
         if (!_item.str) continue;
-        var _y = Math.round(_item.transform[5]);
+        var _y = Math.round(_item.transform[5] / 10) * 10;
         if (!_lines[_y]) _lines[_y] = [];
         _lines[_y].push(_item);
       }
