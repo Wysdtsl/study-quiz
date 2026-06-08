@@ -451,6 +451,12 @@
   .qe-btn-cancel { background: var(--surface2); color: var(--ink); }
   .qe-saved { display: none; text-align: center; padding: 12px; font-size: 14px; color: var(--green); }
   .fab-add { display: none; }
+  .save-progress { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 500; align-items: center; justify-content: center; }
+  .save-progress.show { display: flex; }
+  .save-progress-box { background: var(--surface); border-radius: 16px; padding: 24px; width: 280px; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,.15); }
+  .save-progress-text { font-size: 14px; color: var(--ink); margin-bottom: 12px; }
+  .save-progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .save-progress-fill { height: 100%; background: var(--ink-blue); border-radius: 3px; transition: width .3s; }
   .fab-export { display: none; }
   .fab-export svg { width: 20px; height: 20px; }
   .fab-help { position: fixed; bottom: 136px; left: 20px; width: 40px; height: 40px; border-radius: 50%; background: var(--surface2); color: var(--ink-muted); border: 1px solid var(--border); font-size: 14px; cursor: pointer; z-index: 120; display: flex; align-items: center; justify-content: center; }
@@ -889,298 +895,32 @@ async function saveQuestion() {
     if (!sess3) { sess3 = { date: section, label: section, questions: [] }; subj3.sessions.push(sess3); }
     sess3.questions.push(entry);
   }
-  //   // Must sync to GitHub - no local fallback
-  if (!getGHToken()) { alert('请先点击 🔗 配置 GitHub Token'); return; }
-  try {
-    await syncToGitHub(data, '✨ 添加题目: ' + question);
-    addUserAddedId(id);
-    document.getElementById('qe-saved').style.display = 'block';
-    document.getElementById('qe-saved').textContent = '✅ 已保存到 GitHub，所有设备可见';
-    document.getElementById('qe-question').value = '';
-    document.getElementById('qe-answer').value = '';
-    document.getElementById('qe-tips').value = '';
-    alert('✅ 保存成功！已同步到 GitHub，所有设备刷新后可见。');
-    closeQEditor();
-    renderSubjects();
-    renderStats();
-  } catch(e) {
-    alert('⚠️ GitHub 同步失败：' + e.message + '。题目未保存。');
-  }
-}
-// ── Batch Editor ──
-let batchResults = [];
-let pdfTextContent = '';
-let pdfFileName = '';
-let pdfChunks = [];
-let pdfIndexReady = false;
+    // Show progress bar
+  var _pgEl = document.getElementById('save-progress');
+  var _pgText = document.getElementById('save-progress-text');
+  var _pgFill = document.getElementById('save-progress-fill');
+  _pgEl.classList.add('show');
+  _pgText.textContent = '正在保存到 GitHub...';
+  _pgFill.style.width = '20%';
 
-function splitIntoChunks(text, maxChars) {
-  var parts = text.split(/\n+/);
-  var chunks = [];
-  var cur = '';
-  for (var j = 0; j < parts.length; j++) {
-    var p = parts[j].trim();
-    if (!p) continue;
-    if (cur && (cur + '\n\n' + p).length > maxChars) {
-      chunks.push(cur);
-      cur = p;
-    } else {
-      cur = cur ? cur + '\n\n' + p : p;
-    }
-  }
-  if (cur) chunks.push(cur);
-  return chunks.length > 0 ? chunks : [text];
-}
-
-// Keyword matching for locating the relevant PDF region
-function getCharFreq(text) {
-  var freq = {};
-  for (var k = 0; k < text.length; k++) {
-    var ch = text[k];
-    if (/[\u4e00-\u9fff]/.test(ch)) { freq[ch] = (freq[ch] || 0) + 1; }
-  }
-  var chars = text.match(/[\u4e00-\u9fff]/g) || [];
-  for (var k = 0; k < chars.length - 1; k++) {
-    var bg = chars[k] + chars[k+1];
-    freq[bg] = (freq[bg] || 0) + 1;
-  }
-  return freq;
-}
-
-function keywordScore(chunkFreq, questionFreq) {
-  var score = 0, chLen = 0;
-  for (var key in questionFreq) {
-    if (chunkFreq[key]) score += chunkFreq[key] * questionFreq[key];
-    if (key.length === 1) chLen += questionFreq[key];
-  }
-  return chLen > 0 ? score / chLen : 0;
-}
-
-function indexPDFText(text) {
-  // Use 2000-char chunks for more context per chunk
-  pdfChunks = splitIntoChunks(text, 2000);
-  pdfIndexReady = true;
-  var statusEl = document.getElementById('pdf-index-status');
-  if (statusEl) { statusEl.style.display = ''; statusEl.textContent = '✅ 索引完成 (' + pdfChunks.length + ' 段)'; }
-}
-
-function getPDFContext(question) {
-  if (pdfChunks.length === 0) return pdfTextContent.substring(0, 12000);
-  // Extract keywords from question (Chinese words of 2+ chars, skip punctuation)
-  var _keywords = question.match(/[\u4e00-\u9fff]{2,}/g) || [];
-  // Filter out very common words that appear everywhere
-  var _commonWords = {'什么':1,'如何':1,'怎么':1,'哪个':1,'哪些':1,'为什么':1,'这个':1,'那个':1,'可以':1,'没有':1,'不是':1,'就是':1,'一个':1,'这些':1,'那些':1,'还有':1,'那个':1,'之间':1,'区别':1,'特点':1,'内容':1,'方面':1,'包括':1,'属于':1,'主要':1,'我国':1,'中国':1,'历史':1,'时期':1,'情况':1,'部分':1,'关系':1,'影响':1,'原因':1,'结果':1,'过程':1,'方式':1,'方法':1,'作用':1,'意义':1,'地位':1,'表现':1,'发展':1,'产生':1,'形成':1,'成为':1,'进行':1,'开始':1,'之后':1,'之后':1,'以前':1,'时期':1};
-  _keywords = _keywords.filter(function(k) { return !_commonWords[k]; });
-  // Also use single-word chars that are specific
-  var _allChars = question.match(/[\u4e00-\u9fff]/g) || [];
-  // Score each chunk by how many question keywords/characters it contains
-  var _bestScore = 0, _bestIdx = 0;
-  for (var _di = 0; _di < pdfChunks.length; _di++) {
-    var _chunk = pdfChunks[_di];
-    var _score = 0;
-    // Keyword matches (weighted higher)
-    for (var _ki = 0; _ki < _keywords.length; _ki++) {
-      if (_chunk.indexOf(_keywords[_ki]) > -1) _score += 3;
-    }
-    // Individual character matches (weighted lower)
-    for (var _ci = 0; _ci < _allChars.length; _ci++) {
-      if (_chunk.indexOf(_allChars[_ci]) > -1) _score += 0.5;
-    }
-    if (_score > _bestScore) { _bestScore = _score; _bestIdx = _di; }
-  }
-  // If no meaningful score, grab broad coverage
-  if (_bestScore < 0.5) {
-    var _third = Math.floor(pdfChunks.length / 5);
-    var _taken = {};
-    var _result = [];
-    function _add(i) { if (!_taken[i]) { _taken[i] = true; _result.push(pdfChunks[i]); } }
-    for (var _si = 0; _si < _third; _si++) _add(_si);
-    for (var _ei = Math.max(_third, pdfChunks.length - _third); _ei < pdfChunks.length; _ei++) _add(_ei);
-    return _result.join('\n\n---\n\n');
-  }
-  // Return a window around the best match
-  var _windowStart = Math.max(0, _bestIdx - 5);
-  var _windowEnd = Math.min(pdfChunks.length, _bestIdx + 6);
-  if (_bestScore < 5) {
-    _windowStart = Math.max(0, _bestIdx - 8);
-    _windowEnd = Math.min(pdfChunks.length, _bestIdx + 9);
-  }
-  return pdfChunks.slice(_windowStart, _windowEnd).join('\n\n---\n\n');
-}
-
-async function batchGenerateAnswers() {
-  var questions = document.getElementById('qe-batch-questions').value.trim();
-  if (!questions) { alert('请先在文本框输入题目（每行一题）'); return; }
-  try { var raw = localStorage.getItem('chat_api_key'); if (raw) chatApiKey = atob(raw); } catch(e) {}
-  if (!chatApiKey) { alert('请先在聊天面板配置 DeepSeek API Key'); return; }
-
-  var lines = questions.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
-  if (lines.length === 0) { alert('请每行输入一题'); return; }
-
-  var btn = document.getElementById('qe-batch-gen-btn');
-  btn.disabled = true;
-  batchResults = [];
-  document.getElementById('qe-batch-results').innerHTML = '';
-
-  for (var i = 0; i < lines.length; i++) {
-    var q = lines[i];
-    document.getElementById('qe-batch-progress').textContent = '\u6b63\u5728\u67e5\u8bc1 ' + (i+1) + '/' + lines.length + '...';
-
-    var _pdfCtx = pdfTextContent ? getPDFContext(q) : '';
-    var _webCtx = '', _webSrc = '';
-    var _kwTest = pdfTextContent && q.match(/[\u4e00-\u9fff]{2,}/g);
-    var _pdfDirectHit = _kwTest && _kwTest.length > 0 && _kwTest.some(function(w) { return pdfTextContent.indexOf(w) > -1; });
-    var _needsWeb = !_pdfDirectHit;
-    if (_needsWeb) {
-      try {
-        var _wc1 = new AbortController();
-        var _wt1 = setTimeout(function() { _wc1.abort(); }, 10000);
-        var wikiUrl = 'https://zh.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=3&format=json&origin=*';
-        try { var wr = await fetch(wikiUrl, { signal: _wc1.signal }); } finally { clearTimeout(_wt1); }
-        var wdata = await wr.json();
-        var titles = wdata[1] || [];
-        if (titles.length > 0) {
-          var _wc2 = new AbortController();
-          var _wt2 = setTimeout(function() { _wc2.abort(); }, 10000);
-          var contentUrl = 'https://zh.wikipedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles[0]) + '&prop=extracts&exintro=1&explaintext=1&format=json&origin=*';
-          try { var cr = await fetch(contentUrl, { signal: _wc2.signal }); } finally { clearTimeout(_wt2); }
-          var cdata = await cr.json();
-          var pages = (cdata.query && cdata.query.pages) || {};
-          var page = Object.values(pages)[0];
-          if (page && page.extract) { _webCtx = page.extract.substring(0, 2000); _webSrc = '\u4e2d\u6587\u7ef4\u57fa\u767e\u79d1'; }
-        }
-        if (!_webCtx) {
-          try {
-            var _wc3 = new AbortController();
-            var _wt3 = setTimeout(function() { _wc3.abort(); }, 10000);
-            var baiduUrl = 'https://r.jina.ai/https://baike.baidu.com/item/' + encodeURIComponent(q.replace(/[?\uff1f]/g,''));
-            try { var br = await fetch(baiduUrl, { signal: _wc3.signal }); } finally { clearTimeout(_wt3); }
-            if (br.ok) { var bt = await br.text(); if (bt && bt.length > 200) { _webCtx = bt.substring(0, 2500); _webSrc = '\u767e\u5ea6\u767e\u79d1'; } }
-          } catch(e) {}
-        }
-      } catch(e) {}
-    }
-    var context = _pdfCtx;
-    var sourceName = 'PDF \u8d44\u6599';
-    if (_webCtx) {
-      context = (_pdfCtx ? _pdfCtx + '\n\n---\n\n\u3010\u7f51\u7edc\u67e5\u8bc1\u3011' + _webSrc + '\n' : '') + _webCtx;
-      sourceName = _pdfCtx ? 'PDF + ' + _webSrc : _webSrc;
-    }
-
-    try {
-      var prompt;
-      if (sourceName && sourceName.indexOf('PDF + ') === 0) {
-        prompt = '\u4f60\u6709\u4e24\u4efd\u8d44\u6599\uff1aPDF\u6559\u6750\u548c' + sourceName.replace('PDF + ', '') + '\u3002\u8bf7\u53c2\u7167PDF\u6559\u6750\u5185\u5bb9\u56de\u7b54\u95ee\u9898\uff0c\u7136\u540e\u7528\u7f51\u7edc\u8d44\u6599\u8fdb\u884c\u4ea4\u53c9\u9a8c\u8bc1\u3002\u5982\u679c\u4e24\u8005\u4e00\u81f4\uff0c\u76f4\u63a5\u7ed9\u51fa\u7b54\u6848\uff1b\u5982\u679c\u5b58\u5728\u5dee\u5f02\uff0c\u4ee5\u7f51\u7edc\u6743\u5a01\u8d44\u6599\u4e3a\u51c6\u5e76\u5728tips\u4e2d\u8bf4\u660e\u5dee\u5f02\u3002\u8fd4\u56deJSON\uff1a{\"answer\":\"\u7b54\u6848\uff08\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\uff09\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\n\n\U0001f4c4PDF\u6559\u6750\uff1a' + _pdfCtx + '\n\n\U0001f310' + sourceName.replace('PDF + ', '') + '\uff1a' + _webCtx + '\n\n\u2753\u95ee\u9898\uff1a' + q;
-      } else if (sourceName === 'PDF \u8d44\u6599') {
-        prompt = '\u4ee5\u4e0b\u662fPDF\u6559\u6750\u5185\u5bb9\uff0c\u8bf7\u4ee5\u5176\u4e3a\u4e3b\u8fdb\u884c\u56de\u7b54\u3002\u7b54\u6848\u7684\u7ea680%\u6765\u81eaPDF\u539f\u6587\u3002\u53e6\u591620%\u5982\u679c\u7f51\u7edc\u67e5\u8bc1\u5230\u6743\u5a01\u6765\u6e90\uff08\u7ef4\u57fa\u767e\u79d1/\u767e\u5ea6\u767e\u79d1\uff09\uff0c\u4ee5\u7f51\u7edc\u4e3a\u51c6\uff1b\u5982\u679c\u7f51\u7edc\u67e5\u4e0d\u5230\uff0c\u7528AI\u77e5\u8bc6\u8865\u5145\u4f46\u5728tips\u4e2d\u6ce8\u660e\u201cAI\u57fa\u4e8e\u6a21\u578b\u77e5\u8bc6\u201d\u3002\u5982\u679cPDF\u4e2d\u6ca1\u6709\u76f8\u5173\u5185\u5bb9\uff0c\u4e5f\u5728tips\u4e2d\u6ce8\u660e\u201cPDF\u672a\u627e\u5230\u201d\u5305\u542bPDF\u4e2d\u6240\u6709\u76f8\u5173\u7ec6\u8282\uff0c\u5217\u5168\u4e3e\u4f8b\u3001\u4ee3\u8868\u4f5c\u7b49\uff0c\u4e0d\u8981\u7cbe\u7b80\u6982\u62ec\u3002' + context + '\n\n\u2753\u95ee\u9898\uff1a' + q;
-      } else if (context) {
-        prompt = '\u6839\u636e\u4ee5\u4e0b\u8d44\u6599\u56de\u7b54\u95ee\u9898\u3002\u8fd4\u56deJSON\uff1a{\"answer\":\"\u7b54\u6848\uff08\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\uff09\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\n\n\U0001f4da\u8d44\u6599\uff1a' + context + '\n\n\u2753\u95ee\u9898\uff1a' + q;
-      } else {
-        prompt = '\u56de\u7b54\u6b64\u95ee\u9898\u3002\u8fd4\u56deJSON\u683c\u5f0f\uff1a{\"answer\":\"\u7b54\u6848\uff08\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\uff09\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\n\n\u95ee\u9898\uff1a' + q;
-      }
-
-      var _controller = new AbortController();
-      var _timeoutId = setTimeout(function() { _controller.abort(); }, 15000);
-      try {
-        var resp = await fetch(DEEPSEEK_URL, {
-          method: 'POST',
-          signal: _controller.signal,
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
-          body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: '\u4f60\u662f\u8003\u8bd5\u9898\u5e93\u67e5\u8bc1\u52a9\u624b\u3002\u7528<b>\u6807\u7b7e\u52a0\u7c97\u5173\u952e\u8bcd\u3002\u9002\u5408\u8868\u683c\u7684\u5185\u5bb9\u7528HTML\u8868\u683c\uff08<table><tr><th>...</th></tr><tr><td>...</td></tr></table>\uff09\u3002\u8fd4\u56deJSON\uff1a{\"answer\":\"\u7b54\u6848\",\"tips\":\"\u8bb0\u5fc6\u63d0\u793a\"}\u3002\u7b54\u6848\u8981\u5305\u542bPDF\u8d44\u6599\u4e2d\u7684\u6240\u6709\u76f8\u5173\u7ec6\u8282\uff0c\u5217\u5168\u4e3e\u4f8b\u3001\u4ee3\u8868\u4f5c\u3001\u6570\u636e\u7b49\uff0c\u4e0d\u8981\u7cbe\u7b80\u6982\u62ec\u3002' }, { role: 'user', content: prompt }], max_tokens: 2048, temperature: 0.1 })
-        });
-        var data = await resp.json();
-      } finally { clearTimeout(_timeoutId); }
-      var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
-      var answer = '', tips = '';
-      if (text) {
-        try { var p = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim()); answer = p.answer || ''; tips = p.tips || ''; } catch(err) { answer = text.replace(/^["']|["']$/g,''); tips = ''; }
-        if (context) {
-          tips += '\n\u2705 ' + sourceName + ' \u6838\u5b9e';
-          if (_pdfCtx && _webCtx) tips += '\n\U0001f504 \u5df2\u4ea4\u53c9\u9a8c\u8bc1 PDF \u4e0e\u7f51\u7edc\u8d44\u6599';
-        } else tips += '\n\u26a0\ufe0f \u57fa\u4e8e\u6a21\u578b\u77e5\u8bc6';
-      } else {
-        tips = '\u26a0\ufe0f AI \u8fd4\u56de\u4e3a\u7a7a\uff0c\u53ef\u80fd\u88ab\u9650\u6d41\u6216 API \u5f02\u5e38';
-        answer = '\uff08\u672a\u83b7\u53d6\u5230\u56de\u7b54\uff09';
-      }
-      batchResults.push({ question: q, answer: answer, tips: tips });
-    } catch(e) {
-      batchResults.push({ question: q, answer: '\u751f\u6210\u5931\u8d25: ' + e.message, tips: '' });
-    }
-
-    try { renderBatchResults(); } catch(e) {}
-  }
-
-  document.getElementById('qe-batch-progress').textContent = '✅ 完成 ' + batchResults.length + ' 题';
-  document.getElementById('qe-batch-save-btn').style.display = '';
-  btn.disabled = false;
-}
-
-function renderBatchResults() {
-  var el = document.getElementById('qe-batch-results');
-  el.innerHTML = batchResults.map(function(r, i) {
-    return '<div class="qe-batch-item"><div class="q">' + (i+1) + '. ' + r.question + '</div><div class="a" id="ba-' + i + '"><div class="tb-wrap">' + r.answer + '</div></div><div class="actions"><button onclick="editBatchAnswer(' + i + ')" style="display:inline-flex;align-items:center;gap:4px;"><img src="/study-quiz/icons/xiugaianniu.svg" alt="" style="width:12px;height:12px;"> 编辑</button><button onclick="deleteBatchItem(' + i + ')"><img src="/study-quiz/icons/Icon.svg" alt="" style="width:14px;height:14px;vertical-align:middle;"> 删除</button></div></div>';
-  }).join('');
-}
-
-function editBatchAnswer(i) {
-  var el = document.getElementById('ba-' + i);
-  if (el.classList.contains('edit-mode')) {
-    el.classList.remove('edit-mode');
-    el.setAttribute('contenteditable', 'false');
-    batchResults[i].answer = el.innerText;
-  } else {
-    el.classList.add('edit-mode');
-    el.setAttribute('contenteditable', 'true');
-    el.focus();
-  }
-}
-
-function deleteBatchItem(i) { batchResults.splice(i, 1); renderBatchResults(); }
-
-async function batchSaveAll() {
-  var sid = document.getElementById('qe-subject').value;
-  var section = document.getElementById('qe-batch-section').value.trim();
-  if (!sid || !section || batchResults.length === 0) { alert('请填写科目、章节并生成答案'); return; }
-
-  // Generate IDs and build questions
-  var existing = new Set();
-  data.subjects.forEach(function(s) { s.sessions.forEach(function(ss) { ss.questions.forEach(function(q) { existing.add(q.id); }); }); });
-  try {
-    var c = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-    for (var j = 0; j < (c[sid] || []).length; j++) { existing.add(c[sid][j].id); }
-  } catch(e) {}
-  var prefix = sid.substring(0, 3);
-  var num = 1;
-  var newQuestions = [];
-  batchResults.forEach(function(r) {
-    while (existing.has(prefix + '_' + String(num).padStart(3, '0'))) num++;
-    var id = prefix + '_' + String(num).padStart(3, '0');
-    existing.add(id);
-    newQuestions.push({ id: id, section: section, question: r.question, answer: r.answer, tips: r.tips });
-    num++;
-  });
-
-  //   // Always save to localStorage (backup), also try GitHub sync
-  var syncErr = '';
-  var subj2 = data.subjects.find(function(s) { return s.id === sid; });
-  if (subj2) {
-    var sess2 = subj2.sessions.find(function(s) { return s.label === section; });
-    if (!sess2) { sess2 = { date: section, label: section, questions: [] }; subj2.sessions.push(sess2); }
-    newQuestions.forEach(function(q) { sess2.questions.push(q); });
-  }
-  //   // Must sync to GitHub - no local fallback
-  if (!getGHToken()) { alert('请先配置 GitHub Token'); return; }
+  // Must sync to GitHub - no local fallback
+  if (!getGHToken()) { _pgEl.classList.remove('show'); alert('请先配置 GitHub Token'); return; }
   try {
     await syncToGitHub(data, '📋 批量添加 ' + batchResults.length + ' 题到 ' + section);
+    _pgFill.style.width = '80%';
+    _pgText.textContent = '同步完成，更新 UI...';
     newQuestions.forEach(function(q) { addUserAddedId(q.id); });
+    _pgFill.style.width = '100%';
     showBatchStatus('✅ 已保存 ' + batchResults.length + ' 题到 GitHub', true);
     alert('✅ 保存成功！' + batchResults.length + '道题已同步到 GitHub，所有设备刷新后可见。');
+    _pgEl.classList.remove('show');
     document.getElementById('qe-overlay').classList.remove('show');
     document.getElementById('qe-batch-results').innerHTML = '';
     batchResults = [];
     renderSubjects();
     renderStats();
   } catch(e) {
+    _pgEl.classList.remove('show');
     showBatchStatus('❌ GitHub 同步失败', false);
     alert('⚠️ GitHub 同步失败：' + e.message + '。题目未保存。');
     var saveBtn = document.getElementById('qe-batch-save-btn');
@@ -2352,30 +2092,53 @@ async function syncToGitHub(updatedData, msg) {
     finally { clearTimeout(_t); }
   }
 
-  // Try direct GitHub API first, then proxy
-  var getResp;
-  try { getResp = await _ghFetch(_apiUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
-  catch(e) {
-    try { getResp = await _ghFetch(_proxyUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
-    catch(e2) { throw new Error('\u65e0\u6cd5\u8fde\u63a5\u5230 GitHub'); }
-  }
-  if (!getResp.ok) throw new Error('GitHub \u8bfb\u53d6\u5931\u8d25 (HTTP ' + getResp.status + ')');
-  var fileInfo = await getResp.json();
-  // Skip merge - deduped local data is written directly (merge caused duplicate accumulation)
   var jsonStr = JSON.stringify(updatedData, null, 2);
   var encoded = btoa(unescape(encodeURIComponent(jsonStr)));
 
-  // Try write via direct or proxy
-  var putBody = JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha });
-  try {
-    var putResp = await _ghFetch(_apiUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: putBody });
-    if (putResp.ok) return;
-  } catch(e) {}
-  try {
-    var putResp2 = await _ghFetch(_proxyUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: putBody });
-    if (putResp2.ok) return;
-  } catch(e) {}
-  // Both failed - download file for manual upload
+  // Try caching SHA to skip GET requests on subsequent saves
+  var _sha = '';
+  try { _sha = localStorage.getItem('gh_sha') || ''; } catch(e) {}
+  var _writeOk = false;
+  // Try write with cached SHA first (fast path - skips GET)
+  if (_sha) {
+    var _putBody1 = JSON.stringify({ message: msg, content: encoded, sha: _sha });
+    try {
+      var _pr1 = await _ghFetch(_apiUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: _putBody1 });
+      if (_pr1.ok) { _writeOk = true; } else { _sha = ''; }
+    } catch(e) { _sha = ''; }
+    if (!_writeOk) {
+      try {
+        var _pr1b = await _ghFetch(_proxyUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: _putBody1 });
+        if (_pr1b.ok) { _writeOk = true; }
+      } catch(e) {}
+      if (!_writeOk) _sha = '';
+    }
+  }
+  // If cached SHA failed, do full GET+PUT (slow path)
+  if (!_writeOk) {
+    var getResp;
+    try { getResp = await _ghFetch(_apiUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
+    catch(e) {
+      try { getResp = await _ghFetch(_proxyUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
+      catch(e2) { throw new Error('\u65e0\u6cd5\u8fde\u63a5\u5230 GitHub'); }
+    }
+    if (!getResp.ok) throw new Error('GitHub \u8bfb\u53d6\u5931\u8d25 (HTTP ' + getResp.status + ')');
+    var fileInfo = await getResp.json();
+    var _putBody2 = JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha });
+    try {
+      var _pr2 = await _ghFetch(_apiUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: _putBody2 });
+      if (_pr2.ok) { _writeOk = true; _sha = fileInfo.sha; }
+    } catch(e) {}
+    if (!_writeOk) {
+      try {
+        var _pr2b = await _ghFetch(_proxyUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: _putBody2 });
+        if (_pr2b.ok) { _writeOk = true; _sha = fileInfo.sha; }
+      } catch(e) {}
+    }
+  }
+  // Cache SHA for next save
+  if (_writeOk && _sha) { try { localStorage.setItem('gh_sha', _sha); } catch(e) {} return; }
+  // All failed - download file for manual upload
   var blob = new Blob([jsonStr], { type: 'application/json' });
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
@@ -2880,6 +2643,16 @@ loadData();
 </div>
 
 <button class="fab-add" id="fab-add" onclick="openQEditor()" title="添加题目">＋</button>
+
+<!-- Save Progress Overlay -->
+<div class="save-progress" id="save-progress">
+  <div class="save-progress-box">
+    <div class="save-progress-text" id="save-progress-text">正在保存到 GitHub...</div>
+    <div class="save-progress-bar">
+      <div class="save-progress-fill" id="save-progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+</div>
 
 <!-- Question Manager -->
 <div class="qm-overlay" id="qm-overlay" onclick="closeQuestionManager(event)">
