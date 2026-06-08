@@ -2397,22 +2397,7 @@ async function syncToGitHub(updatedData, msg) {
   }
   if (!getResp.ok) throw new Error('GitHub \u8bfb\u53d6\u5931\u8d25 (HTTP ' + getResp.status + ')');
   var fileInfo = await getResp.json();
-  var remoteData = JSON.parse(atob(fileInfo.content));
-  remoteData.subjects.forEach(function(rs) {
-    var localSubj = updatedData.subjects.find(function(s) { return s.id === rs.id; });
-    if (localSubj) {
-      rs.sessions.forEach(function(rsess) {
-        var localSess = localSubj.sessions.find(function(s) { return s.date === rsess.date; });
-        if (localSess) {
-          rsess.questions.forEach(function(rq) {
-            if (!localSess.questions.find(function(lq) { return lq.id === rq.id; })) {
-              localSess.questions.push(rq);
-            }
-          });
-        } else { localSubj.sessions.push(rsess); }
-      });
-    } else { updatedData.subjects.push(rs); }
-  });
+  // Skip merge - deduped local data is written directly (merge caused duplicate accumulation)
   var jsonStr = JSON.stringify(updatedData, null, 2);
   var encoded = btoa(unescape(encodeURIComponent(jsonStr)));
 
