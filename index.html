@@ -986,49 +986,46 @@ function indexPDFText(text) {
 
 function getPDFContext(question) {
   if (pdfChunks.length === 0) return pdfTextContent.substring(0, 12000);
-  // For very short questions or non-Chinese terms, try direct substring search first
-  var qLower = question.toLowerCase();
-  var directHits = [];
-  for (var di = 0; di < pdfChunks.length; di++) {
-    if (pdfChunks[di].toLowerCase().indexOf(qLower) > -1) {
-      directHits.push(di);
+  // Extract keywords from question (Chinese words of 2+ chars, skip punctuation)
+  var _keywords = question.match(/[\u4e00-\u9fff]{2,}/g) || [];
+  // Filter out very common words that appear everywhere
+  var _commonWords = {'什么':1,'如何':1,'怎么':1,'哪个':1,'哪些':1,'为什么':1,'这个':1,'那个':1,'可以':1,'没有':1,'不是':1,'就是':1,'一个':1,'这些':1,'那些':1,'还有':1,'那个':1,'之间':1,'区别':1,'特点':1,'内容':1,'方面':1,'包括':1,'属于':1,'主要':1,'我国':1,'中国':1,'历史':1,'时期':1,'情况':1,'部分':1,'关系':1,'影响':1,'原因':1,'结果':1,'过程':1,'方式':1,'方法':1,'作用':1,'意义':1,'地位':1,'表现':1,'发展':1,'产生':1,'形成':1,'成为':1,'进行':1,'开始':1,'之后':1,'之后':1,'以前':1,'时期':1};
+  _keywords = _keywords.filter(function(k) { return !_commonWords[k]; });
+  // Also use single-word chars that are specific
+  var _allChars = question.match(/[\u4e00-\u9fff]/g) || [];
+  // Score each chunk by how many question keywords/characters it contains
+  var _bestScore = 0, _bestIdx = 0;
+  for (var _di = 0; _di < pdfChunks.length; _di++) {
+    var _chunk = pdfChunks[_di];
+    var _score = 0;
+    // Keyword matches (weighted higher)
+    for (var _ki = 0; _ki < _keywords.length; _ki++) {
+      if (_chunk.indexOf(_keywords[_ki]) > -1) _score += 3;
     }
+    // Individual character matches (weighted lower)
+    for (var _ci = 0; _ci < _allChars.length; _ci++) {
+      if (_chunk.indexOf(_allChars[_ci]) > -1) _score += 0.5;
+    }
+    if (_score > _bestScore) { _bestScore = _score; _bestIdx = _di; }
   }
-  // If direct text match found, center the window around the first hit
-  if (directHits.length > 0) {
-    var centerIdx = directHits[Math.floor(directHits.length / 2)];
-    var start = Math.max(0, centerIdx - 4);
-    var end = Math.min(pdfChunks.length, centerIdx + 5);
-    return pdfChunks.slice(start, end).join('\n\n---\n\n');
+  // If no meaningful score, grab broad coverage
+  if (_bestScore < 0.5) {
+    var _third = Math.floor(pdfChunks.length / 5);
+    var _taken = {};
+    var _result = [];
+    function _add(i) { if (!_taken[i]) { _taken[i] = true; _result.push(pdfChunks[i]); } }
+    for (var _si = 0; _si < _third; _si++) _add(_si);
+    for (var _ei = Math.max(_third, pdfChunks.length - _third); _ei < pdfChunks.length; _ei++) _add(_ei);
+    return _result.join('\n\n---\n\n');
   }
-  // Fallback: keyword frequency matching
-  var qFreq = getCharFreq(question);
-  // If question has no Chinese chars, fall through to broad coverage
-  var hasChinese = Object.keys(qFreq).some(function(k) { return k.length === 1; });
-  if (!hasChinese) {
-    // Grab first 20% + last 20% for broad coverage (non-Chinese queries)
-    var third = Math.floor(pdfChunks.length / 5);
-    var taken = {};
-    var result = [];
-    function _add(i) { if (!taken[i]) { taken[i] = true; result.push(pdfChunks[i]); } }
-    for (var si = 0; si < third; si++) _add(si);
-    for (var ei = Math.max(third, pdfChunks.length - third); ei < pdfChunks.length; ei++) _add(ei);
-    return result.join('\n\n---\n\n');
+  // Return a window around the best match
+  var _windowStart = Math.max(0, _bestIdx - 5);
+  var _windowEnd = Math.min(pdfChunks.length, _bestIdx + 6);
+  if (_bestScore < 5) {
+    _windowStart = Math.max(0, _bestIdx - 8);
+    _windowEnd = Math.min(pdfChunks.length, _bestIdx + 9);
   }
-  var scores = pdfChunks.map(function(chunk, idx) {
-    return { s: keywordScore(getCharFreq(chunk), qFreq), i: idx };
-  });
-  scores.sort(function(a, b) { return b.s - a.s; });
-  var bestIdx = scores[0].i;
-  // Return a wide continuous window centered on the best match
-  var windowStart = Math.max(0, bestIdx - 5);
-  var windowEnd = Math.min(pdfChunks.length, bestIdx + 6);
-  // If best score is very low, expand the window
-  if (scores[0].s < 0.15) {
-    windowStart = Math.max(0, bestIdx - 8);
-    windowEnd = Math.min(pdfChunks.length, bestIdx + 9);
-  }
-  return pdfChunks.slice(windowStart, windowEnd).join('\n\n---\n\n');
+  return pdfChunks.slice(_windowStart, _windowEnd).join('\n\n---\n\n');
 }
 
 async function batchGenerateAnswers() {
@@ -1051,7 +1048,8 @@ async function batchGenerateAnswers() {
 
     var _pdfCtx = pdfTextContent ? getPDFContext(q) : '';
     var _webCtx = '', _webSrc = '';
-    var _pdfDirectHit = pdfTextContent && pdfTextContent.toLowerCase().indexOf(q.toLowerCase()) > -1;
+    var _kwTest = pdfTextContent && q.match(/[\u4e00-\u9fff]{2,}/g);
+    var _pdfDirectHit = _kwTest && _kwTest.length > 0 && _kwTest.some(function(w) { return pdfTextContent.indexOf(w) > -1; });
     var _needsWeb = !_pdfDirectHit;
     if (_needsWeb) {
       try {
