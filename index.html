@@ -7,7 +7,6 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>学习伙伴</title>
-<link rel="icon" href="/study-quiz/icons/Icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/study-quiz/lib/leaflet.min.css">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232c3e5c'/%3E%3Cpath d='M8 8h12c.55 0 1 .45 1 1v14c0 .55-.45 1-1 1H8c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1z' fill='%23fffcf8' stroke='%23fffcf8' stroke-width='.5'/%3E%3Cpath d='M11 11h6v2h-6zm0 4h6v2h-6zm0 4h4v2h-4z' fill='%232c3e5c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -541,7 +540,7 @@
       <button class="btn btn-out" onclick="showMap()">世界地图</button>
       <button class="btn btn-out" onclick="openQuestionManager()" style="margin-top:8px;">📋 题目管理</button>
       <div class="home-actions-row" style="margin-top:8px;">
-        <button class="btn btn-primary" onclick="openQEditor()" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;"><img src="/study-quiz/icons/JiaBIMfenxiicon-SVG_peizhianniu.svg" alt="" style="width:16px;height:16px;filter:brightness(10);"> 添加题目</button>
+        <button class="btn btn-primary" onclick="openQEditor()" style="flex:1;">＋ 添加题目</button>
         <button class="btn btn-out" onclick="exportQuestions()" style="flex:1;">📥 导出题库</button>
         <button class="btn btn-primary" onclick="openQEditor(true)" style="flex:1;">📋 批量添加</button>
       </div>
@@ -816,7 +815,7 @@ async function aiFillQA(e) {
     }
 
     // Step 3: Generate answer
-    btn.textContent = '🤖 生成答案中...';
+    btn.innerHTML = '<img src="/study-quiz/icons/a-zhinengjiqirenjiqiren.svg" alt="" style="width:14px;height:14px;vertical-align:middle;"> 生成答案中...';
     const controller = new AbortController();
     const t = setTimeout(() => controller.abort(), 25000);
 
@@ -858,7 +857,7 @@ async function aiFillQA(e) {
     alert('AI查证失败: ' + e.message);
   }
   btn.disabled = false;
-  btn.textContent = '🤖 AI 查证填答案';
+  btn.textContent = '<img src="/study-quiz/icons/a-zhinengjiqirenjiqiren.svg" alt="" style="width:16px;height:16px;vertical-align:middle;"> AI 查证填答案';
   }
 
 async function saveQuestion() {
@@ -1138,7 +1137,7 @@ async function batchGenerateAnswers() {
 function renderBatchResults() {
   var el = document.getElementById('qe-batch-results');
   el.innerHTML = batchResults.map(function(r, i) {
-    return '<div class="qe-batch-item"><div class="q">' + (i+1) + '. ' + r.question + '</div><div class="a" id="ba-' + i + '"><div class="tb-wrap">' + r.answer + '</div></div><div class="actions"><button onclick="editBatchAnswer(' + i + ')" style="display:inline-flex;align-items:center;gap:4px;"><img src="/study-quiz/icons/xiugaianniu.svg" alt="" style="width:12px;height:12px;"> 编辑</button><button onclick="deleteBatchItem(' + i + ')">🗑 删除</button></div></div>';
+    return '<div class="qe-batch-item"><div class="q">' + (i+1) + '. ' + r.question + '</div><div class="a" id="ba-' + i + '"><div class="tb-wrap">' + r.answer + '</div></div><div class="actions"><button onclick="editBatchAnswer(' + i + ')" style="display:inline-flex;align-items:center;gap:4px;"><img src="/study-quiz/icons/xiugaianniu.svg" alt="" style="width:12px;height:12px;"> 编辑</button><button onclick="deleteBatchItem(' + i + ')"><img src="/study-quiz/icons/Icon.svg" alt="" style="width:14px;height:14px;vertical-align:middle;"> 删除</button></div></div>';
   }).join('');
 }
 
@@ -2615,11 +2614,11 @@ function renderQuestionManager() {
         var hidden = isHidden(qid);
         var cls = overridden ? ' qm-q-local' : (hidden ? ' qm-q' : '');
         var _delFn = userAddedIds.indexOf(qid) > -1 ? 'deleteCustomQuestion' : 'deleteAnyQuestion';
-        html += '<div class="qm-q' + (overridden || hidden ? ' qm-q-local' : '') + '"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + qid + '" onchange="onBatchCheck()"></label><span class="qm-q-text" style="' + (hidden ? 'text-decoration:line-through;opacity:.5;' : '') + '">' + (overridden ? '✏️ ' : '') + (hidden ? '🚫 ' : '') + qs[qi].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editAnyQuestion(\'' + subj.id + '\',\'' + qid + '\')"><img src="/study-quiz/icons/xiugaianniu.svg" alt="Edit" style="width:14px;height:14px;display:block;"></button><button class="del" onclick="' + _delFn + '(\'' + subj.id + '\',\'' + qid + '\')">🗑</button></div></div>';
+        html += '<div class="qm-q' + (overridden || hidden ? ' qm-q-local' : '') + '"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + qid + '" onchange="onBatchCheck()"></label><span class="qm-q-text" style="' + (hidden ? 'text-decoration:line-through;opacity:.5;' : '') + '">' + (overridden ? '✏️ ' : '') + (hidden ? '🚫 ' : '') + qs[qi].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editAnyQuestion(\'' + subj.id + '\',\'' + qid + '\')"><img src="/study-quiz/icons/xiugaianniu.svg" alt="Edit" style="width:14px;height:14px;display:block;"></button><button class="del" onclick="' + _delFn + '(\'' + subj.id + '\',\'' + qid + '\')"><img src="/study-quiz/icons/Icon.svg" alt="Delete" style="width:14px;height:14px;display:block;"></button></div></div>';
       }
       for (var ci = 0; ci < customInSession.length; ci++) {
         var cq = customInSession[ci];
-        html += '<div class="qm-q qm-q-local"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + cq.id + '" onchange="onBatchCheck()"></label><span class="qm-q-badge">本地</span><span class="qm-q-text">' + cq.question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')"><img src="/study-quiz/icons/xiugaianniu.svg" alt="Edit" style="width:14px;height:14px;display:block;"></button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')">🗑</button></div></div>';
+        html += '<div class="qm-q qm-q-local"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + cq.id + '" onchange="onBatchCheck()"></label><span class="qm-q-badge">本地</span><span class="qm-q-text">' + cq.question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')"><img src="/study-quiz/icons/xiugaianniu.svg" alt="Edit" style="width:14px;height:14px;display:block;"></button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + cq.id + '\')"><img src="/study-quiz/icons/Icon.svg" alt="Delete" style="width:14px;height:14px;display:block;"></button></div></div>';
       }
       html += '</div></div>'; // sess-body + sess
     }
@@ -2630,7 +2629,7 @@ function renderQuestionManager() {
       html += '<div class="qm-sess"><div class="qm-sess-header" onclick="toggleQMSess(' + si + ',\'o\')"><span class="qm-sess-name">其他</span><span class="qm-sess-count">本地 ' + orphans.length + ' 题</span><span class="qm-sess-arrow" id="qmsa-' + si + '-o">▼</span></div>';
       html += '<div class="qm-sess-body" id="qmsessb-' + si + '-o">';
       for (var ci = 0; ci < orphans.length; ci++) {
-        html += '<div class="qm-q qm-q-local"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + orphans[ci].id + '" onchange="onBatchCheck()"></label><span class="qm-q-badge">本地</span><span class="qm-q-text">' + orphans[ci].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')"><img src="/study-quiz/icons/xiugaianniu.svg" alt="Edit" style="width:14px;height:14px;display:block;"></button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')">🗑</button></div></div>';
+        html += '<div class="qm-q qm-q-local"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + orphans[ci].id + '" onchange="onBatchCheck()"></label><span class="qm-q-badge">本地</span><span class="qm-q-text">' + orphans[ci].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')"><img src="/study-quiz/icons/xiugaianniu.svg" alt="Edit" style="width:14px;height:14px;display:block;"></button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')"><img src="/study-quiz/icons/Icon.svg" alt="Delete" style="width:14px;height:14px;display:block;"></button></div></div>';
       }
       html += '</div></div>'; // sess-body + sess
     }
@@ -2639,7 +2638,7 @@ function renderQuestionManager() {
   }
 
   html += '</div>'; // qm-body
-  html += '<div class="qm-batch-bar" id="qm-batch-bar"><span class="qm-batch-count" id="qm-batch-count">已选 0 题</span><button class="qm-batch-del" onclick="batchDeleteQuestions()">🗑 批量删除</button></div>';
+  html += '<div class="qm-batch-bar" id="qm-batch-bar"><span class="qm-batch-count" id="qm-batch-count">已选 0 题</span><button class="qm-batch-del" onclick="batchDeleteQuestions()"><img src="/study-quiz/icons/Icon.svg" alt="" style="width:14px;height:14px;vertical-align:middle;"> 批量删除</button></div>';
   document.getElementById('qm-content').innerHTML = html || '<div class="qm-empty">暂无题目数据</div>';
 }
 
@@ -2863,7 +2862,7 @@ loadData();
 <!-- Question Editor Modal -->
 <div class="qe-overlay" id="qe-overlay" onclick="closeQEditor(event)">
   <div class="qe-sheet" onclick="event.stopPropagation()">
-    <h3 style="display:flex;align-items:center;gap:6px;"><img src="/study-quiz/icons/JiaBIMfenxiicon-SVG_peizhianniu.svg" alt="" style="width:20px;height:20px;"> 添加题目</h3>
+    <h3>✏️ 添加题目</h3>
     <label>科目</label>
     <select id="qe-subject"></select>
     <div id="qe-section-field">
@@ -2902,12 +2901,12 @@ loadData();
       <div id="qe-save-status" style="display:none;text-align:center;padding:8px 0;font-size:13px;font-weight:500;border-radius:8px;margin:4px 0;"></div>
       <div id="qe-batch-results"></div>
       <div class="qe-actions" style="display:flex;gap:10px;margin-top:12px;">
-        <button class="qe-btn-ai" onclick="batchGenerateAnswers()" id="qe-batch-gen-btn">🤖 批量查证生成</button>
+        <button class="qe-btn-ai" onclick="batchGenerateAnswers()" id="qe-batch-gen-btn"><img src="/study-quiz/icons/a-zhinengjiqirenjiqiren.svg" alt="" style="width:16px;height:16px;vertical-align:middle;"> 批量查证生成</button>
         <button class="qe-btn-save" onclick="batchSaveAll()" id="qe-batch-save-btn" style="display:none;">💾 全部保存</button>
       </div>
     </div>
     
-    <div class="qe-actions"><button class="qe-btn-ai" onclick="aiFillQA(event)" style="width:100%;">🤖 AI 查证填答案</button>
+    <div class="qe-actions"><button class="qe-btn-ai" onclick="aiFillQA(event)" style="width:100%;"><img src="/study-quiz/icons/a-zhinengjiqirenjiqiren.svg" alt="" style="width:16px;height:16px;vertical-align:middle;"> AI 查证填答案</button>
     <div class="qe-actions" style="display:flex;margin-top:8px;">
       <button class="qe-btn-cancel" onclick="closeQEditor()">取消</button>
       <button class="qe-btn-save" onclick="saveQuestion()">保存</button>
@@ -2916,7 +2915,7 @@ loadData();
 </div>
 </div>
 
-<button class="fab-add" id="fab-add" onclick="openQEditor()" title="添加题目"><img src="/study-quiz/icons/JiaBIMfenxiicon-SVG_peizhianniu.svg" alt="+" style="width:28px;height:28px;display:block;filter:brightness(10);"></button>
+<button class="fab-add" id="fab-add" onclick="openQEditor()" title="添加题目">＋</button>
 
 <!-- Question Manager -->
 <div class="qm-overlay" id="qm-overlay" onclick="closeQuestionManager(event)">
