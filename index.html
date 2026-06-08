@@ -125,13 +125,31 @@
   .card-icon.green { background: var(--green-light); }
   .card-icon.red { background: var(--red-light); }
   .card-body { flex: 1; min-width: 0; }
-  .ans table, .a table, .result table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; border-radius: 8px; overflow: hidden; }
-  .ans thead, .a thead { display: table-header-group; }
-  .ans th, .a th, .result th { background: var(--surface2); padding: 8px 10px; text-align: left; font-weight: 600; white-space: nowrap; font-size: 13px; }
-  .ans td, .a td, .result td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
-  .ans tr:last-child td, .a tr:last-child td, .result tr:last-child td { border-bottom: none; }
-  .ans tbody tr:nth-child(even), .a tbody tr:nth-child(even), .result tbody tr:nth-child(even) { background: var(--surface2); }
+    .ans table, .a table, .result table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-size: 14px; margin: 10px 0;
+    border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .ans thead, .a thead, .result thead { display: table-header-group; }
+  .ans th, .a th, .result th {
+    background: var(--surface2); padding: 10px 12px;
+    text-align: left; font-weight: 600; font-size: 13px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.3px;
+  }
+  .ans td, .a td, .result td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top; line-height: 1.6;
+    font-size: 13.5px;
+  }
+  .ans tbody tr:last-child td, .a tbody tr:last-child td, .result tbody tr:last-child td { border-bottom: none; }
+  .ans tbody tr:nth-child(even), .a tbody tr:nth-child(even), .result tbody tr:nth-child(even) { background: #faf8f5; }
   .ans tbody tr:nth-child(odd), .a tbody tr:nth-child(odd), .result tbody tr:nth-child(odd) { background: var(--surface); }
+  .ans tbody tr:hover, .a tbody tr:hover, .result tbody tr:hover { background: #f5f0ea; }
   .ans .tb-wrap, .a .tb-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 4px 0; }
   .ans table, .a table { min-width: 200px; }
   .card-name { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -269,9 +287,9 @@
   .note-detail .body {
     font-size: 15px; line-height: 1.8; color: var(--ink);
   }
-  .note-detail .body table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14px; }
-  .note-detail .body th, .note-detail .body td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
-  .note-detail .body th { background: var(--ink-blue-light); font-weight: 600; }
+  .note-detail .body table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .note-detail .body th, .note-detail .body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+  .note-detail .body th { background: var(--surface2); font-weight: 600; }
   .note-detail .body strong { font-weight: 700; }
   .note-detail .body ul { margin: 4px 0; padding-left: 18px; list-style: disc; }
   .note-detail .body ol { margin: 4px 0; padding-left: 18px; }
@@ -384,10 +402,11 @@
     background: var(--ink-blue-light); border-radius: 6px; font-size: 14px;
   }
   .chat-msg.ai .chat-bbl table {
-    width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px;
+    width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13.5px;
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
   }
   .chat-msg.ai .chat-bbl th, .chat-msg.ai .chat-bbl td {
-    border: 1px solid var(--border); padding: 6px 10px; text-align: left;
+    border: 1px solid var(--border); padding: 8px 12px; text-align: left;
   }
   .chat-msg.ai .chat-bbl th { background: var(--ink-blue-light); font-weight: 600; }
   .chat-msg.ai .chat-bbl code {
