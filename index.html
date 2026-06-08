@@ -749,6 +749,9 @@ function openQEditor(batchMode) {
   batchResults = [];
   document.getElementById('qe-batch-results').innerHTML = '';
   document.getElementById('qe-batch-progress').textContent = '';
+  document.getElementById('qe-save-status').style.display = 'none';
+  var _sb = document.getElementById('qe-batch-save-btn');
+  if (_sb) { _sb.disabled = false; _sb.style.display = 'none'; }
   
   // Populate batch section datalist
   var secInput = document.getElementById('qe-batch-section');
