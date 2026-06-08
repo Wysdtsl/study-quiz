@@ -505,6 +505,8 @@
   .qm-sess-arrow.open { transform: rotate(180deg); }
   .sess-select-all { font-size: 12px; color: var(--ink-muted); cursor: pointer; padding: 4px 6px; user-select: none; margin-left: auto; }
   .sess-select-all:hover { color: var(--ink-blue); }
+  .sess-del { font-size: 12px; color: var(--red); cursor: pointer; padding: 4px 6px; user-select: none; opacity: .5; }
+  .sess-del:hover { opacity: 1; }
   .qm-sess-body { padding: 2px 0 8px 12px; display: none; }
   .qm-sess-body.open { display: block; }
 
@@ -2614,7 +2616,7 @@ function renderQuestionManager() {
       html += '<div class="qm-sess-header" onclick="toggleQMSess(' + si + ',' + sei + ')">';
       html += '<span class="qm-sess-name">' + sess.label + '</span>';
       html += '<span class="qm-sess-count">' + qs.length + ' 题' + (customInSession.length ? ' · 本地 ' + customInSession.length : '') + '</span>';
-      html += '<span class="qm-sess-arrow" id="qmsa-' + si + '-' + sei + '">▼</span><label class="sess-select-all" onclick="event.stopPropagation();selectAllInSess(' + si + ',' + sei + ')">全选</label></div>';
+      html += '<span class="qm-sess-arrow" id="qmsa-' + si + '-' + sei + '">▼</span><label class="sess-select-all" onclick="event.stopPropagation();selectAllInSess(' + si + ',' + sei + ')">全选</label><span class="sess-del" onclick="event.stopPropagation();deleteSession(\'' + subj.id + '\',\'' + sess.date + '\')">删章</span></div>';
       html += '<div class="qm-sess-body" id="qmsessb-' + si + '-' + sei + '">';
 
       for (var qi = 0; qi < qs.length; qi++) {
@@ -2635,7 +2637,7 @@ function renderQuestionManager() {
     // Orphan custom questions (no matching session)
     var orphans = subjCustom.filter(function(q) { return !subj.sessions.some(function(s) { return s.date === q.section; }); });
     if (orphans.length > 0) {
-      html += '<div class="qm-sess"><div class="qm-sess-header" onclick="toggleQMSess(' + si + ',\'o\')"><span class="qm-sess-name">其他</span><span class="qm-sess-count">本地 ' + orphans.length + ' 题</span><span class="qm-sess-arrow" id="qmsa-' + si + '-o">▼</span><label class="sess-select-all" onclick="event.stopPropagation();selectAllInSess(' + si + ',' + sei + ')">全选</label></div>';
+      html += '<div class="qm-sess"><div class="qm-sess-header" onclick="toggleQMSess(' + si + ',\'o\')"><span class="qm-sess-name">其他</span><span class="qm-sess-count">本地 ' + orphans.length + ' 题</span><span class="qm-sess-arrow" id="qmsa-' + si + '-o">▼</span></div>';
       html += '<div class="qm-sess-body" id="qmsessb-' + si + '-o">';
       for (var ci = 0; ci < orphans.length; ci++) {
         html += '<div class="qm-q qm-q-local"><label class="qm-q-cb"><input type="checkbox" class="qm-cb" data-qid="' + orphans[ci].id + '" onchange="onBatchCheck()"></label><span class="qm-q-badge">本地</span><span class="qm-q-text">' + orphans[ci].question + '</span><div class="qm-q-actions"><button class="edit" onclick="editCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')"><img src="/study-quiz/icons/xiugaianniu.svg" alt="Edit" style="width:14px;height:14px;display:block;"></button><button class="del" onclick="deleteCustomQuestion(\'' + subj.id + '\',\'' + orphans[ci].id + '\')"><img src="/study-quiz/icons/Icon.svg" alt="Delete" style="width:14px;height:14px;display:block;"></button></div></div>';
@@ -2697,9 +2699,25 @@ function selectAllInSess(si, sei) {
   var body = document.getElementById('qmsessb-' + si + '-' + sei);
   if (!body) return;
   var cbs = body.querySelectorAll('.qm-cb');
-  var someUnchecked = Array.from(cbs).some(function(cb) { return !cb.checked; });
-  cbs.forEach(function(cb) { cb.checked = !someUnchecked; });
+  var allChecked = true;
+  for (var _xi = 0; _xi < cbs.length; _xi++) { if (!cbs[_xi].checked) { allChecked = false; break; } }
+  for (var _xi = 0; _xi < cbs.length; _xi++) { cbs[_xi].checked = !allChecked; }
   onBatchCheck();
+}
+
+function deleteSession(sid, sLabel) {
+  if (!confirm('确定删除章节 "' + sLabel + '" 及其所有题目吗？')) return;
+  var subj = data.subjects.find(function(s) { return s.id === sid; });
+  if (!subj) return;
+  var sess = subj.sessions.find(function(s) { return s.date === sLabel || s.label === sLabel; });
+  if (!sess) return;
+  var qCount = sess.questions.length;
+  subj.sessions = subj.sessions.filter(function(s) { return s.date !== sLabel && s.label !== sLabel; });
+  if (getGHToken()) {
+    syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) {});
+  }
+  renderQuestionManager();
+  document.getElementById('qm-overlay').classList.add('show');
 }
 
 function batchDeleteQuestions() {
