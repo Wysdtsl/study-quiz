@@ -2716,8 +2716,28 @@ function deleteSession(sid, sLabel) {
   if (getGHToken()) {
     syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) {});
   }
-  renderQuestionManager();
-  document.getElementById('qm-overlay').classList.add('show');
+  // Surgical DOM removal - keep the subject open
+  var _sessEls = document.querySelectorAll('#qm-content .qm-sess-name');
+  for (var _xi = 0; _xi < _sessEls.length; _xi++) {
+    if (_sessEls[_xi].textContent === sLabel) {
+      var _sess = _sessEls[_xi].closest('.qm-sess');
+      if (_sess) {
+        var _subjBody = _sess.closest('.qm-subj-body');
+        var _subj = _subjBody && _subjBody.closest('.qm-subj');
+        _sess.remove();
+        // Update subject metadata
+        if (_subj) {
+          var _meta = _subj.querySelector('.qm-subj-meta');
+          if (_meta) {
+            var _totalQ = _subjBody.querySelectorAll('.qm-q').length;
+            var _customQ = _subjBody.querySelectorAll('.qm-q-local').length;
+            _meta.innerHTML = _subj.querySelectorAll('.qm-sess').length + ' 章 · ' + _totalQ + ' 题' + (_customQ ? ' · <b style="color:var(--amber);">本地 ' + _customQ + ' 题</b>' : '');
+          }
+        }
+      }
+      break;
+    }
+  }
 }
 
 function batchDeleteQuestions() {
