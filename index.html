@@ -1264,34 +1264,30 @@ async function handlePDFFile(event) {
     for (var i = 1; i <= pdf.numPages; i++) {
       var page = await pdf.getPage(i);
       var content = await page.getTextContent();
-      // Position-aware extraction: group items by Y into lines
-      var _lines = {};
+      // Position-aware extraction: sort items by position, group by Y proximity
+      var _sorted = [];
       for (var _ti = 0; _ti < content.items.length; _ti++) {
-        var _item = content.items[_ti];
-        if (!_item.str) continue;
-        var _y = Math.round(_item.transform[5] / 10) * 10;
-        if (!_lines[_y]) _lines[_y] = [];
-        _lines[_y].push(_item);
+        if (content.items[_ti].str) _sorted.push(content.items[_ti]);
       }
-      // Sort lines top-to-bottom (PDF Y is bottom-up, so descending)
-      var _sortedY = Object.keys(_lines).sort(function(a,b) { return parseInt(b) - parseInt(a); });
+      _sorted.sort(function(a,b) { return b.transform[5] - a.transform[5] || a.transform[4] - b.transform[4]; });
       var _pageLines = [];
-      for (var _li = 0; _li < _sortedY.length; _li++) {
-        var _row = _lines[_sortedY[_li]];
-        // Sort left-to-right
-        _row.sort(function(a,b) { return a.transform[4] - b.transform[4]; });
-        var _lineTxt = '';
-        var _lastXEnd = 0;
-        for (var _ti2 = 0; _ti2 < _row.length; _ti2++) {
-          var _it2 = _row[_ti2];
-          var _xStart = _it2.transform[4];
-          var _w = typeof _it2.width === 'number' ? _it2.width : _it2.str.length * 5;
-          if (_ti2 > 0 && _xStart - _lastXEnd > 3) _lineTxt += ' ';
-          _lineTxt += _it2.str;
-          _lastXEnd = _xStart + _w;
+      var _curLine = '', _lastY = null, _lastXEnd2 = 0;
+      for (var _ti = 0; _ti < _sorted.length; _ti++) {
+        var _it = _sorted[_ti];
+        var _y2 = _it.transform[5];
+        var _x2 = _it.transform[4];
+        var _w2 = typeof _it.width === 'number' ? _it.width : _it.str.length * 6;
+        if (_lastY !== null && Math.abs(_y2 - _lastY) > 3) {
+          _pageLines.push(_curLine.trim());
+          _curLine = '';
+          _lastXEnd2 = 0;
         }
-        _pageLines.push(_lineTxt.trim());
+        if (_lastXEnd2 > 0 && _x2 - _lastXEnd2 > 3) _curLine += ' ';
+        _curLine += _it.str;
+        _lastY = _y2;
+        _lastXEnd2 = _x2 + _w2;
       }
+      if (_curLine.trim()) _pageLines.push(_curLine.trim());
       fullText += _pageLines.join('\n') + '\n\n';
     }
     pdfTextContent = fullText.trim();
