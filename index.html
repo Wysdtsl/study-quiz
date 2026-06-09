@@ -2727,6 +2727,7 @@ function closeIconPicker(e) {
       var el = e.target.closest('[data-sid]');
       if (el) {
         var sid = el.getAttribute('data-sid');
+        alert('delegation fired! sid=' + sid);
         if (sid) { e.stopPropagation(); openIconPicker(sid); }
       }
     });
