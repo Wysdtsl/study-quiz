@@ -2826,7 +2826,7 @@ function addSubject() {
   data.subjects.push({ id: id + (_suffix || ''), name: name, sessions: [] });
   // Try to sync to GitHub
   if (getGHToken()) {
-    syncToGitHub(data, '📚 新增科目: ' + name).catch(function(e) { console.error('GitHub sync error:', e); });
+    syncToGitHub(data, '📚 新增科目: ' + name).catch(function(e) { alert('GitHub同步失败，之后可能恢复旧数据: ' + e.message); });
   }
   renderQuestionManager();
   document.getElementById('qm-overlay').classList.add('show');
@@ -2951,7 +2951,7 @@ function confirmIcon() {
     renderQuestionManager();
     renderSubjects();
     if (getGHToken()) {
-      syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) { console.error('GitHub sync error:', e); });
+      syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) { alert('GitHub同步失败，之后可能恢复旧数据: ' + e.message); });
     }
     closeIconPicker();
     delete picker.dataset.pendingIcon;
@@ -3120,28 +3120,8 @@ function deleteSession(sid, sLabel) {
     if (getGHToken()) {
       syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) { alert('GitHub 同步失败，刷新后章节会恢复: ' + e.message); });
     }
-    // Surgical DOM removal - keep the subject open
-    var _sessEls = document.querySelectorAll('#qm-content .qm-sess-name');
-    for (var _xi = 0; _xi < _sessEls.length; _xi++) {
-      if (_sessEls[_xi].textContent === sLabel) {
-        var _sess = _sessEls[_xi].closest('.qm-sess');
-        if (_sess) {
-          var _subjBody = _sess.closest('.qm-subj-body');
-          var _subj = _subjBody && _subjBody.closest('.qm-subj');
-          _sess.remove();
-          // Update subject metadata
-          if (_subj) {
-            var _meta = _subj.querySelector('.qm-subj-meta');
-            if (_meta) {
-              var _totalQ = _subjBody.querySelectorAll('.qm-q').length;
-              var _customQ = _subjBody.querySelectorAll('.qm-q-local').length;
-              _meta.innerHTML = _subj.querySelectorAll('.qm-sess').length + ' 章 · ' + _totalQ + ' 题' + (_customQ ? ' · <b style="color:var(--amber);">本地 ' + _customQ + ' 题</b>' : '');
-            }
-          }
-        }
-        break;
-      }
-    }
+    // Re-render the question manager from fresh data
+    renderQuestionManager();
     alert('✅ 已删除章节「' + sLabel + '」(' + qCount + '题)');
   } catch(e) { alert('删除失败: ' + e.message); }
 }
@@ -3191,7 +3171,7 @@ function batchDeleteQuestions() {
   });
   // Sync to GitHub
   if (toDelete.length > 0 && getGHToken()) {
-    syncToGitHub(data, '🗑 批量删除 ' + toDelete.length + ' 题').catch(function(e) { console.error('GitHub sync error:', e); });
+    syncToGitHub(data, '🗑 批量删除 ' + toDelete.length + ' 题').catch(function(e) { alert('GitHub同步失败，之后可能恢复旧数据: ' + e.message); });
   }
   // Re-render
   _qmRendering = true; renderQuestionManager();
