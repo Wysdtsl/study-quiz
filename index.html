@@ -3117,11 +3117,11 @@ function deleteSession(sid, sLabel) {
     if (!sess) { alert('DEBUG: 找不到章节「' + sLabel + '」'); return; }
     var qCount = sess.questions.length;
     subj.sessions = subj.sessions.filter(function(s) { return s.date !== sLabel && s.label !== sLabel; });
-    if (getGHToken()) {
-      syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) { alert('GitHub 同步失败，刷新后章节会恢复: ' + e.message); });
-    }
-    // Delete confirmed - reload page to reflect changes
     alert('✅ 已删除章节「' + sLabel + '」(' + qCount + '题)');
+    if (getGHToken()) {
+      try { await syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)'); }
+      catch(e) { alert('GitHub 同步失败，刷新后可能恢复:' + e.message); }
+    }
     window.location.reload();
   } catch(e) { alert('删除失败: ' + e.message); }
 }
