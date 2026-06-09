@@ -1194,10 +1194,10 @@ async function batchGenerateAnswers() {
     var q = lines[i];
     document.getElementById('qe-batch-progress').textContent = '\u6b63\u5728\u67e5\u8bc1 ' + (i+1) + '/' + lines.length + '...';
 
+        var _kwTest = pdfTextContent && q.match(/[\u4e00-\u9fff]{2,}/g);
+    var _pdfDirectHit = _kwTest && _kwTest.length > 0 && _kwTest.some(function(w) { return pdfTextContent.indexOf(w) > -1; });
     var _pdfCtx = pdfTextContent ? (_pdfDirectHit ? pdfTextContent : getPDFContext(q)) : '';
     var _webCtx = '', _webSrc = '';
-    var _kwTest = pdfTextContent && q.match(/[\u4e00-\u9fff]{2,}/g);
-    var _pdfDirectHit = _kwTest && _kwTest.length > 0 && _kwTest.some(function(w) { return pdfTextContent.indexOf(w) > -1; });
     var _needsWeb = !_pdfDirectHit;
     if (_needsWeb) {
       try {
