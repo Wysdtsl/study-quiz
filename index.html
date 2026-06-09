@@ -2684,10 +2684,9 @@ function addSubject() {
 
 // ── Icon Picker ──
 const PRESET_ICONS = ['📖','📗','📘','📙','📕','📚','📝','✏️','📜','🗺️','🌍','🌏','🌎','🏔️','🏛️','⚖️','🔬','🧬','💻','⚙️','🎨','🎵','🧮','💡','🔍','📊','📈','📉','🧠','❤️','⭐','🔥','💎','🌈','🎯','🏆','🕊️','🌿','⚡','🛡️','📌'];
-let _iconPickerSubjId = null;
 
 function openIconPicker(sid) {
-  _iconPickerSubjId = sid;
+  var picker = document.getElementById('ip-overlay'); picker.dataset.pickerSubjId = sid;
   // Reset state
   document.getElementById('ip-emoji-input').value = '';
   document.getElementById('ip-url-input').value = '';
@@ -2700,29 +2699,38 @@ function openIconPicker(sid) {
   // Populate grid
   var grid = document.getElementById('ip-grid');
   grid.innerHTML = PRESET_ICONS.map(function(ic) {
-    return '<button class="ip-grid-item" data-icon="' + ic + '">' + ic + '</button>';
+    return '<button class="ip-grid-item" data-idx="' + _i + '">' + ic + '</button>';
   }).join('');
   // Use event delegation instead of inline onclick
   grid.onclick = function(e) {
     var btn = e.target.closest('.ip-grid-item');
-    if (btn) pickPresetIcon(btn, btn.getAttribute('data-icon'));
+    if (btn) pickPresetIcon(btn, PRESET_ICONS[parseInt(btn.dataset.idx)]);
   };
   document.getElementById('ip-overlay').classList.add('show');
 }
 
+// Panel event delegation for icon picker
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('#ip-confirm-btn');
+  if (btn && document.getElementById('ip-overlay').classList.contains('show')) {
+    confirmIcon();
+  }
+});
+
 function closeIconPicker(e) {
   if (!e || e.target === document.getElementById('ip-overlay')) {
-    document.getElementById('ip-overlay').classList.remove('show');
-    _iconPickerSubjId = null;
+    var picker = document.getElementById('ip-overlay');
+    picker.classList.remove('show');
+    delete picker.dataset.pickerSubjId;
+    delete picker.dataset.pendingIcon;
   }
 }
 
-let _pendingIcon = null;
 
 function pickPresetIcon(el, icon) {
   document.querySelectorAll('.ip-grid-item').forEach(function(i) { i.classList.remove('selected'); });
   el.classList.add('selected');
-  _pendingIcon = icon;
+  document.getElementById('ip-overlay').dataset.pendingIcon = icon;
   document.getElementById('ip-preview-selected').style.display = 'flex';
   document.getElementById('ip-selected-icon').textContent = icon;
   document.getElementById('ip-confirm-btn').disabled = false;
@@ -2733,7 +2741,7 @@ function switchIconTab(tab) {
   document.querySelectorAll('.ip-content').forEach(function(c) { c.classList.remove('show'); });
   document.querySelector('.ip-tab[onclick*="' + tab + '"]').classList.add('active');
   document.getElementById('ip-tab-' + tab).classList.add('show');
-  _pendingIcon = null;
+  delete document.getElementById('ip-overlay').dataset.pendingIcon;
   document.getElementById('ip-confirm-btn').disabled = true;
   document.querySelectorAll('.ip-grid-item').forEach(function(el) { el.classList.remove('selected'); });
   // Reset upload tab state
@@ -2761,7 +2769,7 @@ function previewIcon(type) {
     else { previewEl.innerHTML = '<span class="preview-label">输入链接后显示预览</span>'; }
   }
   if (icon) {
-    _pendingIcon = icon;
+    document.getElementById('ip-overlay').dataset.pendingIcon = icon;
     document.getElementById('ip-preview-selected').style.display = 'flex';
     document.getElementById('ip-selected-icon').textContent = icon.length < 10 ? icon : '✅';
     document.getElementById('ip-confirm-btn').disabled = false;
@@ -2771,17 +2779,26 @@ function previewIcon(type) {
 }
 
 function confirmIcon() {
-  if (!_pendingIcon || !_iconPickerSubjId) return;
-  var subj = data.subjects.find(function(s) { return s.id === _iconPickerSubjId; });
-  if (!subj) return;
-  subj.icon = _pendingIcon;
-  renderQuestionManager();
-  renderSubjects();
-  if (getGHToken()) {
-    syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) {});
+  try {
+    var picker = document.getElementById('ip-overlay');
+    if (!picker || !picker.classList.contains('show')) return;
+    var icon = picker.dataset.pendingIcon;
+    if (!icon) return;
+    var sid = picker.dataset.pickerSubjId;
+    if (!sid) return;
+    var subj = data.subjects.find(function(s) { return s.id === sid; });
+    if (!subj) return;
+    subj.icon = icon;
+    renderQuestionManager();
+    renderSubjects();
+    if (getGHToken()) {
+      syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) {});
+    }
+    closeIconPicker();
+    delete picker.dataset.pendingIcon;
+  } catch(e) {
+    alert('确认图标失败: ' + e.message);
   }
-  closeIconPicker();
-  _pendingIcon = null;
 }
 
 function handleIconFileUpload(event) {
@@ -2801,7 +2818,7 @@ function handleIconFileUpload(event) {
   var reader = new FileReader();
   reader.onload = function(e) {
     var dataUrl = e.target.result;
-    _pendingIcon = dataUrl;
+    document.getElementById('ip-overlay').dataset.pendingIcon = dataUrl;
     // Show preview
     document.getElementById('ip-preview-upload').style.display = 'flex';
     document.getElementById('ip-upload-preview-icon').innerHTML = '<img src="' + dataUrl + '" alt="" style="max-width:64px;max-height:64px;">';
@@ -3210,7 +3227,7 @@ loadData();
 
 <!-- Question Manager -->
 <div class="ip-overlay" id="ip-overlay" onclick="closeIconPicker(event)">
-  <div class="ip-panel" onclick="event.stopPropagation()">
+  <div class="ip-panel" id="ip-panel" onclick="event.stopPropagation()">
     <div class="ip-header">
       <h3>选择图标</h3>
       <button class="x" onclick="closeIconPicker()">✕</button>
@@ -3251,7 +3268,7 @@ loadData();
       <span>已选：</span>
       <span class="preview-icon" id="ip-selected-icon"></span>
     </div>
-    <button class="ip-confirm" id="ip-confirm-btn" onclick="confirmIcon()" disabled>确认</button>
+    <button class="ip-confirm" id="ip-confirm-btn" disabled>确认</button>
   </div>
 </div>
 
