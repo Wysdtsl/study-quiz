@@ -2718,6 +2718,22 @@ function closeIconPicker(e) {
   }
 }
 
+// Delegation: qm-subj-icon click → openIconPicker
+// Must be set after each QM render, but the listener persists on #qm-content
+(function() {
+  var qm = document.getElementById('qm-content');
+  if (qm && !qm._iconDelegation) {
+    qm.addEventListener('click', function(e) {
+      var el = e.target.closest('[data-sid]');
+      if (el) {
+        var sid = el.getAttribute('data-sid');
+        if (sid) { e.stopPropagation(); openIconPicker(sid); }
+      }
+    });
+    qm._iconDelegation = true;
+  }
+})();
+
 
 function pickPresetIcon(el, icon) {
   alert('pickPresetIcon 被点击了! icon=' + icon);
@@ -2842,7 +2858,7 @@ function renderQuestionManager() {
 
     html += '<div class="qm-subj">';
     html += '<div class="qm-subj-header" onclick="toggleQMSubj(' + si + ')">';
-    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '" onclick="event.stopPropagation();openIconPicker(&#39; + subj.id + &#39;)">' + (subj.icon && (/\.svg$/i.test(subj.icon) || subj.icon.indexOf('data:image') === 0) ? '<img src="' + subj.icon.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
+    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '" data-sid="' + subj.id + '">' + (subj.icon && (/\.svg$/i.test(subj.icon) || subj.icon.indexOf('data:image') === 0) ? '<img src="' + subj.icon.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
     html += '<div class="qm-subj-info"><div class="qm-subj-name">' + subj.name + '</div><div class="qm-subj-meta">' + subj.sessions.length + ' 章 · ' + subjTotalQ + ' 题' + (subjCustom.length ? ' · <b style="color:var(--amber);">本地 ' + subjCustom.length + ' 题</b>' : '') + '</div></div>';
     html += '<div class="qm-subj-arrow" id="qma-' + si + '">▼</div></div>';
     html += '<div class="qm-subj-body" id="qmsb-' + si + '">';
