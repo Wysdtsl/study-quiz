@@ -2990,7 +2990,7 @@ function renderQuestionManager() {
       html += '<div class="qm-sess-header" onclick="toggleQMSess(' + si + ',' + sei + ')">';
       html += '<span class="qm-sess-name">' + sess.label + '</span>';
       html += '<span class="qm-sess-count">' + qs.length + ' 题' + (customInSession.length ? ' · 本地 ' + customInSession.length : '') + '</span>';
-      html += '<span class="qm-sess-arrow" id="qmsa-' + si + '-' + sei + '">▼</span><label class="sess-select-all" onclick="event.stopPropagation();selectAllInSess(' + si + ',' + sei + ')">全选</label><span class="sess-del" onclick="event.stopPropagation();deleteSession(\'' + subj.id + '\',\'' + sess.date + '\')">删章</span></div>';
+      html += '<span class="qm-sess-arrow" id="qmsa-' + si + '-' + sei + '">▼</span><label class="sess-select-all" onclick="event.stopPropagation();selectAllInSess(' + si + ',' + sei + ')">全选</label><span class="sess-del" onclick="event.stopPropagation();deleteSession(\'' + subj.id + '\',\'' + (sess.label||sess.date).replace(/'/g,"\'") + '\')">删章</span></div>';
       html += '<div class="qm-sess-body" id="qmsessb-' + si + '-' + sei + '">';
 
       for (var qi = 0; qi < qs.length; qi++) {
