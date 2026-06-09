@@ -2720,6 +2720,7 @@ function closeIconPicker(e) {
 
 
 function pickPresetIcon(el, icon) {
+  alert('pickPresetIcon 被点击了! icon=' + icon);
   document.querySelectorAll('.ip-grid-item').forEach(function(i) { i.classList.remove('selected'); });
   el.classList.add('selected');
   document.getElementById('ip-overlay').dataset.pendingIcon = icon;
@@ -2771,11 +2772,12 @@ function previewIcon(type) {
 }
 
 function confirmIcon() {
+  alert('confirmIcon 被点击了!');
   try {
     var picker = document.getElementById('ip-overlay');
-    if (!picker || !picker.classList.contains('show')) return;
+    if (!picker || !picker.classList.contains('show')) { alert('picker null 或未显示'); return; }
     var icon = picker.dataset.pendingIcon;
-    if (!icon) return;
+    if (!icon) { alert('pendingIcon 为空'); return; }
     var sid = picker.dataset.pickerSubjId;
     if (!sid) return;
     var subj = data.subjects.find(function(s) { return s.id === sid; });
