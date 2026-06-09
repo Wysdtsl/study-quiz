@@ -2799,7 +2799,7 @@ function addSubject() {
   data.subjects.push({ id: id + (_suffix || ''), name: name, sessions: [] });
   // Try to sync to GitHub
   if (getGHToken()) {
-    syncToGitHub(data, '📚 新增科目: ' + name).catch(function(e) {});
+    syncToGitHub(data, '📚 新增科目: ' + name).catch(function(e) { console.error('GitHub sync error:', e); });
   }
   renderQuestionManager();
   document.getElementById('qm-overlay').classList.add('show');
@@ -2924,7 +2924,7 @@ function confirmIcon() {
     renderQuestionManager();
     renderSubjects();
     if (getGHToken()) {
-      syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) {});
+      syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) { console.error('GitHub sync error:', e); });
     }
     closeIconPicker();
     delete picker.dataset.pendingIcon;
@@ -3091,7 +3091,7 @@ function deleteSession(sid, sLabel) {
     var qCount = sess.questions.length;
     subj.sessions = subj.sessions.filter(function(s) { return s.date !== sLabel && s.label !== sLabel; });
     if (getGHToken()) {
-      syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) {});
+      syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) { alert('GitHub 同步失败，刷新后章节会恢复: ' + e.message); });
     }
     // Surgical DOM removal - keep the subject open
     var _sessEls = document.querySelectorAll('#qm-content .qm-sess-name');
@@ -3164,7 +3164,7 @@ function batchDeleteQuestions() {
   });
   // Sync to GitHub
   if (toDelete.length > 0 && getGHToken()) {
-    syncToGitHub(data, '🗑 批量删除 ' + toDelete.length + ' 题').catch(function(e) {});
+    syncToGitHub(data, '🗑 批量删除 ' + toDelete.length + ' 题').catch(function(e) { console.error('GitHub sync error:', e); });
   }
   // Re-render
   _qmRendering = true; renderQuestionManager();
