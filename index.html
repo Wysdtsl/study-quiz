@@ -2856,7 +2856,7 @@ function renderQuestionManager() {
 
     html += '<div class="qm-subj">';
     html += '<div class="qm-subj-header" onclick="toggleQMSubj(' + si + ')">';
-    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '" onclick="var s=this.dataset.sid;if(s)openIconPicker(s)" data-sid="' + subj.id + '">' + (subj.icon && (/\.svg$/i.test(subj.icon) || subj.icon.indexOf('data:image') === 0) ? '<img src="' + subj.icon.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
+    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '" onclick="var s=this.dataset.sid;if(s)openIconPicker(s)" data-sid="' + subj.id + '">' + (subj.icon && (/\.svg$/i.test(subj.icon) || subj.icon.indexOf('data:image') === 0) ? '<img src="' + subj.icon + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
     html += '<div class="qm-subj-info"><div class="qm-subj-name">' + subj.name + '</div><div class="qm-subj-meta">' + subj.sessions.length + ' 章 · ' + subjTotalQ + ' 题' + (subjCustom.length ? ' · <b style="color:var(--amber);">本地 ' + subjCustom.length + ' 题</b>' : '') + '</div></div>';
     html += '<div class="qm-subj-arrow" id="qma-' + si + '">▼</div></div>';
     html += '<div class="qm-subj-body" id="qmsb-' + si + '">';
