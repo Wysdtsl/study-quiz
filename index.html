@@ -1274,7 +1274,7 @@ async function batchGenerateAnswers() {
             method: 'POST',
             signal: _ctrl2.signal,
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
-            body: JSON.stringify({ model: 'deepseek-v4-pro', messages: [{ role: 'system', content: batchSysMsg' }, { role: 'user', content: prompt }], max_tokens: _pdfDirectHit ? 8192 : 2048, temperature: 0.1 })
+            body: JSON.stringify({ model: 'deepseek-v4-pro', messages: [{ role: 'system', content: batchSysMsg }, { role: 'user', content: prompt }], max_tokens: _pdfDirectHit ? 8192 : 2048, temperature: 0.1 })
           });
           data = await _resp2.json();
           clearTimeout(_to2);
