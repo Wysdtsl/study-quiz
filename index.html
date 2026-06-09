@@ -2785,6 +2785,7 @@ function confirmIcon() {
     subj.icon = icon;
     renderQuestionManager();
     renderSubjects();
+    alert("图标已设为: " + icon + " 科目: " + sid);
     if (getGHToken()) {
       syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) {});
     }
