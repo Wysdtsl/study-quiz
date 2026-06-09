@@ -3080,38 +3080,41 @@ function selectAllInSess(si, sei) {
 }
 
 function deleteSession(sid, sLabel) {
-  if (!confirm('确定删除章节 "' + sLabel + '" 及其所有题目吗？')) return;
-  var subj = data.subjects.find(function(s) { return s.id === sid; });
-  if (!subj) return;
-  var sess = subj.sessions.find(function(s) { return s.date === sLabel || s.label === sLabel; });
-  if (!sess) return;
-  var qCount = sess.questions.length;
-  subj.sessions = subj.sessions.filter(function(s) { return s.date !== sLabel && s.label !== sLabel; });
-  if (getGHToken()) {
-    syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) {});
-  }
-  // Surgical DOM removal - keep the subject open
-  var _sessEls = document.querySelectorAll('#qm-content .qm-sess-name');
-  for (var _xi = 0; _xi < _sessEls.length; _xi++) {
-    if (_sessEls[_xi].textContent === sLabel) {
-      var _sess = _sessEls[_xi].closest('.qm-sess');
-      if (_sess) {
-        var _subjBody = _sess.closest('.qm-subj-body');
-        var _subj = _subjBody && _subjBody.closest('.qm-subj');
-        _sess.remove();
-        // Update subject metadata
-        if (_subj) {
-          var _meta = _subj.querySelector('.qm-subj-meta');
-          if (_meta) {
-            var _totalQ = _subjBody.querySelectorAll('.qm-q').length;
-            var _customQ = _subjBody.querySelectorAll('.qm-q-local').length;
-            _meta.innerHTML = _subj.querySelectorAll('.qm-sess').length + ' 章 · ' + _totalQ + ' 题' + (_customQ ? ' · <b style="color:var(--amber);">本地 ' + _customQ + ' 题</b>' : '');
+  try {
+    if (!confirm('确定删除章节 "' + sLabel + '" 及其所有题目吗？')) return;
+    var subj = data.subjects.find(function(s) { return s.id === sid; });
+    if (!subj) { alert('DEBUG: 找不到科目 ' + sid); return; }
+    var sess = subj.sessions.find(function(s) { return s.date === sLabel || s.label === sLabel; });
+    if (!sess) { alert('DEBUG: 找不到章节「' + sLabel + '」'); return; }
+    var qCount = sess.questions.length;
+    subj.sessions = subj.sessions.filter(function(s) { return s.date !== sLabel && s.label !== sLabel; });
+    if (getGHToken()) {
+      syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) {});
+    }
+    // Surgical DOM removal - keep the subject open
+    var _sessEls = document.querySelectorAll('#qm-content .qm-sess-name');
+    for (var _xi = 0; _xi < _sessEls.length; _xi++) {
+      if (_sessEls[_xi].textContent === sLabel) {
+        var _sess = _sessEls[_xi].closest('.qm-sess');
+        if (_sess) {
+          var _subjBody = _sess.closest('.qm-subj-body');
+          var _subj = _subjBody && _subjBody.closest('.qm-subj');
+          _sess.remove();
+          // Update subject metadata
+          if (_subj) {
+            var _meta = _subj.querySelector('.qm-subj-meta');
+            if (_meta) {
+              var _totalQ = _subjBody.querySelectorAll('.qm-q').length;
+              var _customQ = _subjBody.querySelectorAll('.qm-q-local').length;
+              _meta.innerHTML = _subj.querySelectorAll('.qm-sess').length + ' 章 · ' + _totalQ + ' 题' + (_customQ ? ' · <b style="color:var(--amber);">本地 ' + _customQ + ' 题</b>' : '');
+            }
           }
         }
+        break;
       }
-      break;
     }
-  }
+    alert('✅ 已删除章节「' + sLabel + '」(' + qCount + '题)');
+  } catch(e) { alert('删除失败: ' + e.message); }
 }
 
 function batchDeleteQuestions() {
