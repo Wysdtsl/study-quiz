@@ -152,6 +152,32 @@
   .ans tbody tr:hover, .a tbody tr:hover, .result tbody tr:hover { background: #f5f0ea; }
   .ans .tb-wrap, .a .tb-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 4px 0; }
   .ans table, .a table { min-width: 200px; }
+  
+  /* Related Questions */
+  #related-area { margin-top: 16px; display: none; }
+  #related-area.show { display: block; }
+  #related-area .rl { font-size: 12px; color: var(--ink-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  #related-area .rg { display: flex; flex-direction: column; gap: 6px; }
+  #related-area .rq { 
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: var(--surface); 
+    border: 1px solid var(--border); border-radius: 10px;
+    cursor: pointer; transition: all .12s;
+    font-size: 13.5px; line-height: 1.5;
+  }
+  #related-area .rq:hover { border-color: var(--ink-blue); background: #f8faff; }
+  #related-area .rq:active { transform: scale(.97); }
+  #related-area .rq .rq-idx { 
+    width: 26px; height: 26px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+    background: var(--surface2); color: var(--ink-muted);
+  }
+  #related-area .rq .rq-idx.done { background: #e8f5e9; color: var(--green); }
+  #related-area .rq .rq-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
+  #related-area .rq .rq-status { font-size: 11px; flex-shrink: 0; }
+  #related-area .rq .rq-status.correct { color: var(--green); }
+  #related-area .rq .rq-status.wrong { color: var(--red); }
   .card-name { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .card-meta { font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
 
@@ -644,6 +670,10 @@
         <div class="ans"><div class="hl">正确答案</div><div class="body" id="answer-text"></div></div>
         <div class="tip"><div class="hl">记忆提示</div><div class="body" id="tips-text"></div></div>
         <div class="g" id="btn-group-answer"><button class="btn btn-correct" id="btn-correct">答对了</button><button class="btn btn-wrong" id="btn-wrong">答错了</button></div>
+      </div>
+      <div id="related-area">
+        <div class="rl">▶ 相关题目</div>
+        <div class="rg" id="related-list"></div>
       </div>
       <div class="mt"><div class="g"><button class="nav-btn" id="btn-prev">← 上一题</button><button class="nav-btn" id="btn-next">下一题 →</button></div></div>
     </div>
@@ -1864,6 +1894,7 @@ function renderQuestion() {
   }
   document.getElementById('btn-prev').disabled = currentIndex === 0;
   document.getElementById('btn-next').disabled = currentIndex >= (sessionQuestions || currentSession.questions).length - 1;
+  renderRelatedQuestions();
   document.getElementById('question-area').classList.remove('hidden');
   document.getElementById('result-area').classList.add('hidden');
 }
@@ -1899,6 +1930,30 @@ function goNext() {
 
 document.getElementById('btn-next').addEventListener('click', goNext);
 document.getElementById('btn-prev').addEventListener('click', function() { if (currentIndex > 0) { currentIndex--; isAnswered = false; renderQuestion(); saveState('quiz', currentSubject.id, currentSession.date, currentIndex); } });
+
+function renderRelatedQuestions() {
+  var qs = sessionQuestions || currentSession.questions;
+  var q = qs[currentIndex];
+  if (!q || !q.section) { document.getElementById('related-area').classList.remove('show'); return; }
+  // Find other questions in the same section
+  var related = [];
+  for (var i = 0; i < qs.length; i++) {
+    if (i !== currentIndex && qs[i].section === q.section) {
+      related.push({ index: i, question: qs[i] });
+    }
+  }
+  if (related.length === 0) { document.getElementById('related-area').classList.remove('show'); return; }
+  var list = document.getElementById('related-list');
+  list.innerHTML = related.map(function(r) {
+    var status = answers[r.question.id];
+    var statusHtml = '';
+    if (status === 'correct') statusHtml = '<span class="rq-status correct">✔</span>';
+    else if (status === 'wrong') statusHtml = '<span class="rq-status wrong">✘</span>';
+    var idxCls = status ? 'rq-idx done' : 'rq-idx';
+    return '<div class="rq" onclick="jumpTo(' + r.index + ')"><span class="' + idxCls + '">#' + (r.index + 1) + '</span><span class="rq-text">' + r.question.question + '</span>' + statusHtml + '</div>';
+  }).join('');
+  document.getElementById('related-area').classList.add('show');
+}
 
 function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
