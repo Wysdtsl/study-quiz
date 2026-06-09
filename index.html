@@ -999,7 +999,7 @@ async function aiFillQA(e) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
       body: JSON.stringify({
-        model: 'deepseek-v4-pro',
+        model: 'deepseek-v4-flash',
         messages: [
           { role: 'system', content: systemMsg },
           { role: 'user', content: prompt }
@@ -1274,7 +1274,7 @@ async function batchGenerateAnswers() {
             method: 'POST',
             signal: _ctrl2.signal,
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
-            body: JSON.stringify({ model: 'deepseek-v4-pro', messages: [{ role: 'system', content: batchSysMsg }, { role: 'user', content: prompt }], max_tokens: _pdfDirectHit ? 8192 : 2048, temperature: 0.1 })
+            body: JSON.stringify({ model: 'deepseek-v4-flash', messages: [{ role: 'system', content: batchSysMsg }, { role: 'user', content: prompt }], max_tokens: _pdfDirectHit ? 8192 : 2048, temperature: 0.1 })
           });
           data = await _resp2.json();
           clearTimeout(_to2);
@@ -2502,7 +2502,7 @@ async function sendChat() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chatApiKey },
       body: JSON.stringify({
-        model: 'deepseek-v4-pro',
+        model: 'deepseek-v4-flash',
         messages: [
           { role: 'system', content: '你是一个学习伙伴，帮助用户理解和记忆考试知识。回答要求：\n1. 对比两个事物时必须用表格（格式：| 项目 | A | B |）\n2. 要点用 **加粗** 强调\n3. 分类列举用 - 列表\n4. 重要提示用 > 引用\n5. 段落之间空行分隔\n6. 易混点主动指出\n7. 不知道就说不知道，不要编造，不要闲聊' },
           ...chatHistory.slice(-10),
