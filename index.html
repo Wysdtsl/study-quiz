@@ -2737,7 +2737,6 @@ function closeIconPicker(e) {
 
 
 function pickPresetIcon(el, icon) {
-  alert('pickPresetIcon 被点击了! icon=' + icon);
   document.querySelectorAll('.ip-grid-item').forEach(function(i) { i.classList.remove('selected'); });
   el.classList.add('selected');
   document.getElementById('ip-overlay').dataset.pendingIcon = icon;
@@ -2789,20 +2788,18 @@ function previewIcon(type) {
 }
 
 function confirmIcon() {
-  alert('confirmIcon 被点击了!');
   try {
     var picker = document.getElementById('ip-overlay');
-    if (!picker || !picker.classList.contains('show')) { alert('picker null 或未显示'); return; }
+    if (!picker || !picker.classList.contains('show')) { return; }
     var icon = picker.dataset.pendingIcon;
-    if (!icon) { alert('pendingIcon 为空'); return; }
+    if (!icon) { return; }
     var sid = picker.dataset.pickerSubjId;
-    if (!sid) { alert('sid为空, sid=' + JSON.stringify(sid) + ' pickerSubjId=' + JSON.stringify(picker.dataset.pickerSubjId)); return; }
+    if (!sid) { return; }
     var subj = data.subjects.find(function(s) { return s.id === sid; });
-    if (!subj) { alert('找不到科目: ' + sid); return; }
+    if (!subj) { return; }
     subj.icon = icon;
     renderQuestionManager();
     renderSubjects();
-    alert("图标已设为: " + icon + " 科目: " + sid);
     if (getGHToken()) {
       syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) {});
     }
