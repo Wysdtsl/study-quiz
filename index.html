@@ -924,7 +924,9 @@ async function aiFillQA(e) {
     let pdfDirectHit = false;
     if (pdfTextContent) {
       const kwTest = question.match(/[\u4e00-\u9fff]{2,}/g);
-      pdfDirectHit = kwTest && kwTest.length > 0 && kwTest.some(function(w) { return pdfTextContent.indexOf(w) > -1; });
+      const _commonWords = {'\u4ec0\u4e48':1,'\u5982\u4f55':1,'\u600e\u4e48':1,'\u54ea\u4e2a':1,'\u54ea\u4e9b':1,'\u4e3a\u4ec0\u4e48':1,'\u8fd9\u4e2a':1,'\u90a3\u4e2a':1,'\u53ef\u4ee5':1,'\u6ca1\u6709':1,'\u4e0d\u662f':1,'\u5c31\u662f':1,'\u4e00\u4e2a':1,'\u8fd9\u4e9b':1,'\u90a3\u4e9b':1};
+      var _kw = kwTest ? kwTest.filter(function(k) { return !_commonWords[k]; }) : [];
+      pdfDirectHit = _kw && _kw.length > 0 && _kw.some(function(w) { return pdfTextContent.indexOf(w) > -1; });
       if (pdfDirectHit) {
         pdfCtx = pdfTextContent;
         context = pdfTextContent;
@@ -1195,6 +1197,9 @@ async function batchGenerateAnswers() {
     document.getElementById('qe-batch-progress').textContent = '\u6b63\u5728\u67e5\u8bc1 ' + (i+1) + '/' + lines.length + '...';
 
         var _kwTest = pdfTextContent && q.match(/[\u4e00-\u9fff]{2,}/g);
+    // Filter out common words that appear everywhere
+    var _commonWords = {'\u4ec0\u4e48':1,'\u5982\u4f55':1,'\u600e\u4e48':1,'\u54ea\u4e2a':1,'\u54ea\u4e9b':1,'\u4e3a\u4ec0\u4e48':1,'\u8fd9\u4e2a':1,'\u90a3\u4e2a':1,'\u53ef\u4ee5':1,'\u6ca1\u6709':1,'\u4e0d\u662f':1,'\u5c31\u662f':1,'\u4e00\u4e2a':1,'\u8fd9\u4e9b':1,'\u90a3\u4e9b':1};
+    if (_kwTest) _kwTest = _kwTest.filter(function(k) { return !_commonWords[k]; });
     var _pdfDirectHit = _kwTest && _kwTest.length > 0 && _kwTest.some(function(w) { return pdfTextContent.indexOf(w) > -1; });
     var _pdfCtx = pdfTextContent ? (_pdfDirectHit ? pdfTextContent : getPDFContext(q)) : '';
     var _webCtx = '', _webSrc = '';
