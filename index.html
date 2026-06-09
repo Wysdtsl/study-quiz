@@ -1325,6 +1325,7 @@ function editBatchAnswer(i) {
     el.classList.remove('edit-mode');
     tb.setAttribute('contenteditable', 'false');
     batchResults[i].answer = tb.innerHTML;
+    alert('DEBUG 编辑保存: \n' + batchResults[i].answer);
   } else {
     el.classList.add('edit-mode');
     tb.setAttribute('contenteditable', 'true');
@@ -1364,6 +1365,7 @@ async function batchSaveAll() {
     var sess2 = subj2.sessions.find(function(s) { return s.label === section; });
     if (!sess2) { sess2 = { date: section, label: section, questions: [] }; subj2.sessions.push(sess2); }
     newQuestions.forEach(function(q) { sess2.questions.push(q); });
+    alert('DEBUG batch保存 第1题答案:\n' + newQuestions[0].answer);
   }
   // Show progress bar
   var _pg = document.getElementById('save-progress');
