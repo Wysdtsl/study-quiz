@@ -2700,8 +2700,13 @@ function openIconPicker(sid) {
   // Populate grid
   var grid = document.getElementById('ip-grid');
   grid.innerHTML = PRESET_ICONS.map(function(ic) {
-    return '<button class="ip-grid-item" data-icon="' + ic + '" onclick="pickPresetIcon(this,'' + ic + '')">' + ic + '</button>';
+    return '<button class="ip-grid-item" data-icon="' + ic + '">' + ic + '</button>';
   }).join('');
+  // Use event delegation instead of inline onclick
+  grid.onclick = function(e) {
+    var btn = e.target.closest('.ip-grid-item');
+    if (btn) pickPresetIcon(btn, btn.getAttribute('data-icon'));
+  };
   document.getElementById('ip-overlay').classList.add('show');
 }
 
@@ -2786,7 +2791,7 @@ function renderQuestionManager() {
 
     html += '<div class="qm-subj">';
     html += '<div class="qm-subj-header" onclick="toggleQMSubj(' + si + ')">';
-    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '" onclick="event.stopPropagation();openIconPicker('' + subj.id + '')">' + (subj.icon && /\.svg$/i.test(subj.icon) ? '<img src="' + subj.icon.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
+    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '" onclick="event.stopPropagation();openIconPicker(\' + subj.id + \')">' + (subj.icon && /\.svg$/i.test(subj.icon) ? '<img src="' + subj.icon.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
     html += '<div class="qm-subj-info"><div class="qm-subj-name">' + subj.name + '</div><div class="qm-subj-meta">' + subj.sessions.length + ' 章 · ' + subjTotalQ + ' 题' + (subjCustom.length ? ' · <b style="color:var(--amber);">本地 ' + subjCustom.length + ' 题</b>' : '') + '</div></div>';
     html += '<div class="qm-subj-arrow" id="qma-' + si + '">▼</div></div>';
     html += '<div class="qm-subj-body" id="qmsb-' + si + '">';
