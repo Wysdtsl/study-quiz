@@ -754,9 +754,14 @@
 </div>
 
 <script>
-document.getElementById('js-status').textContent = 'JS started OK';
-document.getElementById('js-status').style.background = '#5cb85c';
-document.getElementById('js-status').style.color = '#fff';
+(function() {
+  var el = document.getElementById('js-status');
+  if (el) {
+    el.textContent = 'JS started OK';
+    el.style.background = '#5cb85c';
+    el.style.color = '#fff';
+  }
+})();
 const STORAGE_PREFIX = 'quiz_progress_';
 const STATE_KEY = 'quiz_app_state';
 let data = null;
@@ -3091,7 +3096,7 @@ function editCustomQuestion(sid, id) {
 
 loadData();
 </script>
-<script src="/study-quiz/lib/leaflet.min.js"></script>
+<script src="/study-quiz/lib/leaflet.min.js" defer></script>
 
 <!-- Question Editor Modal -->
 <div class="qe-overlay" id="qe-overlay" onclick="closeQEditor(event)">
@@ -3210,3 +3215,5 @@ loadData();
 </div>
 
 <!-- Batch Edit Modal -->
+</body>
+</html>
