@@ -551,6 +551,33 @@
   .qm-batch-del { background: var(--red); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
   .qm-empty { text-align: center; padding: 60px 20px; color: var(--ink-muted); font-size: 14px; line-height: 1.8; }
 
+  /* Icon Picker */
+  .ip-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 400; align-items: center; justify-content: center; }
+  .ip-overlay.show { display: flex; }
+  .ip-panel { background: var(--surface); border-radius: 20px; width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto; margin: 0 16px; padding: 24px; box-shadow: 0 8px 40px rgba(0,0,0,.15); }
+  .ip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .ip-header h3 { font-size: 17px; font-weight: 700; margin: 0; }
+  .ip-header .x { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--surface2); border: none; border-radius: 10px; font-size: 16px; color: var(--ink-muted); cursor: pointer; }
+  .ip-tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--surface2); border-radius: 10px; padding: 3px; }
+  .ip-tab { flex: 1; padding: 7px 0; text-align: center; font-size: 13px; font-weight: 500; border: none; border-radius: 8px; background: transparent; color: var(--ink-muted); cursor: pointer; transition: all .15s; }
+  .ip-tab.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .ip-content { display: none; }
+  .ip-content.show { display: block; }
+  .ip-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .ip-grid-item { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 24px; border: none; border-radius: 10px; background: var(--surface); cursor: pointer; transition: all .12s; }
+  .ip-grid-item:hover { background: var(--surface2); transform: scale(1.08); }
+  .ip-grid-item:active { transform: scale(.95); }
+  .ip-grid-item.selected { background: #eef4ff; box-shadow: 0 0 0 2px var(--ink-blue); }
+  .ip-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; outline: none; transition: border-color .15s; box-sizing: border-box; }
+  .ip-input:focus { border-color: var(--ink-blue); }
+  .ip-preview { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; padding: 16px; background: var(--surface2); border-radius: 12px; font-size: 14px; color: var(--ink-muted); }
+  .ip-preview .preview-icon { font-size: 36px; line-height: 1; }
+  .ip-preview .preview-label { font-size: 13px; color: var(--ink-muted); }
+  .ip-preview img { max-width: 48px; max-height: 48px; }
+  .ip-confirm { width: 100%; margin-top: 16px; padding: 10px; background: var(--ink-blue); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: filter .15s; }
+  .ip-confirm:hover { filter: brightness(.95); }
+  .ip-confirm:disabled { opacity: .4; cursor: not-allowed; }
+
   </style>
 </head>
 <body><div id="js-status" style="background:#f0ad4e;color:#000;padding:8px;font-size:14px;text-align:center;">JS not started yet...</div>
@@ -2650,6 +2677,94 @@ function addSubject() {
   document.getElementById('qm-overlay').classList.add('show');
 }
 
+// ── Icon Picker ──
+const PRESET_ICONS = ['📖','📗','📘','📙','📕','📚','📝','✏️','📜','🗺️','🌍','🌏','🌎','🏔️','🏛️','⚖️','🔬','🧬','💻','⚙️','🎨','🎵','🧮','💡','🔍','📊','📈','📉','🧠','❤️','⭐','🔥','💎','🌈','🎯','🏆','🕊️','🌿','⚡','🛡️','📌'];
+let _iconPickerSubjId = null;
+
+function openIconPicker(sid) {
+  _iconPickerSubjId = sid;
+  // Reset state
+  document.getElementById('ip-emoji-input').value = '';
+  document.getElementById('ip-url-input').value = '';
+  document.getElementById('ip-preview-emoji').innerHTML = '<span class="preview-label">输入后显示预览</span>';
+  document.getElementById('ip-preview-url').innerHTML = '<span class="preview-label">输入链接后显示预览</span>';
+  document.getElementById('ip-preview-selected').style.display = 'none';
+  document.getElementById('ip-confirm-btn').disabled = true;
+  document.querySelectorAll('.ip-grid-item').forEach(el => el.classList.remove('selected'));
+  switchIconTab('preset');
+  // Populate grid
+  var grid = document.getElementById('ip-grid');
+  grid.innerHTML = PRESET_ICONS.map(function(ic) {
+    return '<button class="ip-grid-item" data-icon="' + ic + '" onclick="pickPresetIcon(this,'' + ic + '')">' + ic + '</button>';
+  }).join('');
+  document.getElementById('ip-overlay').classList.add('show');
+}
+
+function closeIconPicker(e) {
+  if (!e || e.target === document.getElementById('ip-overlay')) {
+    document.getElementById('ip-overlay').classList.remove('show');
+    _iconPickerSubjId = null;
+  }
+}
+
+let _pendingIcon = null;
+
+function pickPresetIcon(el, icon) {
+  document.querySelectorAll('.ip-grid-item').forEach(function(i) { i.classList.remove('selected'); });
+  el.classList.add('selected');
+  _pendingIcon = icon;
+  document.getElementById('ip-preview-selected').style.display = 'flex';
+  document.getElementById('ip-selected-icon').textContent = icon;
+  document.getElementById('ip-confirm-btn').disabled = false;
+}
+
+function switchIconTab(tab) {
+  document.querySelectorAll('.ip-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.ip-content').forEach(function(c) { c.classList.remove('show'); });
+  document.querySelector('.ip-tab[onclick*="' + tab + '"]').classList.add('active');
+  document.getElementById('ip-tab-' + tab).classList.add('show');
+  _pendingIcon = null;
+  document.getElementById('ip-confirm-btn').disabled = true;
+  document.querySelectorAll('.ip-grid-item').forEach(function(el) { el.classList.remove('selected'); });
+}
+
+function previewIcon(type) {
+  var val, previewEl, icon;
+  if (type === 'emoji') {
+    val = document.getElementById('ip-emoji-input').value.trim();
+    previewEl = document.getElementById('ip-preview-emoji');
+    if (val) { icon = val; previewEl.innerHTML = '<span class="preview-icon">' + val + '</span>'; }
+    else { previewEl.innerHTML = '<span class="preview-label">输入后显示预览</span>'; }
+  } else {
+    val = document.getElementById('ip-url-input').value.trim();
+    previewEl = document.getElementById('ip-preview-url');
+    if (val) { icon = val; previewEl.innerHTML = '<img src="' + val.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" onerror="this.parentElement.innerHTML=\'<span class=\\\'preview-label\\\'>图片加载失败</span>\'">'; }
+    else { previewEl.innerHTML = '<span class="preview-label">输入链接后显示预览</span>'; }
+  }
+  if (icon) {
+    _pendingIcon = icon;
+    document.getElementById('ip-preview-selected').style.display = 'flex';
+    document.getElementById('ip-selected-icon').textContent = icon.length < 10 ? icon : '✅';
+    document.getElementById('ip-confirm-btn').disabled = false;
+  } else {
+    document.getElementById('ip-confirm-btn').disabled = true;
+  }
+}
+
+function confirmIcon() {
+  if (!_pendingIcon || !_iconPickerSubjId) return;
+  var subj = data.subjects.find(function(s) { return s.id === _iconPickerSubjId; });
+  if (!subj) return;
+  subj.icon = _pendingIcon;
+  renderQuestionManager();
+  renderSubjects();
+  if (getGHToken()) {
+    syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) {});
+  }
+  closeIconPicker();
+  _pendingIcon = null;
+}
+
 function renderQuestionManager() {
   var custom = getCustomQuestions();
   var userAddedIds = getUserAddedIds();
@@ -2666,7 +2781,7 @@ function renderQuestionManager() {
 
     html += '<div class="qm-subj">';
     html += '<div class="qm-subj-header" onclick="toggleQMSubj(' + si + ')">';
-    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '">' + (subj.icon && /\.svg$/i.test(subj.icon) ? '<img src="' + subj.icon.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
+    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '" onclick="event.stopPropagation();openIconPicker('' + subj.id + '')">' + (subj.icon && /\.svg$/i.test(subj.icon) ? '<img src="' + subj.icon.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
     html += '<div class="qm-subj-info"><div class="qm-subj-name">' + subj.name + '</div><div class="qm-subj-meta">' + subj.sessions.length + ' 章 · ' + subjTotalQ + ' 题' + (subjCustom.length ? ' · <b style="color:var(--amber);">本地 ' + subjCustom.length + ' 题</b>' : '') + '</div></div>';
     html += '<div class="qm-subj-arrow" id="qma-' + si + '">▼</div></div>';
     html += '<div class="qm-subj-body" id="qmsb-' + si + '">';
@@ -3045,6 +3160,40 @@ loadData();
 </div>
 
 <!-- Question Manager -->
+<div class="ip-overlay" id="ip-overlay" onclick="closeIconPicker(event)">
+  <div class="ip-panel" onclick="event.stopPropagation()">
+    <div class="ip-header">
+      <h3>选择图标</h3>
+      <button class="x" onclick="closeIconPicker()">✕</button>
+    </div>
+    <div class="ip-tabs">
+      <button class="ip-tab active" onclick="switchIconTab('preset')">预设</button>
+      <button class="ip-tab" onclick="switchIconTab('emoji')">Emoji</button>
+      <button class="ip-tab" onclick="switchIconTab('url')">图片 URL</button>
+    </div>
+    <div class="ip-content show" id="ip-tab-preset">
+      <div class="ip-grid" id="ip-grid"></div>
+    </div>
+    <div class="ip-content" id="ip-tab-emoji">
+      <input class="ip-input" id="ip-emoji-input" placeholder="输入或粘贴 Emoji..." maxlength="4" oninput="previewIcon('emoji')">
+      <div class="ip-preview" id="ip-preview-emoji">
+        <span class="preview-label">输入后显示预览</span>
+      </div>
+    </div>
+    <div class="ip-content" id="ip-tab-url">
+      <input class="ip-input" id="ip-url-input" placeholder="粘贴 SVG 或图片链接..." oninput="previewIcon('url')">
+      <div class="ip-preview" id="ip-preview-url">
+        <span class="preview-label">输入链接后显示预览</span>
+      </div>
+    </div>
+    <div class="ip-preview" id="ip-preview-selected" style="display:none;">
+      <span>已选：</span>
+      <span class="preview-icon" id="ip-selected-icon"></span>
+    </div>
+    <button class="ip-confirm" id="ip-confirm-btn" onclick="confirmIcon()" disabled>确认</button>
+  </div>
+</div>
+
 <div class="qm-overlay" id="qm-overlay" onclick="closeQuestionManager(event)">
   <div class="qm-sheet" onclick="event.stopPropagation()">
     <div class="qm-head">
