@@ -3120,9 +3120,9 @@ function deleteSession(sid, sLabel) {
     if (getGHToken()) {
       syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) { alert('GitHub 同步失败，刷新后章节会恢复: ' + e.message); });
     }
-    // Re-render the question manager from fresh data
-    renderQuestionManager();
+    // Delete confirmed - reload page to reflect changes
     alert('✅ 已删除章节「' + sLabel + '」(' + qCount + '题)');
+    window.location.reload();
   } catch(e) { alert('删除失败: ' + e.message); }
 }
 
