@@ -844,6 +844,20 @@
     el.style.color = '#fff';
   }
 })();
+(function(){
+var _t=Date.now();
+fetch('/study-quiz/version.json?_='+_t,{cache:'no-store'})
+.then(function(r){return r.json()})
+.then(function(v){
+var lv=localStorage.getItem('_av');
+if(lv&&lv!==v.version){
+localStorage.removeItem('_av');
+window.location.href=window.location.href.split('?')[0]+'?_cb='+_t;
+}
+localStorage.setItem('_av',v.version);
+})
+.catch(function(){});
+})();
 const STORAGE_PREFIX = 'quiz_progress_';
 const STATE_KEY = 'quiz_app_state';
 let data = null;
