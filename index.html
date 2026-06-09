@@ -2779,9 +2779,9 @@ function confirmIcon() {
     var icon = picker.dataset.pendingIcon;
     if (!icon) { alert('pendingIcon 为空'); return; }
     var sid = picker.dataset.pickerSubjId;
-    if (!sid) return;
+    if (!sid) { alert('sid为空, sid=' + JSON.stringify(sid) + ' pickerSubjId=' + JSON.stringify(picker.dataset.pickerSubjId)); return; }
     var subj = data.subjects.find(function(s) { return s.id === sid; });
-    if (!subj) return;
+    if (!subj) { alert('找不到科目: ' + sid); return; }
     subj.icon = icon;
     renderQuestionManager();
     renderSubjects();
