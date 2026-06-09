@@ -1575,8 +1575,17 @@ async function resetData() {
 }
 async function loadData() {
   document.getElementById('js-status').textContent = 'Loading data...';
+  var _ts = Date.now();
+  // Check for new version (cache bust)
   try {
-    const res = await fetch('/study-quiz/questions.json?_=' + Date.now());
+    var _vr = await fetch('/study-quiz/version.json?_=' + _ts);
+    var _vd = await _vr.json();
+    var _lv = localStorage.getItem('_av');
+    if (_lv && _lv !== _vd.version) { localStorage.removeItem('_av'); window.location.reload(); }
+    localStorage.setItem('_av', _vd.version);
+  } catch(e) {}
+  try {
+    const res = await fetch('/study-quiz/questions.json?_=' + _ts);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
     // Merge custom questions from localStorage
