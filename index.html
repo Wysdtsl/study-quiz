@@ -2698,7 +2698,7 @@ function openIconPicker(sid) {
   switchIconTab('preset');
   // Populate grid
   var grid = document.getElementById('ip-grid');
-  grid.innerHTML = PRESET_ICONS.map(function(ic) {
+  grid.innerHTML = PRESET_ICONS.map(function(ic, _i) {
     return '<button class="ip-grid-item" data-idx="' + _i + '">' + ic + '</button>';
   }).join('');
   // Use event delegation instead of inline onclick
