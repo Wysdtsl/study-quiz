@@ -1323,7 +1323,7 @@ function editBatchAnswer(i) {
   if (el.classList.contains('edit-mode')) {
     el.classList.remove('edit-mode');
     el.setAttribute('contenteditable', 'false');
-    batchResults[i].answer = el.innerText;
+    batchResults[i].answer = el.innerHTML;
   } else {
     el.classList.add('edit-mode');
     el.setAttribute('contenteditable', 'true');
