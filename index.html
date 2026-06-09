@@ -1691,7 +1691,7 @@ function renderSubjects() {
     let stamp;
     if (totalDone === 0) stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">0</span><span class="stamp-lbl">${allQ}</span></span>`;
     else { const pct = Math.round(totalCorrect / totalDone * 100); stamp = `<span class="stamp stamp-${st}"><span class="stamp-num">${totalDone}</span><span class="stamp-lbl">${allQ} · ${pct}%</span></span>`; }
-    return `<div class="card" draggable="true" data-id="${s.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" onclick="selectSubject('${s.id}')"><div class="card-row"><div class="card-icon ${ICON_CLS[i%4]}">${s.icon && s.icon.indexOf('.svg') > 0 ? '<img src="'+s.icon+'" alt="" style="width:24px;height:24px;display:block;">' : (s.icon || '📖')}</div><div class="card-body"><div class="card-name">${s.name}</div><div class="card-meta">${s.sessions.length} 章 · ${allQ} 题</div></div>${stamp}</div></div>`;
+    return `<div class="card" draggable="true" data-id="${s.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" onclick="selectSubject('${s.id}')"><div class="card-row"><div class="card-icon ${ICON_CLS[i%4]}">${s.icon && s.icon.indexOf('.svg') > 0 || s.icon.indexOf('data:image') === 0 ? '<img src="'+s.icon+'" alt="" style="width:24px;height:24px;display:block;">' : (s.icon || '📖')}</div><div class="card-body"><div class="card-name">${s.name}</div><div class="card-meta">${s.sessions.length} 章 · ${allQ} 题</div></div>${stamp}</div></div>`;
   }).join('');
   // Enable sorting
   setTimeout(enableSorting, 50);
@@ -2736,6 +2736,15 @@ function switchIconTab(tab) {
   _pendingIcon = null;
   document.getElementById('ip-confirm-btn').disabled = true;
   document.querySelectorAll('.ip-grid-item').forEach(function(el) { el.classList.remove('selected'); });
+  // Reset upload tab state
+  if (tab !== 'upload') {
+    document.getElementById('ip-file-input').value = '';
+    document.getElementById('ip-preview-upload').style.display = 'none';
+    var area = document.getElementById('ip-upload-area');
+    if (area) {
+      area.querySelector('div:nth-child(2)').textContent = '点击选择 SVG / PNG / 图片文件';
+    }
+  }
 }
 
 function previewIcon(type) {
@@ -2775,6 +2784,36 @@ function confirmIcon() {
   _pendingIcon = null;
 }
 
+function handleIconFileUpload(event) {
+  var file = event.target.files && event.target.files[0];
+  if (!file) return;
+  // Validate file type
+  var validTypes = ['image/svg+xml', 'image/png', 'image/jpeg', 'image/webp'];
+  if (validTypes.indexOf(file.type) === -1) {
+    alert('仅支持 SVG、PNG、JPG、WebP 格式');
+    return;
+  }
+  // Validate file size (max 500KB)
+  if (file.size > 500 * 1024) {
+    alert('图片太大，请选择小于 500KB 的文件');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    _pendingIcon = dataUrl;
+    // Show preview
+    document.getElementById('ip-preview-upload').style.display = 'flex';
+    document.getElementById('ip-upload-preview-icon').innerHTML = '<img src="' + dataUrl + '" alt="" style="max-width:64px;max-height:64px;">';
+    document.getElementById('ip-preview-selected').style.display = 'flex';
+    document.getElementById('ip-selected-icon').innerHTML = '<img src="' + dataUrl + '" alt="" style="max-width:24px;max-height:24px;">';
+    document.getElementById('ip-confirm-btn').disabled = false;
+    // Update upload area text
+    document.getElementById('ip-upload-area').querySelector('div:nth-child(2)').textContent = '已选择: ' + file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
 function renderQuestionManager() {
   var custom = getCustomQuestions();
   var userAddedIds = getUserAddedIds();
@@ -2791,7 +2830,7 @@ function renderQuestionManager() {
 
     html += '<div class="qm-subj">';
     html += '<div class="qm-subj-header" onclick="toggleQMSubj(' + si + ')">';
-    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '" onclick="event.stopPropagation();openIconPicker(\' + subj.id + \')">' + (subj.icon && /\.svg$/i.test(subj.icon) ? '<img src="' + subj.icon.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
+    html += '<div class="qm-subj-icon ' + getSubjectIconCls(subj.name) + '" onclick="event.stopPropagation();openIconPicker(\' + subj.id + \')">' + (subj.icon && (/\.svg$/i.test(subj.icon) || subj.icon.indexOf('data:image') === 0) ? '<img src="' + subj.icon.replace(/[^a-zA-Z0-9_\-./:]/g, '') + '" alt="" style="width:22px;height:22px;display:block;">' : (subj.icon || '📖')) + '</div>';
     html += '<div class="qm-subj-info"><div class="qm-subj-name">' + subj.name + '</div><div class="qm-subj-meta">' + subj.sessions.length + ' 章 · ' + subjTotalQ + ' 题' + (subjCustom.length ? ' · <b style="color:var(--amber);">本地 ' + subjCustom.length + ' 题</b>' : '') + '</div></div>';
     html += '<div class="qm-subj-arrow" id="qma-' + si + '">▼</div></div>';
     html += '<div class="qm-subj-body" id="qmsb-' + si + '">';
@@ -3180,6 +3219,7 @@ loadData();
       <button class="ip-tab active" onclick="switchIconTab('preset')">预设</button>
       <button class="ip-tab" onclick="switchIconTab('emoji')">Emoji</button>
       <button class="ip-tab" onclick="switchIconTab('url')">图片 URL</button>
+      <button class="ip-tab" onclick="switchIconTab('upload')">上传文件</button>
     </div>
     <div class="ip-content show" id="ip-tab-preset">
       <div class="ip-grid" id="ip-grid"></div>
@@ -3194,6 +3234,17 @@ loadData();
       <input class="ip-input" id="ip-url-input" placeholder="粘贴 SVG 或图片链接..." oninput="previewIcon('url')">
       <div class="ip-preview" id="ip-preview-url">
         <span class="preview-label">输入链接后显示预览</span>
+      </div>
+    </div>
+    <div class="ip-content" id="ip-tab-upload">
+      <div style="border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;" onclick="document.getElementById('ip-file-input').click()" id="ip-upload-area">
+        <div style="font-size:36px;margin-bottom:8px;">📁</div>
+        <div style="font-size:14px;color:var(--ink-muted);">点击选择 SVG / PNG / 图片文件</div>
+        <div style="font-size:12px;color:var(--ink-lighter);margin-top:4px;">支持 SVG、PNG、JPG、WebP</div>
+      </div>
+      <input type="file" id="ip-file-input" accept="image/svg+xml,image/png,image/jpeg,image/webp" style="display:none" onchange="handleIconFileUpload(event)">
+      <div class="ip-preview" id="ip-preview-upload" style="display:none;">
+        <span class="preview-icon" id="ip-upload-preview-icon"></span>
       </div>
     </div>
     <div class="ip-preview" id="ip-preview-selected" style="display:none;">
