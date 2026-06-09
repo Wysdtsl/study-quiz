@@ -1320,18 +1320,15 @@ function renderBatchResults() {
 
 function editBatchAnswer(i) {
   var el = document.getElementById('ba-' + i);
+  var tb = el.querySelector('.tb-wrap') || el;
   if (el.classList.contains('edit-mode')) {
     el.classList.remove('edit-mode');
-    el.setAttribute('contenteditable', 'false');
-    // Use innerHTML to preserve formatting, but strip the tb-wrap wrapper if present
-    var html = el.innerHTML;
-    var tw = el.querySelector('.tb-wrap');
-    if (tw) html = tw.innerHTML;
-    batchResults[i].answer = html;
+    tb.setAttribute('contenteditable', 'false');
+    batchResults[i].answer = tb.innerHTML;
   } else {
     el.classList.add('edit-mode');
-    el.setAttribute('contenteditable', 'true');
-    el.focus();
+    tb.setAttribute('contenteditable', 'true');
+    tb.focus();
   }
 }
 
