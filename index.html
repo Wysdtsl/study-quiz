@@ -1323,7 +1323,11 @@ function editBatchAnswer(i) {
   if (el.classList.contains('edit-mode')) {
     el.classList.remove('edit-mode');
     el.setAttribute('contenteditable', 'false');
-    batchResults[i].answer = el.innerHTML;
+    // Use innerHTML to preserve formatting, but strip the tb-wrap wrapper if present
+    var html = el.innerHTML;
+    var tw = el.querySelector('.tb-wrap');
+    if (tw) html = tw.innerHTML;
+    batchResults[i].answer = html;
   } else {
     el.classList.add('edit-mode');
     el.setAttribute('contenteditable', 'true');
