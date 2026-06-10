@@ -1636,80 +1636,54 @@ async function loadData() {
       data = await loadFromGitee();
       localStorage.setItem('_gitee_primary', '1');
       document.getElementById('js-status').textContent = '📡 从 Gitee 加载数据...';
-    } catch(_ge) {
-      // Gitee failed, fall through to GitHub
-    }
+    } catch(_ge) {}
   }
   if (!data) {
     try {
       var res = await fetch('/study-quiz/questions.json?_=' + _ts);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       data = await res.json();
+      if (!_gt) localStorage.removeItem('_gitee_primary');
     } catch(e) {
-      // If both Gitee and GitHub failed, show error
-      if (_gt) {
-        document.getElementById('js-status').textContent = 'ERROR: GitHub/Gitee 均不可用';
-      }
+      if (_gt) { throw new Error('GitHub 和 Gitee 均不可用'); }
+      else { throw e; }
     }
   }
-  if (data) {
-    // Success! Clear Gitee flag if using GitHub
-    if (!_gt) localStorage.removeItem('_gitee_primary');
-    // If GitHub load failed and Gitee token is configured, try Gitee
-    if (!data) {
-      var _gt = localStorage.getItem('gitee_token');
-      if (_gt) {
-        try {
-          data = await loadFromGitee();
-          localStorage.setItem('_gitee_primary', '1');
-          document.getElementById('js-status').textContent = '📡 已从 Gitee 加载数据';
-        } catch(_ge) { document.getElementById('js-status').textContent = 'ERROR: GitHub/Gitee 均不可用: ' + _ge.message; }
-      }
-    }
-    // Merge custom questions from localStorage
-    try {
-      const custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-      for (const sid of Object.keys(custom)) {
-        const subj = data.subjects.find(s => s.id === sid);
-        if (subj) {
-          for (const entry of custom[sid]) {
-            let ses = subj.sessions.find(s => s.date === entry.section);
-            if (!ses) {
-              ses = { date: entry.section, label: entry.section, questions: [] };
-              subj.sessions.push(ses);
-            }
-            ses.questions.push({ id: entry.id, question: entry.question, answer: entry.answer, tips: entry.tips || '', section: entry.section });
+  // Merge custom questions from localStorage
+  try {
+    const custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+    for (const sid of Object.keys(custom)) {
+      const subj = data.subjects.find(s => s.id === sid);
+      if (subj) {
+        for (const entry of custom[sid]) {
+          let ses = subj.sessions.find(s => s.date === entry.section);
+          if (!ses) {
+            ses = { date: entry.section, label: entry.section, questions: [] };
+            subj.sessions.push(ses);
           }
+          ses.questions.push({ id: entry.id, question: entry.question, answer: entry.answer, tips: entry.tips || '', section: entry.section });
         }
       }
-    } catch(e) {}
-    // Dedup loaded data (prevent duplicate accumulation from corrupted questions.json)
-    try {
-      data.subjects.forEach(function(_s) {
-        _s.sessions.forEach(function(_ss) {
-          var _seen = {};
-          _ss.questions = _ss.questions.filter(function(_q) {
-            if (_seen[_q.id]) return false;
-            _seen[_q.id] = true;
-            return true;
-          });
+    }
+  } catch(e) {}
+  // Dedup loaded data
+  try {
+    data.subjects.forEach(function(_s) {
+      _s.sessions.forEach(function(_ss) {
+        var _seen = {};
+        _ss.questions = _ss.questions.filter(function(_q) {
+          if (_seen[_q.id]) return false;
+          _seen[_q.id] = true;
+          return true;
         });
       });
-    } catch(e) {}
-    document.getElementById('js-status').textContent = 'Data loaded ✓ · ' + data.subjects.length + ' subjects · ' + data.subjects.reduce(function(a,s){return a+s.sessions.reduce(function(b,ss){return b+ss.questions.length},0)},0) + ' questions'; document.getElementById('js-status').style.background = '#5cb85c'; document.getElementById('js-status').style.color = '#fff';
-    renderSubjects();
-    renderStats();
-    restoreState();
-    setTimeout(function(){ document.getElementById('js-status').style.display = 'none'; }, 3000);
-  } catch(e) {
-    document.getElementById('js-status').textContent = 'ERROR: ' + e.message + ' (line ' + (e.lineNumber || e.line || '?') + ')'; document.getElementById('js-status').style.background = '#d9534f'; document.getElementById('js-status').style.color = '#fff';
-    const el = document.getElementById('subject-list');
-    el.textContent = '';
-    const d = document.createElement('div');
-    d.textContent = '题库加载失败 (' + e.message + ')';
-    d.style.cssText = 'color:var(--red);text-align:center;padding:40px 0;';
-    el.appendChild(d);
-  }
+    });
+  } catch(e) {}
+  document.getElementById('js-status').textContent = 'Data loaded ✓ · ' + data.subjects.length + ' subjects · ' + data.subjects.reduce(function(a,s){return a+s.sessions.reduce(function(b,ss){return b+ss.questions.length},0)},0) + ' questions'; document.getElementById('js-status').style.background = '#5cb85c'; document.getElementById('js-status').style.color = '#fff';
+  renderSubjects();
+  renderStats();
+  restoreState();
+  setTimeout(function(){ document.getElementById('js-status').style.display = 'none'; }, 3000);
 }
 
 function getProgressKey(s, d) { return STORAGE_PREFIX + s + '_' + d; }
