@@ -1004,19 +1004,7 @@ async function aiFillQA(e) {
     let systemMsg;
     if (pdfDirectHit) {
       prompt = '以下是PDF教材内容，请完整包含PDF中的全部内容来回答问题。重要：答案必须包含PDF资料中的所有内容，不要精简，不要概括，不要略去任何举例、代表作、数据。完整输出PDF中的所有相关内容，AI可以在PDF内容基础上做补充，但不能省略PDF中的任何内容。\n\n规则：如果PDF中有与本问题相关的练习题或例题，请把它们放到tips字段中，不要在answer字段中出现练习题。answer字段只包含知识点本身，练习题集中放到tips中。\n\n重要：答案中的关键词必须用<b>标签加粗，例如真空中的<b>光速</b>是宇宙中最快的速度。\n\n返回JSON：{"answer":"答案（用<b>标签加粗关键词）","tips":"记忆提示"}\n\n📄 PDF教材：\n' + context + '\n\n❓ 问题：' + question;
-      systemMsg = '你是考试题库查证助手。重要：答案必须完整包含PDF资料中的所有内容，不能省略任何部分。关键词必须用<b>标签加粗，例如：真空中的<b>光速</b>是宇宙中最快的速度。适合表格的内容用HTML表格。\n\n规则：如果PDF中有与本问题相关的练习题或例题，请将它们放在tips字段中，不要在answer字段中出现练习题。answer字段只包含知识点本身，练习题/例题统一放到tips中。\n\ntips中的练习题格式（重要）：
-练习题：
-1. 题干内容：
-A. 选项A
-B. 选项B
-C. 选项C
-D. 选项D
-答案：<span style=\"color:green\">B</span>
-
-2. 题干内容：
-...
-答案：<span style=\"color:green\">C</span>
-（编号+题干在一行，选项各一行用大写字母，答案用绿色span标注正确选项字母）\n\n返回JSON：{"answer":"答案","tips":"记忆提示"}';
+      systemMsg = '你是考试题库查证助手。重要：答案必须完整包含PDF资料中的所有内容，不能省略任何部分。关键词必须用<b>标签加粗，例如：真空中的<b>光速</b>是宇宙中最快的速度。适合表格的内容用HTML表格。\n\n规则：如果PDF中有与本问题相关的练习题或例题，请将它们放在tips字段中，不要在answer字段中出现练习题。answer字段只包含知识点本身，练习题/例题统一放到tips中。\n\ntips中的练习题格式（重要）：\n练习题：\n1. 题干内容：\nA. 选项A\nB. 选项B\nC. 选项C\nD. 选项D\n答案：<span style=\"color:green\">B</span>\n\n2. 题干内容：\n...\n答案：<span style=\"color:green\">C</span>\n（编号+题干在一行，选项各一行用大写字母，答案用绿色span标注正确选项字母）\n\n返回JSON：{"answer":"答案","tips":"记忆提示"}';
     } else {
       prompt = context
         ? '根据以下' + sourceName + '资料回答问题。返回JSON格式：{"answer":"...","tips":"..."}\n\n📚 资料（来源：' + sourceName + '）：\n' + context + '\n\n❓ 问题：' + question
