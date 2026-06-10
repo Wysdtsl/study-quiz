@@ -3227,18 +3227,21 @@ async function deleteSession(sid, sLabel) {
     var sess = subj.sessions.find(function(s) { return s.date === sLabel || s.label === sLabel; });
     if (!sess) { alert('找不到章节'); return; }
     var qCount = sess.questions.length;
+    // Remove from data immediately
     subj.sessions = subj.sessions.filter(function(s) { return s.date !== sLabel && s.label !== sLabel; });
-    alert('✅ 已删除章节「' + sLabel + '」(' + qCount + '题)');
-    // Sync: try GitHub, fallback to Gitee
-    var synced = false;
+    // Update UI instantly - no page reload
+    renderQuestionManager();
+    renderSubjects();
+    renderStats();
+    // Sync to cloud in background
+    var _sync = function() {};
     if (getGHToken()) {
-      try { await syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)'); synced = true; } catch(e) {}
+      syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function() {
+        syncToGitee(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(){});
+      });
+    } else if (localStorage.getItem('gitee_token')) {
+      syncToGitee(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(){});
     }
-    if (!synced && localStorage.getItem('gitee_token')) {
-      try { await syncToGitee(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)'); synced = true; } catch(e) { alert('Gitee 同步失败: ' + e.message); }
-    }
-    if (!synced) alert('⚠️ 已从本地删除，但 GitHub/Gitee 均未同步。刷新后可能恢复。');
-    window.location.reload();
   } catch(e) { alert('删除失败: ' + e.message); }
 }
 
