@@ -1095,38 +1095,31 @@ async function saveQuestion() {
   closeQEditor();
   renderSubjects();
   renderStats();
+  // Always need at least one token
+  if (!getGHToken() && !localStorage.getItem('gitee_token')) {
+    alert('请先配置 GitHub Token 或 Gitee Token'); return;
+  }
+  // Try GitHub, fall back to Gitee
+  var _saveSuccess = false;
   if (getGHToken()) {
-    syncToGitHub(data, '✨ 添加题目: ' + question)
-      .then(function() {
-        document.getElementById('qe-saved').style.display = 'block';
-        document.getElementById('qe-saved').textContent = '✅ 已同步到 GitHub';
-        alert('✅ 保存成功！已同步到 GitHub');
-      })
-      .catch(function(e) {
-        // Try Gitee fallback
-        if (localStorage.getItem('gitee_token')) {
-          document.getElementById('qe-saved').style.display = 'block';
-          document.getElementById('qe-saved').textContent = '🔄 正在尝试 Gitee...';
-          syncToGitee(data, '✨ 添加题目: ' + question)
-            .then(function() {
-              document.getElementById('qe-saved').textContent = '✅ 已同步到 Gitee';
-              alert('✅ 保存成功！已通过 Gitee 同步（GitHub 连不上）');
-            })
-            .catch(function(e2) {
-              document.getElementById('qe-saved').style.display = 'block';
-              document.getElementById('qe-saved').textContent = '⚠️ 已保存到本地（GitHub/Gitee 均连不上）';
-              alert('✅ 已保存到本地！\n\nGitHub: ' + e.message + '\nGitee: ' + e2.message + '\n网络恢复后会自动同步。');
-            });
-        } else {
-          document.getElementById('qe-saved').style.display = 'block';
-          document.getElementById('qe-saved').textContent = '⚠️ 已保存到本地（GitHub 连不上）';
-          alert('✅ 已保存到本地！\n\nGitHub 暂时连不上（' + e.message + '），可配置 Gitee Token 实现国内同步。');
-        }
-      });
+    await syncToGitHub(data, '✨ 添加题目: ' + question).then(function() { _saveSuccess = true; }).catch(function(e) {
+      document.getElementById('qe-saved').style.display = 'block';
+      document.getElementById('qe-saved').textContent = 'GitHub 连不上，转 Gitee...';
+    });
+  }
+  if (!_saveSuccess && localStorage.getItem('gitee_token')) {
+    try { await syncToGitee(data, '✨ 添加题目: ' + question); _saveSuccess = true; } catch(e) { alert('Gitee 同步失败: ' + e.message); return; }
+  }
+  if (_saveSuccess) {
+    document.getElementById('qe-question').value = '';
+    document.getElementById('qe-answer').value = '';
+    document.getElementById('qe-tips').value = '';
+    closeQEditor();
+    renderSubjects();
+    renderStats();
+    alert('✅ 保存成功！已同步到云端，所有设备可见');
   } else {
-    document.getElementById('qe-saved').style.display = 'block';
-    document.getElementById('qe-saved').textContent = '✅ 已保存到本地';
-    alert('✅ 已保存到本地！\n\n未配置 GitHub，数据存在浏览器里，刷新页面后还在。');
+    alert('❌ 同步失败：GitHub 和 Gitee 均不可用');
   }
 }
 // ── Batch Editor ──
@@ -1431,22 +1424,18 @@ async function batchSaveAll() {
   batchResults = [];
   renderSubjects();
   renderStats();
-  var _nSaved = newQuestions.length;
-  if (getGHToken()) {
-    syncToGitHub(data, '📋 批量添加 ' + _nSaved + ' 题到 ' + section)
-      .then(function() { alert('✅ 已同步到 GitHub！' + _nSaved + ' 题保存成功'); })
-      .catch(function(e) {
-        if (localStorage.getItem('gitee_token')) {
-          syncToGitee(data, '📋 批量添加 ' + _nSaved + ' 题到 Gitee')
-            .then(function() { alert('✅ 已通过 Gitee 同步！' + _nSaved + ' 题'); })
-            .catch(function(e2) { alert('✅ 已保存到本地！' + _nSaved + ' 题\n\nGitHub: ' + e.message + '\nGitee: ' + e2.message); });
-        } else {
-          alert('✅ 已保存到本地！' + _nSaved + ' 题\n\nGitHub 暂时连不上: ' + e.message);
-        }
-      });
-  } else {
-    alert('✅ 已保存到本地！' + _nSaved + ' 题');
+  if (!getGHToken() && !localStorage.getItem('gitee_token')) {
+    alert('请先配置 GitHub Token 或 Gitee Token'); return;
   }
+  var _nSaved = newQuestions.length;
+  var _bSuccess = false;
+  if (getGHToken()) {
+    try { await syncToGitHub(data, '📋 批量添加 ' + _nSaved + ' 题到 ' + section); _bSuccess = true; } catch(e) {}
+  }
+  if (!_bSuccess && localStorage.getItem('gitee_token')) {
+    try { await syncToGitee(data, '📋 批量添加 ' + _nSaved + ' 题到 ' + section); _bSuccess = true; } catch(e) { alert('Gitee 同步失败: ' + e.message); return; }
+  }
+  if (_bSuccess) alert('✅ ' + _nSaved + ' 题保存成功！已同步到云端'); else alert('❌ 同步失败');
 }
 
 function showBatchStatus(msg, success) {
