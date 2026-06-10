@@ -2653,7 +2653,7 @@ function removeUserAddedId(id) {
 
 async function syncToGitHub(updatedData, msg) {
   var token = getGHToken();
-  if (!token) throw new Error('未配置 GitHub Token</button><button class="btn btn-out" onclick="configureGiteeToken()" style="margin-left:4px;">🔗 配置 Gitee Token，请先点击 🔗 设置');
+  if (!token) throw new Error('未配置 GitHub Token，请先点击 🔗 设置');
   // Dedup local data before merging (fixes duplicate accumulation)
   updatedData.subjects.forEach(function(_s) {
     _s.sessions.forEach(function(_ss) {
@@ -3543,6 +3543,7 @@ loadData();
       <div style="display:flex;gap:6px;align-items:center;">
         <button class="x" onclick="addSubject()" title="新增科目" style="font-size:14px;width:auto;padding:0 10px;">＋</button>
         <button class="x" onclick="setupGithubSync()" title="GitHub 同步设置" style="font-size:14px;width:auto;padding:0 10px;">🔗</button>
+        <button class="x" onclick="configureGiteeToken()" title="Gitee 同步设置" style="font-size:14px;width:auto;padding:0 10px;">🦊</button>
         <button class="x" onclick="location.reload()" title="刷新页面" style="font-size:14px;width:auto;padding:0 10px;">↻</button><button class="x" onclick="closeQuestionManager()">✕</button>
       </div>
     </div>
