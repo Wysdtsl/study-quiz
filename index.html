@@ -2627,6 +2627,15 @@ function escapeHtml(s) {
 }
 
 // ── GitHub Sync ──
+function configureGiteeToken() {
+  var current = localStorage.getItem('gitee_token') || '';
+  var token = prompt('请输入 Gitee 私人令牌（留空则清除）：', current ? '••••••••（已配置）' : '');
+  if (token === null) return;
+  if (token === '' || token.indexOf('••••') >= 0) { localStorage.removeItem('gitee_token'); alert('已清除 Gitee Token'); return; }
+  localStorage.setItem('gitee_token', token);
+  alert('✅ Gitee Token 已配置！所有同步操作会优先走 Gitee（国内直达）');
+}
+
 function getGHToken() { try { var r = localStorage.getItem('gh_token'); return r ? atob(r) : ''; } catch(e) { return ''; } }
 
 // Track user-added question IDs (for cross-device sync)
@@ -2645,7 +2654,7 @@ function removeUserAddedId(id) {
 
 async function syncToGitHub(updatedData, msg) {
   var token = getGHToken();
-  if (!token) throw new Error('未配置 GitHub Token，请先点击 🔗 设置');
+  if (!token) throw new Error('未配置 GitHub Token</button><button class="btn btn-out" onclick="configureGiteeToken()" style="margin-left:4px;">🔗 配置 Gitee Token，请先点击 🔗 设置');
   // Dedup local data before merging (fixes duplicate accumulation)
   updatedData.subjects.forEach(function(_s) {
     _s.sessions.forEach(function(_ss) {
