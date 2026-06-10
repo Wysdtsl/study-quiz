@@ -1119,7 +1119,11 @@ async function saveQuestion() {
     renderStats();
     alert('✅ 保存成功！已同步到云端，所有设备可见');
   } else {
-    alert('❌ 同步失败：GitHub 和 Gitee 均不可用');
+    var _msg = '❌ 同步失败：';
+    if (!getGHToken() && !localStorage.getItem('gitee_token')) _msg += '请先配置 GitHub Token 或 Gitee Token';
+    else if (!localStorage.getItem('gitee_token')) _msg += 'GitHub 连不上，且未配置 Gitee Token。请点击 🔗 配置 Gitee Token';
+    else _msg += 'GitHub 和 Gitee 均不可用';
+    alert(_msg);
   }
 }
 // ── Batch Editor ──
@@ -1435,7 +1439,13 @@ async function batchSaveAll() {
   if (!_bSuccess && localStorage.getItem('gitee_token')) {
     try { await syncToGitee(data, '📋 批量添加 ' + _nSaved + ' 题到 ' + section); _bSuccess = true; } catch(e) { alert('Gitee 同步失败: ' + e.message); return; }
   }
-  if (_bSuccess) alert('✅ ' + _nSaved + ' 题保存成功！已同步到云端'); else alert('❌ 同步失败');
+  if (_bSuccess) alert('✅ ' + _nSaved + ' 题保存成功！已同步到云端'); else {
+    var _mb = '❌ 同步失败：';
+    if (!getGHToken() && !localStorage.getItem('gitee_token')) _mb += '请先配置 GitHub Token 或 Gitee Token';
+    else if (!localStorage.getItem('gitee_token')) _mb += 'GitHub 连不上，且未配置 Gitee Token';
+    else _mb += 'GitHub 和 Gitee 均不可用';
+    alert(_mb);
+  }
 }
 
 function showBatchStatus(msg, success) {
