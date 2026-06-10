@@ -2939,9 +2939,13 @@ function addSubject() {
   var _suffix = 0;
   while (data.subjects.find(function(s) { return s.id === id + (_suffix || ''); })) { _suffix++; }
   data.subjects.push({ id: id + (_suffix || ''), name: name, sessions: [] });
-  // Try to sync to GitHub
+  // Sync to cloud
   if (getGHToken()) {
-    syncToGitHub(data, '📚 新增科目: ' + name).catch(function(e) { alert('GitHub同步失败，之后可能恢复旧数据: ' + e.message); });
+    syncToGitHub(data, '📚 新增科目: ' + name).catch(function() {
+      if (localStorage.getItem('gitee_token')) syncToGitee(data, '📚 新增科目: ' + name).catch(function(){});
+    });
+  } else if (localStorage.getItem('gitee_token')) {
+    syncToGitee(data, '📚 新增科目: ' + name).catch(function(){});
   }
   renderQuestionManager();
   document.getElementById('qm-overlay').classList.add('show');
@@ -3066,7 +3070,11 @@ function confirmIcon() {
     renderQuestionManager();
     renderSubjects();
     if (getGHToken()) {
-      syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function(e) { alert('GitHub同步失败，之后可能恢复旧数据: ' + e.message); });
+      syncToGitHub(data, '🎨 更新科目图标: ' + subj.name).catch(function() {
+        if (localStorage.getItem('gitee_token')) syncToGitee(data, '🎨 更新科目图标: ' + subj.name).catch(function(){});
+      });
+    } else if (localStorage.getItem('gitee_token')) {
+      syncToGitee(data, '🎨 更新科目图标: ' + subj.name).catch(function(){});
     }
     closeIconPicker();
     delete picker.dataset.pendingIcon;
@@ -3292,9 +3300,15 @@ function batchDeleteQuestions() {
     var _h = getHiddenIds();
     if (_h.indexOf(qid) === -1) { _h.push(qid); localStorage.setItem('qHidden', JSON.stringify(_h)); }
   });
-  // Sync to GitHub
-  if (toDelete.length > 0 && getGHToken()) {
-    syncToGitHub(data, '🗑 批量删除 ' + toDelete.length + ' 题').catch(function(e) { alert('GitHub同步失败，之后可能恢复旧数据: ' + e.message); });
+  // Sync to cloud
+  if (toDelete.length > 0) {
+    if (getGHToken()) {
+      syncToGitHub(data, '🗑 批量删除 ' + toDelete.length + ' 题').catch(function() {
+        if (localStorage.getItem('gitee_token')) syncToGitee(data, '🗑 批量删除 ' + toDelete.length + ' 题').catch(function(){});
+      });
+    } else if (localStorage.getItem('gitee_token')) {
+      syncToGitee(data, '🗑 批量删除 ' + toDelete.length + ' 题').catch(function(){});
+    }
   }
   // Re-render
   _qmRendering = true; renderQuestionManager();
@@ -3329,10 +3343,14 @@ function deleteCustomQuestion(sid, id) {
       }
     }
   }
-  if (_foundInData && getGHToken()) {
-    syncToGitHub(data, '🗑 删除题目').catch(function(e) {
-      console.error('GitHub sync failed:', e);
-    });
+  if (_foundInData) {
+    if (getGHToken()) {
+      syncToGitHub(data, '🗑 删除题目').catch(function() {
+        if (localStorage.getItem('gitee_token')) syncToGitee(data, '🗑 删除题目').catch(function(){});
+      });
+    } else if (localStorage.getItem('gitee_token')) {
+      syncToGitee(data, '🗑 删除题目').catch(function(){});
+    }
   }
   // Surgically remove DOM element instead of full re-render
   var _removed = false;
