@@ -2624,6 +2624,8 @@ async function syncToGitHub(updatedData, msg) {
   var _proxyUrl = 'https://gh-proxy.org/https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json';
   // Cloudflare Worker proxy (user-deployed, preserves auth headers)
   var _workerUrl = (localStorage.getItem('gh_worker_url') || '') + '/Wysdtsl/study-quiz/contents/questions.json';
+  // Vercel proxy URL (user-configured, accessible from China)
+  var _vercelUrl = (localStorage.getItem('gh_vercel_url') || '') + '/api/github/questions.json';
 
   async function _ghFetch(url, opts) {
     var _c = new AbortController();
@@ -2639,7 +2641,10 @@ async function syncToGitHub(updatedData, msg) {
     try { getResp = await _ghFetch(_proxyUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
     catch(e1) {
       try { getResp = await _ghFetch(_workerUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
-      catch(e2) { throw new Error('\u65e0\u6cd5\u8fde\u63a5\u5230 GitHub'); }
+      catch(e2) {
+        try { getResp = await _ghFetch(_vercelUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
+        catch(e3) { throw new Error('\u65e0\u6cd5\u8fde\u63a5\u5230 GitHub'); }
+      }
     }
   }
   if (!getResp.ok) throw new Error('GitHub \u8bfb\u53d6\u5931\u8d25 (HTTP ' + getResp.status + ')');
@@ -2662,6 +2667,10 @@ async function syncToGitHub(updatedData, msg) {
   try {
     var putResp3 = await _ghFetch(_workerUrl, { method: 'PUT', headers: _putHeaders, body: putBody });
     if (putResp3.ok) return;
+  } catch(e) {}
+  try {
+    var putResp4 = await _ghFetch(_vercelUrl, { method: 'PUT', headers: _putHeaders, body: putBody });
+    if (putResp4.ok) return;
   } catch(e) {}
   // Both failed - download file for manual upload
   var blob = new Blob([jsonStr], { type: 'application/json' });
