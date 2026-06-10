@@ -1087,22 +1087,30 @@ async function saveQuestion() {
     if (_existing) { _existing.answer = entry.answer; _existing.tips = entry.tips; }
     else { sess3.questions.push(entry); }
   }
-  //   // Must sync to GitHub - no local fallback
-  if (!getGHToken()) { alert('请先点击 🔗 配置 GitHub Token'); return; }
-  try {
-    await syncToGitHub(data, '✨ 添加题目: ' + question);
-    addUserAddedId(id);
+  // Save locally first, then try GitHub sync
+  addUserAddedId(id);
+  document.getElementById('qe-question').value = '';
+  document.getElementById('qe-answer').value = '';
+  document.getElementById('qe-tips').value = '';
+  closeQEditor();
+  renderSubjects();
+  renderStats();
+  if (getGHToken()) {
+    syncToGitHub(data, '✨ 添加题目: ' + question)
+      .then(function() {
+        document.getElementById('qe-saved').style.display = 'block';
+        document.getElementById('qe-saved').textContent = '✅ 已同步到 GitHub';
+        alert('✅ 保存成功！已同步到 GitHub');
+      })
+      .catch(function(e) {
+        document.getElementById('qe-saved').style.display = 'block';
+        document.getElementById('qe-saved').textContent = '⚠️ 已保存到本地（GitHub 连不上）';
+        alert('✅ 已保存到本地！\n\nGitHub 暂时连不上（' + e.message + '），数据已存在浏览器里，等网络恢复后再同步。');
+      });
+  } else {
     document.getElementById('qe-saved').style.display = 'block';
-    document.getElementById('qe-saved').textContent = '✅ 已保存到 GitHub，所有设备可见';
-    document.getElementById('qe-question').value = '';
-    document.getElementById('qe-answer').value = '';
-    document.getElementById('qe-tips').value = '';
-    alert('✅ 保存成功！已同步到 GitHub，所有设备刷新后可见。');
-    closeQEditor();
-    renderSubjects();
-    renderStats();
-  } catch(e) {
-    alert('⚠️ GitHub 同步失败：' + e.message + '。题目未保存。');
+    document.getElementById('qe-saved').textContent = '✅ 已保存到本地';
+    alert('✅ 已保存到本地！\n\n未配置 GitHub，数据存在浏览器里，刷新页面后还在。');
   }
 }
 // ── Batch Editor ──
@@ -1400,27 +1408,20 @@ async function batchSaveAll() {
   _pgText.textContent = '正在保存到 GitHub...';
   _pgFill.style.width = '30%';
 
-  if (!getGHToken()) { _pg.classList.remove('show'); alert('请先配置 GitHub Token'); return; }
-  try {
-    await syncToGitHub(data, '📋 批量添加 ' + batchResults.length + ' 题到 ' + section);
-    _pgFill.style.width = '80%';
-    _pgText.textContent = '同步完成，更新界面...';
-    newQuestions.forEach(function(q) { addUserAddedId(q.id); });
-    _pgFill.style.width = '100%';
-    showBatchStatus('✅ 已保存 ' + batchResults.length + ' 题到 GitHub', true);
-    _pg.classList.remove('show');
-    document.getElementById('qe-overlay').classList.remove('show');
-    document.getElementById('qe-batch-results').innerHTML = '';
-    batchResults = [];
-    renderSubjects();
-    renderStats();
-    alert('✅ 保存成功！' + batchResults.length + '道题已同步到 GitHub，所有设备刷新后可见。');
-  } catch(e) {
-    _pg.classList.remove('show');
-    showBatchStatus('❌ GitHub 同步失败', false);
-    alert('⚠️ GitHub 同步失败：' + e.message + '。题目未保存。');
-    var saveBtn = document.getElementById('qe-batch-save-btn');
-    if (saveBtn) saveBtn.disabled = false;
+  newQuestions.forEach(function(q) { addUserAddedId(q.id); });
+  _pg.classList.remove('show');
+  document.getElementById('qe-overlay').classList.remove('show');
+  document.getElementById('qe-batch-results').innerHTML = '';
+  batchResults = [];
+  renderSubjects();
+  renderStats();
+  var _nSaved = newQuestions.length;
+  if (getGHToken()) {
+    syncToGitHub(data, '📋 批量添加 ' + _nSaved + ' 题到 ' + section)
+      .then(function() { alert('✅ 已同步到 GitHub！' + _nSaved + ' 题保存成功'); })
+      .catch(function(e) { alert('✅ 已保存到本地！' + _nSaved + ' 题\n\nGitHub 暂时连不上: ' + e.message); });
+  } else {
+    alert('✅ 已保存到本地！' + _nSaved + ' 题');
   }
 }
 
