@@ -1103,9 +1103,25 @@ async function saveQuestion() {
         alert('✅ 保存成功！已同步到 GitHub');
       })
       .catch(function(e) {
-        document.getElementById('qe-saved').style.display = 'block';
-        document.getElementById('qe-saved').textContent = '⚠️ 已保存到本地（GitHub 连不上）';
-        alert('✅ 已保存到本地！\n\nGitHub 暂时连不上（' + e.message + '），数据已存在浏览器里，等网络恢复后再同步。');
+        // Try Gitee fallback
+        if (localStorage.getItem('gitee_token')) {
+          document.getElementById('qe-saved').style.display = 'block';
+          document.getElementById('qe-saved').textContent = '🔄 正在尝试 Gitee...';
+          syncToGitee(data, '✨ 添加题目: ' + question)
+            .then(function() {
+              document.getElementById('qe-saved').textContent = '✅ 已同步到 Gitee';
+              alert('✅ 保存成功！已通过 Gitee 同步（GitHub 连不上）');
+            })
+            .catch(function(e2) {
+              document.getElementById('qe-saved').style.display = 'block';
+              document.getElementById('qe-saved').textContent = '⚠️ 已保存到本地（GitHub/Gitee 均连不上）';
+              alert('✅ 已保存到本地！\n\nGitHub: ' + e.message + '\nGitee: ' + e2.message + '\n网络恢复后会自动同步。');
+            });
+        } else {
+          document.getElementById('qe-saved').style.display = 'block';
+          document.getElementById('qe-saved').textContent = '⚠️ 已保存到本地（GitHub 连不上）';
+          alert('✅ 已保存到本地！\n\nGitHub 暂时连不上（' + e.message + '），可配置 Gitee Token 实现国内同步。');
+        }
       });
   } else {
     document.getElementById('qe-saved').style.display = 'block';
@@ -1419,7 +1435,15 @@ async function batchSaveAll() {
   if (getGHToken()) {
     syncToGitHub(data, '📋 批量添加 ' + _nSaved + ' 题到 ' + section)
       .then(function() { alert('✅ 已同步到 GitHub！' + _nSaved + ' 题保存成功'); })
-      .catch(function(e) { alert('✅ 已保存到本地！' + _nSaved + ' 题\n\nGitHub 暂时连不上: ' + e.message); });
+      .catch(function(e) {
+        if (localStorage.getItem('gitee_token')) {
+          syncToGitee(data, '📋 批量添加 ' + _nSaved + ' 题到 Gitee')
+            .then(function() { alert('✅ 已通过 Gitee 同步！' + _nSaved + ' 题'); })
+            .catch(function(e2) { alert('✅ 已保存到本地！' + _nSaved + ' 题\n\nGitHub: ' + e.message + '\nGitee: ' + e2.message); });
+        } else {
+          alert('✅ 已保存到本地！' + _nSaved + ' 题\n\nGitHub 暂时连不上: ' + e.message);
+        }
+      });
   } else {
     alert('✅ 已保存到本地！' + _nSaved + ' 题');
   }
@@ -1607,9 +1631,22 @@ async function loadData() {
     localStorage.setItem('_av', _vd.version);
   } catch(e) {}
   try {
-    const res = await fetch('/study-quiz/questions.json?_=' + _ts);
+    var res = await fetch('/study-quiz/questions.json?_=' + _ts);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     data = await res.json();
+    // Success! Clear Gitee flag
+    localStorage.removeItem('_gitee_primary');
+    // If GitHub load failed and Gitee token is configured, try Gitee
+    if (!data) {
+      var _gt = localStorage.getItem('gitee_token');
+      if (_gt) {
+        try {
+          data = await loadFromGitee();
+          localStorage.setItem('_gitee_primary', '1');
+          document.getElementById('js-status').textContent = '📡 已从 Gitee 加载数据';
+        } catch(_ge) { document.getElementById('js-status').textContent = 'ERROR: GitHub/Gitee 均不可用: ' + _ge.message; }
+      }
+    }
     // Merge custom questions from localStorage
     try {
       const custom = JSON.parse(localStorage.getItem('customQuestions') || '{}');
@@ -2697,6 +2734,51 @@ function setupGithubSync() {
     if (el) { el.style.display = ''; el.textContent = '✅ GitHub Token 已配置'; el.style.color = 'var(--green)'; setTimeout(function() { el.style.display = 'none'; }, 3000); }
   } catch(e) { alert('保存失败: ' + e.message); }
 }
+
+
+// ── Gitee API Sync ──
+async function syncToGitee(updatedData, msg) {
+  var token = localStorage.getItem('gitee_token') || '';
+  if (!token) throw new Error('\u672a\u914d\u7f6e Gitee Token');
+  // Dedup
+  updatedData.subjects.forEach(function(_s) {
+    _s.sessions.forEach(function(_ss) {
+      var _seen = {};
+      _ss.questions = _ss.questions.filter(function(_q) {
+        if (_seen[_q.id]) return false;
+        _seen[_q.id] = true;
+        return true;
+      });
+    });
+  });
+  var apiUrl = 'https://gitee.com/api/v5/repos/wysdtsl/study-quiz/contents/questions.json';
+  // GET current file
+  var getResp = await fetch(apiUrl + '?access_token=' + token);
+  if (!getResp.ok) throw new Error('Gitee \u8bfb\u53d6\u5931\u8d25');
+  var fileInfo = await getResp.json();
+  // PUT updated content
+  var jsonStr = JSON.stringify(updatedData, null, 2);
+  var encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+  var putBody = JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha, access_token: token });
+  var putResp = await fetch(apiUrl, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: putBody });
+  if (!putResp.ok) {
+    var errBody = await putResp.json().catch(function(){ return {}; });
+    throw new Error('Gitee \u5199\u5165\u5931\u8d25: ' + (errBody.message || ('HTTP ' + putResp.status)));
+  }
+}
+
+// ── Gitee Data Load ──
+async function loadFromGitee() {
+  var token = localStorage.getItem('gitee_token') || '';
+  if (!token) throw new Error('\u672a\u914d\u7f6e Gitee Token');
+  var res = await fetch('https://gitee.com/api/v5/repos/wysdtsl/study-quiz/contents/questions.json?access_token=' + token + '&_=' + Date.now());
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  var fileInfo = await res.json();
+  var content = decodeURIComponent(escape(atob(fileInfo.content)));
+  return JSON.parse(content);
+}
+
+
 
 // ── Question Overrides ──
 function getOverrides() { try { return JSON.parse(localStorage.getItem('qOverrides') || '{}'); } catch(e) { return {}; } }
