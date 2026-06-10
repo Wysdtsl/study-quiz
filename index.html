@@ -2622,6 +2622,8 @@ async function syncToGitHub(updatedData, msg) {
   });
   var _apiUrl = 'https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json';
   var _proxyUrl = 'https://gh-proxy.org/https://api.github.com/repos/Wysdtsl/study-quiz/contents/questions.json';
+  // Cloudflare Worker proxy (user-deployed, preserves auth headers)
+  var _workerUrl = (localStorage.getItem('gh_worker_url') || '') + '/Wysdtsl/study-quiz/contents/questions.json';
 
   async function _ghFetch(url, opts) {
     var _c = new AbortController();
@@ -2635,7 +2637,10 @@ async function syncToGitHub(updatedData, msg) {
   try { getResp = await _ghFetch(_apiUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
   catch(e) {
     try { getResp = await _ghFetch(_proxyUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
-    catch(e2) { throw new Error('\u65e0\u6cd5\u8fde\u63a5\u5230 GitHub'); }
+    catch(e1) {
+      try { getResp = await _ghFetch(_workerUrl, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' } }); }
+      catch(e2) { throw new Error('\u65e0\u6cd5\u8fde\u63a5\u5230 GitHub'); }
+    }
   }
   if (!getResp.ok) throw new Error('GitHub \u8bfb\u53d6\u5931\u8d25 (HTTP ' + getResp.status + ')');
   var fileInfo = await getResp.json();
@@ -2645,13 +2650,18 @@ async function syncToGitHub(updatedData, msg) {
 
   // Try write via direct or proxy
   var putBody = JSON.stringify({ message: msg, content: encoded, sha: fileInfo.sha });
+  var _putHeaders = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' };
   try {
-    var putResp = await _ghFetch(_apiUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: putBody });
+    var putResp = await _ghFetch(_apiUrl, { method: 'PUT', headers: _putHeaders, body: putBody });
     if (putResp.ok) return;
   } catch(e) {}
   try {
-    var putResp2 = await _ghFetch(_proxyUrl, { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: putBody });
+    var putResp2 = await _ghFetch(_proxyUrl, { method: 'PUT', headers: _putHeaders, body: putBody });
     if (putResp2.ok) return;
+  } catch(e) {}
+  try {
+    var putResp3 = await _ghFetch(_workerUrl, { method: 'PUT', headers: _putHeaders, body: putBody });
+    if (putResp3.ok) return;
   } catch(e) {}
   // Both failed - download file for manual upload
   var blob = new Blob([jsonStr], { type: 'application/json' });
