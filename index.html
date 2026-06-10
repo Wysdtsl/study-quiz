@@ -1629,12 +1629,32 @@ async function loadData() {
     if (_lv && _lv !== _vd.version) { localStorage.removeItem('_av'); window.location.reload(); }
     localStorage.setItem('_av', _vd.version);
   } catch(e) {}
-  try {
-    var res = await fetch('/study-quiz/questions.json?_=' + _ts);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    data = await res.json();
-    // Success! Clear Gitee flag
-    localStorage.removeItem('_gitee_primary');
+  // If Gitee token is configured, load from Gitee (has the latest synced data)
+  var _gt = localStorage.getItem('gitee_token');
+  if (_gt) {
+    try {
+      data = await loadFromGitee();
+      localStorage.setItem('_gitee_primary', '1');
+      document.getElementById('js-status').textContent = '📡 从 Gitee 加载数据...';
+    } catch(_ge) {
+      // Gitee failed, fall through to GitHub
+    }
+  }
+  if (!data) {
+    try {
+      var res = await fetch('/study-quiz/questions.json?_=' + _ts);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      data = await res.json();
+    } catch(e) {
+      // If both Gitee and GitHub failed, show error
+      if (_gt) {
+        document.getElementById('js-status').textContent = 'ERROR: GitHub/Gitee 均不可用';
+      }
+    }
+  }
+  if (data) {
+    // Success! Clear Gitee flag if using GitHub
+    if (!_gt) localStorage.removeItem('_gitee_primary');
     // If GitHub load failed and Gitee token is configured, try Gitee
     if (!data) {
       var _gt = localStorage.getItem('gitee_token');
