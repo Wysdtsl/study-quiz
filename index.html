@@ -3127,8 +3127,7 @@ async function deleteSession(sid, sLabel) {
     subj.sessions = subj.sessions.filter(function(s) { return s.date !== sLabel && s.label !== sLabel; });
     alert('✅ 已删除章节「' + sLabel + '」(' + qCount + '题)');
     if (getGHToken()) {
-      try { await syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)'); }
-      catch(e) { alert('GitHub 同步失败，刷新后可能恢复:' + e.message); }
+      syncToGitHub(data, '🗑 删除章节: ' + sLabel + ' (' + qCount + ' 题)').catch(function(e) {});
     }
     window.location.reload();
   } catch(e) { alert('删除失败: ' + e.message); }
