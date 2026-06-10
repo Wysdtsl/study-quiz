@@ -3226,7 +3226,7 @@ function selectAllInSess(si, sei) {
   onBatchCheck();
 }
 
-async async function deleteSession(sid, sLabel) {
+async function deleteSession(sid, sLabel) {
   try {
     if (!confirm('确定删除章节 "' + sLabel + '" 及其所有题目吗？')) return;
     var subj = data.subjects.find(function(s) { return s.id === sid; });
