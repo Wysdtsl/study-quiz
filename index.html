@@ -1363,15 +1363,19 @@ function renderBatchResults() {
 function editBatchAnswer(i) {
   var el = document.getElementById('ba-' + i);
   var tb = el.querySelector('.tb-wrap') || el;
+  var btn = el.parentElement.querySelector('.actions button');
   if (el.classList.contains('edit-mode')) {
+    // Save and exit edit mode
     el.classList.remove('edit-mode');
     tb.setAttribute('contenteditable', 'false');
     batchResults[i].answer = tb.innerHTML;
-    alert('DEBUG 编辑保存: \n' + batchResults[i].answer);
+    if (btn) btn.innerHTML = '<img src="/study-quiz/icons/xiugaianniu.svg" alt="" style="width:12px;height:12px;"> 编辑';
   } else {
+    // Enter edit mode
     el.classList.add('edit-mode');
     tb.setAttribute('contenteditable', 'true');
     tb.focus();
+    if (btn) btn.innerHTML = '<img src="/study-quiz/icons/xiugaianniu.svg" alt="" style="width:12px;height:12px;"> 保存';
   }
 }
 
@@ -1411,7 +1415,7 @@ async function batchSaveAll() {
       if (_exist) { _exist.answer = q.answer; _exist.tips = q.tips; }
       else { sess2.questions.push(q); }
     });
-    alert('DEBUG batch保存 第1题答案:\n' + newQuestions[0].answer);
+
   }
   // Show progress bar
   var _pg = document.getElementById('save-progress');
