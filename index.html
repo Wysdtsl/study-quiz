@@ -1066,7 +1066,7 @@ async function aiFillQA(e) {
     let text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '';
     try {
       const parsed = JSON.parse(text.replace(/\`\`\`json|\`\`\`/g, '').trim());
-      document.getElementById('qe-answer').value = parsed.answer || '';
+      document.getElementById('qe-answer').value = formatExerciseBR(parsed.answer) || '';
       let tip = parsed.tips || '';
       if (pdfDirectHit) {
         tip += '\n\n✅ PDF资料核实（已包含PDF中所有相关内容）';
@@ -1260,6 +1260,23 @@ function getPDFContext(question) {
   return pdfChunks.slice(_windowStart, _windowEnd).join('\n\n---\n\n');
 }
 
+
+function formatExerciseBR(text) {
+  if (!text) return text;
+  // Only process if it looks like MCQ content
+  var hasOpt = /[A-D][\.．]/.test(text);
+  if (!hasOpt) return text;
+  // Replace \n before options with <br>
+  text = text.replace(/\n([A-D][\.．])/g, '<br>$1');
+  // Replace \n before 答案 with <br>
+  text = text.replace(/\n(答案[：:])/g, '<br>$1');
+  // Replace \n before numbered questions
+  text = text.replace(/\n(\d+[\.．])/g, '<br>$1');
+  // Replace remaining \n between questions
+  text = text.replace(/\n(?=.*?[A-D][\.．])/g, '<br>');
+  return text;
+}
+
 async function batchGenerateAnswers() {
   var questions = document.getElementById('qe-batch-questions').value.trim();
   if (!questions) { alert('请先在文本框输入题目（每行一题）'); return; }
@@ -1373,7 +1390,7 @@ async function batchGenerateAnswers() {
         tips = '\u26a0\ufe0f AI \u8fd4\u56de\u4e3a\u7a7a\uff0c\u53ef\u80fd\u88ab\u9650\u6d41\u6216 API \u5f02\u5e38';
         answer = '\uff08\u672a\u83b7\u53d6\u5230\u56de\u7b54\uff09';
       }
-      batchResults.push({ question: q, answer: answer, tips: tips });
+      batchResults.push({ question: q, answer: formatExerciseBR(answer), tips: formatExerciseBR(tips) });
     } catch(e) {
       batchResults.push({ question: q, answer: '\u751f\u6210\u5931\u8d25: ' + e.message, tips: '' });
     }
