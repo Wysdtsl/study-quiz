@@ -1401,6 +1401,7 @@ function editBatchAnswer(i) {
     el.classList.remove('edit-mode');
     tb.setAttribute('contenteditable', 'false');
     batchResults[i].answer = tb.innerHTML;
+    saveBatchDraft();
     if (btn) btn.innerHTML = '<img src="/study-quiz/icons/xiugaianniu.svg" alt="" style="width:12px;height:12px;"> 编辑';
   } else {
     // Enter edit mode
