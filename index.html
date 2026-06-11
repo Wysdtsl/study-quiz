@@ -894,7 +894,8 @@ function openQEditor(batchMode) {
   var cancelBtn = document.querySelector('.qe-sheet .qe-btn-cancel'); 
   if (cancelBtn) cancelBtn.parentElement.style.display = isBatch ? 'none' : ''; // hide original save/cancel for batch
   batchResults = [];
-  document.getElementById('qe-batch-results').innerHTML = '';
+  var _restored = restoreBatchDraft();
+  if (!_restored) document.getElementById('qe-batch-results').innerHTML = '';
   document.getElementById('qe-batch-progress').textContent = '';
   document.getElementById('qe-save-status').style.display = 'none';
   var _sb = document.getElementById('qe-batch-save-btn');
@@ -930,6 +931,37 @@ function openQEditor(batchMode) {
   data.subjects.forEach(s => s.sessions.forEach(ss => sections.add(ss.label)));
   datalist.innerHTML = Array.from(sections).map(s => `<option value="${s}">`).join('');
 }
+function saveBatchDraft() {
+  var draft = {
+    subject: document.getElementById('qe-subject').value,
+    section: document.getElementById('qe-batch-section') ? document.getElementById('qe-batch-section').value : '',
+    questions: document.getElementById('qe-batch-questions').value,
+    results: batchResults
+  };
+  try { localStorage.setItem('batch_draft', JSON.stringify(draft)); } catch(e) {}
+}
+
+function restoreBatchDraft() {
+  try {
+    var raw = localStorage.getItem('batch_draft');
+    if (!raw) return false;
+    var draft = JSON.parse(raw);
+    if (!draft.questions && (!draft.results || draft.results.length === 0)) return false;
+    document.getElementById('qe-batch-questions').value = draft.questions || '';
+    if (draft.subject) document.getElementById('qe-subject').value = draft.subject;
+    var secInput = document.getElementById('qe-batch-section') || document.getElementById('qe-section');
+    if (secInput && draft.section) secInput.value = draft.section;
+    if (draft.results && draft.results.length > 0) {
+      batchResults = draft.results;
+      renderBatchResults();
+      document.getElementById('qe-batch-save-btn').style.display = '';
+    }
+    return true;
+  } catch(e) { return false; }
+}
+
+function clearBatchDraft() { localStorage.removeItem('batch_draft'); }
+
 function closeQEditor(e) { if (!e || e.target === document.getElementById('qe-overlay')) { document.getElementById('qe-overlay').classList.remove('show'); } }
 async function aiFillQA(e) {
   const question = document.getElementById('qe-question').value.trim();
@@ -1430,6 +1462,7 @@ async function batchSaveAll() {
   document.getElementById('qe-overlay').classList.remove('show');
   document.getElementById('qe-batch-results').innerHTML = '';
   batchResults = [];
+  clearBatchDraft();
   renderSubjects();
   renderStats();
   if (!getGHToken() && !localStorage.getItem('gitee_token')) {
@@ -3465,7 +3498,7 @@ loadData();
     <!-- Batch mode panel -->
     <div id="qe-batch-panel" style="display:none;">
       <label>题目（每行一题）</label>
-      <textarea id="qe-batch-questions" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;box-sizing:border-box;min-height:120px;resize:vertical;line-height:1.6;" placeholder="每行一题&#10;例如：&#10;什么是GDP？&#10;通货膨胀的定义是什么？"></textarea>
+      <textarea id="qe-batch-questions" oninput="saveBatchDraft()" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;box-sizing:border-box;min-height:120px;resize:vertical;line-height:1.6;" placeholder="每行一题&#10;例如：&#10;什么是GDP？&#10;通货膨胀的定义是什么？"></textarea>
 
       <!-- PDF Import -->
       <button class="qe-btn-pdf" onclick="importPDF()" id="pdf-import-btn" style="display:flex;align-items:center;gap:6px;width:100%;padding:10px;border:1px dashed var(--border);border-radius:10px;background:var(--surface2);color:var(--ink);font-size:14px;cursor:pointer;font-family:inherit;justify-content:center;">📄 从 PDF 导入</button>
