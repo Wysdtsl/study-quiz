@@ -1040,7 +1040,7 @@ async function aiFillQA(e) {
       systemMsg = '你是考试题库查证助手。重要：答案必须完整包含PDF资料中的所有内容，不能省略任何部分。关键词必须用<b>标签加粗，例如：真空中的<b>光速</b>是宇宙中最快的速度。适合表格的内容用HTML表格。\n\n规则：如果PDF中有与本问题相关的练习题或例题，请将它们放在tips字段中，不要在answer字段中出现练习题。answer字段只包含知识点本身，练习题/例题统一放到tips中。\n\ntips中的练习题格式（重要）：\n练习题：\n1. 题干内容：\nA. 选项A\nB. 选项B\nC. 选项C\nD. 选项D\n答案：<span style=\"color:green\">B</span>\n\n2. 题干内容：\n...\n答案：<span style=\"color:green\">C</span>\n（编号+题干在一行，选项各一行用大写字母，答案用绿色span标注正确选项字母）\n\n返回JSON：{"answer":"答案","tips":"记忆提示"}';
     } else {
       prompt = context
-        ? '你有一份' + sourceName + '资料和PDF教材。请以PDF为基准：如果PDF正确，原封不动输出PDF内容；如果PDF有错误，仅修正错误部分。AI可以补充。\n\n📚资料（来源：' + sourceName + '）：\n' + context + '\n\n📄 PDF\u6559\u6750\uff1a\n' + pdfTextContent + '\n\n\u2753 \u95ee\u9898\uff1a' + question;\n' + context + '\n\n❓ 问题：' + question
+        ? '你有一份' + sourceName + '资料和PDF教材。请以PDF为基准：如果PDF正确，原封不动输出PDF内容；如果PDF有错误，仅修正错误部分。AI可以补充。\n\n📚资料（来源：' + sourceName + '）：\n' + context + '\n\n📄 PDF\u6559\u6750\uff1a\n' + pdfTextContent + '\n\n\u2753 \u95ee\u9898\uff1a' + 
         : '根据你的知识回答问题。返回JSON格式：{"answer":"...","tips":"..."}\n\n问题：' + question;
       systemMsg = '你是考试题库查证助手。关键词必须用<b>标签加粗，例如：真空中的<b>光速</b>是宇宙中最快的速度。适合表格的内容用HTML表格（<table><tr><th>...</th></tr><tr><td>...</td></tr></table>）。答案要包含资料中的所有相关细节，列全举例、代表作等，不要精简概括。返回JSON：{"answer":"答案","tips":"记忆提示"}。如果资料中有与本问题相关的练习题或例题，请放在tips字段中，不要放在answer中。';
     }
