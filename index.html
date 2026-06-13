@@ -702,17 +702,19 @@
   .card { box-shadow: 0 1px 0 rgba(21,20,15,.05); }
   .row { box-shadow: 0 1px 0 rgba(21,20,15,.04); }
 
-  /* 卡片 hover：抬起 + 阴影入深 + 左边出现棕色细条 */
+  /* 科目卡片 hover：抬起 + 投影加深 + 左边棕色条 + 背景微染 */
   .card:hover:not(.dragging) {
-    transform: translateY(-3px);
-    box-shadow: 0 24px 50px -18px rgba(21,20,15,.22), inset 3px 0 0 var(--ink-blue);
-    border-color: rgba(21,20,15,.20) !important;
+    transform: translateY(-4px);
+    box-shadow: 0 28px 56px -20px rgba(21,20,15,.25), inset 4px 0 0 var(--ink-blue);
+    border-color: rgba(21,20,15,.24) !important;
+    background: #fdfaf4;
   }
 
-  /* 章节行 hover：抬起 + 阴影 + 左边细条 */
+  /* 章节行 hover：抬起 + 投影 + 左边条 + 背景微染 */
   .row:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px -16px rgba(21,20,15,.15), inset 3px 0 0 var(--ink-blue);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px -18px rgba(21,20,15,.18), inset 4px 0 0 var(--ink-blue);
+    background: #fdfaf4;
   }
 
   /* 统计卡 hover */
