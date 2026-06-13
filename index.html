@@ -3723,6 +3723,26 @@ function editCustomQuestion(sid, id) {
 
 loadData();
 
+// ── 清除入场动画的 transform 残余，让后续动效生效 ──
+(function cleanReveal() {
+  var els = document.querySelectorAll('[data-reveal]');
+  if (!els.length) { setTimeout(cleanReveal, 500); return; }
+  var maxDelay = 0;
+  els.forEach(function(el) {
+    var delay = parseFloat(getComputedStyle(el).animationDelay) || 0;
+    var dur = parseFloat(getComputedStyle(el).animationDuration) || 0.65;
+    var t = (delay + dur) * 1000 + 100;
+    if (t > maxDelay) maxDelay = t;
+  });
+  setTimeout(function() {
+    els.forEach(function(el) {
+      el.style.animation = 'none';
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+    });
+  }, maxDelay);
+})();
+
 // ── macOS Dock 放大效果 ──
 document.addEventListener('mousemove', function(e) {
   var page = document.querySelector('#page-home.active, #page-sessions.active');
@@ -3752,7 +3772,7 @@ document.addEventListener('mousemove', function(e) {
 document.addEventListener('mouseout', function(e) {
   if (!e.relatedTarget || e.relatedTarget.nodeName === 'HTML') {
     document.querySelectorAll('.card, .row').forEach(function(el) {
-      el.style.transition = 'transform .4s ease-out';
+      el.style.transition = 'transform .35s ease-out';
       el.style.transform = 'scale(1)';
     });
   }
