@@ -3729,43 +3729,19 @@ function editCustomQuestion(sid, id) {
 
 loadData();
 
-// ── hover 放大（事件委托，绕过 CSS 冲突）──
+// ── hover 放大（只设 transform，transition 留在 CSS）──
 (function(){
   var app = document.getElementById('app');
-  if (!app) return;
-
   app.addEventListener('mouseover', function(e) {
     var el = e.target.closest('.card, .row');
-    if (!el) return;
-    if (el.classList.contains('dragging')) return;
-    if (el.classList.contains('drop-before') || el.classList.contains('drop-after')) return;
-    el.style.transition = 'transform .3s cubic-bezier(.25,.8,.25,1)';
+    if (!el || el.classList.contains('dragging')) return;
     el.style.transform = 'scale(1.03)';
   });
-
   app.addEventListener('mouseout', function(e) {
     var el = e.target.closest('.card, .row');
     if (!el) return;
-    // only reset if mouse truly left the card (not just moved to a child)
     var rel = e.relatedTarget;
     if (rel && el.contains(rel)) return;
-    el.style.transition = 'transform .3s cubic-bezier(.25,.8,.25,1)';
-    el.style.transform = '';
-  });
-
-  // tap 缩小反馈
-  app.addEventListener('mousedown', function(e) {
-    var el = e.target.closest('.card, .row');
-    if (!el) return;
-    if (el.classList.contains('dragging')) return;
-    el.style.transition = 'transform .1s ease-out';
-    el.style.transform = 'scale(.97)';
-  });
-
-  app.addEventListener('mouseup', function(e) {
-    var el = e.target.closest('.card, .row');
-    if (!el) return;
-    el.style.transition = 'transform .3s cubic-bezier(.25,.8,.25,1)';
     el.style.transform = '';
   });
 })();
