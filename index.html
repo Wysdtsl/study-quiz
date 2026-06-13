@@ -273,7 +273,7 @@
   .btn-primary { background: var(--ink-blue); color: #fff; }
   .btn-correct { background: var(--green); color: #fff; }
   .btn-wrong { background: var(--red); color: #fff; }
-  .btn-out { background: transparent; border: 1.5px solid var(--border); color: var(--ink); }
+  .btn-out { background: var(--surface2); border: none; color: var(--ink); }
   .btn-amber { background: var(--amber); color: #fff; }
   .nav-btn { flex: 1; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 13px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: border-color .15s; }
   .nav-btn:active { border-color: var(--ink-lighter); }
@@ -738,11 +738,7 @@
     box-shadow: 0 4px 10px -8px var(--ink-blue);
   }
 
-  .btn-out {
-    border: 1.5px solid var(--border, rgba(21,20,15,.16)) !important;
-    background: var(--surface, #f7f1de);
-    font-weight: 500;
-  }
+  .btn-out { font-weight: 500; }
 
   .nav-btn { font-weight: 500; }
 
@@ -784,9 +780,6 @@
 
   /* 幽灵按钮 */
   .btn-out {
-    border: none !important;
-    background: var(--surface2);
-    color: var(--ink-soft);
     transition: transform .25s cubic-bezier(.22,1,.36,1), background .25s;
   }
   .btn-out:hover {
