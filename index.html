@@ -117,6 +117,8 @@
 
   .card-row { display: flex; align-items: center; gap: 14px; }
   .card { background: var(--surface); border-radius: var(--radius); padding: 16px 18px; border: 1px solid var(--border); cursor: grab; user-select: none; -webkit-user-select: none; transition: transform .25s cubic-bezier(.2,0,0,1), box-shadow .25s ease, opacity .2s ease; }
+  .card:hover:not(.dragging) { transform: scale(1.03); }
+  .card:active { transform: scale(.97); }
   .card.dragging { opacity: .7; box-shadow: 0 8px 25px rgba(0,0,0,.12); transform: scale(1.02); z-index: 10; position: relative; }
   .card.drop-before { transform: translateY(8px); }
   .card.drop-after { transform: translateY(-8px); }
@@ -230,6 +232,7 @@
   .stamp-done { background: var(--green-light); color: var(--green); }
 
   .row { background: var(--surface); border-radius: var(--radius); padding: 15px 18px; cursor: pointer; border: 1px solid var(--border); transition: border-color .15s, transform .1s; display: flex; align-items: center; gap: 12px; }
+  .row:hover { transform: scale(1.03); }
   .row:active { transform: scale(.985); }
   .row-body { flex: 1; min-width: 0; }
   .row-date { font-size: 14px; font-weight: 600; }
@@ -690,28 +693,9 @@
   }
   .bar-title { font-weight: 700; letter-spacing: -.01em; }
 
-  /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    卡片 · 骨白底 + 悬浮上浮 + 左边条
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
-  .card, .row, .stat-card {
-    background: var(--surface, #f7f1de);
-    transition: transform .2s ease-out;
-  }
   /* 科目卡片间距 */
   #subject-list .card { margin-bottom: 10px; }
   #session-list .row { margin-bottom: 8px; }
-
-  /* 卡片 hover 放大 */
-  .card:hover:not(.dragging) {
-    transform: scale(1.03);
-  }
-  /* 章节行 hover 放大 */
-  .row:hover {
-    transform: scale(1.03);
-  }
-  /* 手机 tap 缩小反馈 */
-  .card:active:not(.dragging) { transform: scale(.97); }
-  .row:active { transform: scale(.97); }
 
   /* 统计卡 hover */
   .stat-card:hover {
