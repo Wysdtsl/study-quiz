@@ -15,60 +15,45 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232c3e5c'/%3E%3Cpath d='M8 8h12c.55 0 1 .45 1 1v14c0 .55-.45 1-1 1H8c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1z' fill='%23fffcf8' stroke='%23fffcf8' stroke-width='.5'/%3E%3Cpath d='M11 11h6v2h-6zm0 4h6v2h-6zm0 4h4v2h-4z' fill='%232c3e5c'/%3E%3C/svg%3E">
 <style>
   :root {
-    --paper: #efe7d2;
-    --bone: #f7f1de;
-    --bg: var(--paper);
-    --surface: var(--bone);
+    --bg: #efe7d2;
+    --surface: #f7f1de;
     --surface2: #ece4cf;
     --ink: #15140f;
-    --ink-soft: #2a2620;
     --ink-muted: #5a5448;
     --ink-lighter: #8b8676;
     --border: rgba(21,20,15,0.16);
-    --border-soft: rgba(21,20,15,0.08);
-    --coral: #ed6f5c;
-    --coral-hover: #e25e4a;
-    --coral-soft: #f5d6d0;
-    --mustard: #e9b94a;
-    --olive: #6e7448;
+    --ink-blue: #ed6f5c;
+    --ink-blue-light: #f5d6d0;
+    --ink-blue-bright: #ed6f5c;
+    --amber: #e9b94a;
+    --amber-light: #fdf3dc;
     --green: #4a7c62;
     --green-light: #e4efe9;
     --red: #b5514a;
     --red-light: #f2e3e1;
     --radius: 18px;
     --radius-sm: 14px;
-    --radius-pill: 999px;
-    --shadow: 0 30px 60px -30px rgba(21,20,15,.18);
-    --shadow-sm: 0 12px 30px -20px rgba(21,20,15,.15);
-    --font-serif: "Noto Serif SC", "Times New Roman", "STSong", serif;
-    --font-sans: "Noto Sans SC", "PingFang SC", -apple-system, system-ui, sans-serif;
-    --font-body: "Noto Sans SC", "PingFang SC", -apple-system, system-ui, sans-serif;
-    --ink-blue: var(--coral);
-    --ink-blue-light: var(--coral-soft);
-    --ink-blue-bright: var(--coral);
-    --amber: var(--mustard);
-    --amber-light: #f5ecdc;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --paper: #1a1815;
-      --bone: #24221e;
-      --bg: var(--paper);
-      --surface: var(--bone);
+      --bg: #1a1815;
+      --surface: #24221e;
       --surface2: #2f2d28;
       --ink: #e8e2da;
-      --ink-soft: #d0cbc2;
       --ink-muted: #8f8980;
       --ink-lighter: #5f5a52;
       --border: rgba(232,226,218,0.16);
-      --border-soft: rgba(232,226,218,0.08);
-      --coral: #ed6f5c;
-      --coral-hover: #f08e7c;
-      --coral-soft: #3d2825;
+      --ink-blue: #ed6f5c;
+      --ink-blue-light: #3d2825;
+      --ink-blue-bright: #f08e7c;
+      --amber: #e9b94a;
+      --amber-light: #3a3224;
       --green: #6ca883;
       --green-light: #28382e;
       --red: #d06a60;
       --red-light: #3d2825;
+      --radius: 18px;
+      --radius-sm: 14px;
     }
   }
 
@@ -115,13 +100,13 @@
   /* Stats */
   .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .stat-card { background: var(--surface); border-radius: var(--radius); padding: 14px 10px; text-align: center; border: 1px solid var(--border); }
-  .stat-card .v { font-family: "Outfit", sans-serif; font-size: 22px; font-weight: 700; line-height: 1.2; }
+  .stat-card .v { font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif; font-size: 22px; font-weight: 700; line-height: 1.2; }
   .stat-card .l { font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
   .stat-blue .v { color: var(--ink-blue); }
   .stat-amber .v { color: var(--amber); }
   .stat-green .v { color: var(--green); }
 
-  .hello { font-family: "Outfit", sans-serif; font-size: 26px; font-weight: 700; padding: 10px 4px 2px; letter-spacing: -.02em; }
+  .hello { font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif; font-size: 26px; font-weight: 700; padding: 10px 4px 2px; letter-spacing: -.02em; }
   .hello-sub { font-size: 14px; color: var(--ink-muted); padding: 0 4px 16px; }
 
   /* Home actions */
@@ -238,7 +223,7 @@
   .card-meta { font-size: 13px; color: var(--ink-muted); margin-top: 1px; }
 
   .stamp { display: flex; flex-direction: column; align-items: center; padding: 6px 12px; border-radius: var(--radius-sm); flex-shrink: 0; min-width: 52px; }
-  .stamp-num { font-family: "Outfit", sans-serif; font-size: 16px; font-weight: 700; line-height: 1.2; }
+  .stamp-num { font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif; font-size: 16px; font-weight: 700; line-height: 1.2; }
   .stamp-lbl { font-size: 10px; font-weight: 600; opacity: .75; line-height: 1.2; }
   .stamp-new { background: var(--ink-blue-light); color: var(--ink-blue); }
   .stamp-doing { background: var(--amber-light); color: var(--amber); }
@@ -262,9 +247,9 @@
   .row-reset:active { border-color: var(--red); color: var(--red); background: var(--red-light); }
 
   .quiz-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
-  .quiz-head .pos { font-family: "Outfit", sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); }
+  .quiz-head .pos { font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); }
   .quiz-head .tag { font-size: 11px; font-weight: 600; background: var(--ink-blue-light); color: var(--ink-blue); padding: 3px 10px; border-radius: 8px; }
-  .qn { font-size: 13px; color: var(--ink-lighter); margin-bottom: 10px; font-family: "Outfit", sans-serif; }
+  .qn { font-size: 13px; color: var(--ink-lighter); margin-bottom: 10px; font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif; }
   .q { font-size: 18px; font-weight: 600; line-height: 1.7; margin-bottom: 28px; letter-spacing: .01em; }
   .reveal { display: none; }
   .reveal.show { display: block; animation: fadeIn .25s ease-out; }
@@ -296,7 +281,7 @@
   .mt { margin-top: 24px; }
 
   .result { text-align: center; padding: 40px 10px; margin-bottom: 8px; }
-  .result .big { font-family: "Outfit", sans-serif; font-size: 56px; font-weight: 700; color: var(--ink-blue); line-height: 1; }
+  .result .big { font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif; font-size: 56px; font-weight: 700; color: var(--ink-blue); line-height: 1; }
   .result .sub { font-size: 15px; color: var(--ink-muted); margin: 10px 0 28px; }
 
   .err { background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; border: 1px solid var(--border); }
@@ -310,7 +295,7 @@
   .wb-empty .t { font-size: 16px; }
   .wb-group { margin-bottom: 16px; }
   .wb-subject { font-size: 14px; font-weight: 600; padding: 10px 4px 6px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
-  .wb-subject .c { font-family: "Outfit", sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-muted); margin-left: 6px; }
+  .wb-subject .c { font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-muted); margin-left: 6px; }
   .wb-item { background: var(--surface); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 8px; border: 1px solid var(--border); }
   .wb-item .wb-q { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
   .wb-item .wb-a { font-size: 13px; color: var(--ink-muted); }
@@ -339,7 +324,7 @@
   .toc-dot {
     width: 40px; height: 40px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    font-family: "Outfit", sans-serif; font-size: 13px; font-weight: 600;
+    font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif; font-size: 13px; font-weight: 600;
     cursor: pointer; transition: transform .1s;
   }
   .toc-dot:active { transform: scale(.9); }
@@ -500,7 +485,7 @@
   .chat-msg.ai .chat-bbl th { background: var(--ink-blue-light); font-weight: 600; }
   .chat-msg.ai .chat-bbl code {
     background: var(--surface2); padding: 1px 5px; border-radius: 4px;
-    font-size: 13px; font-family: "Outfit", monospace;
+    font-size: 13px; font-family: "SF Mono", "Menlo", monospace;
   }
   .chat-msg.ai .chat-bbl.thinking { color: var(--ink-muted); font-style: italic; }
 
@@ -667,167 +652,19 @@
   .ip-confirm:hover { filter: brightness(.95); }
   .ip-confirm:disabled { opacity: .4; cursor: not-allowed; }
 
-  /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    ✦ Open Design 风格改版
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
-
-  /* 字体更新 */
-  body { font-family: var(--font-body); }
-
-  /* 标题字体 */
-  .hello, .bar-title, .card-name, .row-date,
-  .qn, .wb-subject, .note-detail .head,
-  .chat-head .t, .qm-head h3, .ip-header h3 { font-family: var(--font-sans); }
-
-  /* 衬线标题 — 突出显示 */
-  .hello { font-family: var(--font-serif); font-weight: 700; letter-spacing: -.02em; }
-
-  /*━━━ 滚动入场动画 ━━━*/
-  [data-reveal] {
-    opacity: 0; translate: 0 24px;
-    transition: opacity .7s cubic-bezier(.22,1,.36,1),
-                translate .7s cubic-bezier(.22,1,.36,1);
-  }
-  [data-reveal].revealed { opacity: 1; translate: 0 0; }
-
-  /*━━━ 按钮胶囊化 ━━━*/
-  .btn, .btn-primary, .btn-out, .btn-correct, .btn-wrong, .btn-amber,
-  .bar-btn, .nav-btn, .chat-foot button {
-    border-radius: var(--radius-pill) !important;
-    transition: transform .2s cubic-bezier(.22,1,.36,1),
-                box-shadow .2s ease, background .15s, border-color .15s !important;
-  }
-  .btn:active, .bar-btn:active, .nav-btn:active { transform: scale(.96) !important; }
-
-  .btn-primary, .btn-correct {
-    background: var(--coral) !important;
-    box-shadow: 0 12px 24px -14px var(--coral);
-    color: #fff !important;
-  }
-  .btn-primary:hover, .btn-correct:hover { background: var(--coral-hover) !important; }
-  .btn-primary:active, .btn-correct:active { box-shadow: 0 6px 12px -10px var(--coral); }
-
-  .btn-wrong { background: var(--red) !important; color: #fff !important; }
-
-  .btn-amber {
-    background: transparent !important;
-    border: 1.5px solid var(--border);
-    color: var(--ink) !important;
-  }
-  .btn-out {
-    background: var(--surface);
-    border: 1.5px solid var(--border) !important;
-    color: var(--ink-soft);
-  }
-  .btn-out:hover { border-color: var(--ink-muted) !important; }
-
-  .nav-btn {
-    background: var(--surface);
-    border: 1.5px solid var(--border-soft);
-    color: var(--ink-soft);
-    padding: 14px 20px;
-  }
-  .nav-btn:disabled { opacity: .35; }
-
-  /*━━━ 卡片悬浮动效 ━━━*/
-  .card, .row, .wb-item, .note-entry, .qm-subj {
-    transition: transform .25s cubic-bezier(.22,1,.36,1),
-                box-shadow .25s ease, border-color .2s !important;
-  }
-  .card:hover, .row:hover { border-color: var(--border); box-shadow: var(--shadow-sm); }
-  @media (hover: hover) {
-    .card:hover:not(.dragging) { transform: translateY(-3px); box-shadow: var(--shadow); }
-    .row:hover { transform: translateY(-2px); border-color: var(--coral-soft); }
-  }
-
-  /*━━━ 统计卡片 ━━━*/
-  .stat-card { border-radius: var(--radius); box-shadow: var(--shadow-sm); }
-
-  /*━━━ 顶栏 ━━━*/
-  .bar { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-
-  /*━━━ TOC 面板 ━━━*/
-  .toc-sheet { border-radius: var(--radius) var(--radius) 0 0; }
-
-  /*━━━ 回答区域 ━━━*/
-  .ans { border-radius: var(--radius-sm); border-left: 3px solid var(--green); }
-  .tip { border-radius: var(--radius-sm); border-left: 3px solid var(--mustard); }
-
-  /*━━━ 选择器按钮 ━━━*/
-  .bar-btn { width: 42px; height: 42px; font-size: 18px; }
-  .bar-title { font-family: var(--font-sans); letter-spacing: -.02em; }
-
-  /*━━━ 状态标记样式 ━━━*/
-  .stamp { border-radius: var(--radius-pill); }
-  .stamp-new { background: var(--coral-soft); color: var(--coral); }
-  .stamp-doing { background: #f5ecdc; color: var(--mustard); }
-  .stamp-done { background: var(--green-light); color: var(--green); }
-
-  /*━━━ 内容区标签 ━━━*/
-  .tag, .quiz-head .tag { border-radius: var(--radius-pill); }
-
-  /*━━━ 呼吸脉冲 ━━━*/
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
-
-  /*━━━ 加载引用线 ━━━*/
-  .rl .rl-badge { border-radius: var(--radius-pill); }
-
-  /*━━━ 选择框 ━━━*/
-  .note-form input, .note-form textarea,
-  .chat-foot input, .chat-lock input,
-  .map-topbar input { border-radius: var(--radius-pill); }
-
-  /*━━━ icon 区域圆角统一 ━━━*/
-  .card-icon { border-radius: var(--radius-sm); }
-  .stamp { border-radius: var(--radius-pill); }
-
-  /*━━━ 链接相关 ━━━*/
-  .sess-select-all:hover { color: var(--coral); }
-  .qm-q-cb input { accent-color: var(--coral); }
-
-  /*━━━ 地图标注 ━━━*/
-  .map-topbar button { background: var(--coral); border-radius: var(--radius-pill); }
-
-  /*━━━ 结果数字 ━━━*/
-  .result .big { color: var(--coral); font-family: var(--font-sans); }
-
-  /*━━━ 手风琴箭头 ━━━*/
-  .qm-subj-arrow { transition: transform .3s cubic-bezier(.4,0,.2,1); }
-
-  /*━━━ 粉色 FAB ━━━*/
-  .chat-bubble { background: var(--coral); box-shadow: 0 6px 20px rgba(237,111,92,.35); }
-
-  /*━━━ 批量删除 ━━━*/
-  .qm-batch-del { border-radius: var(--radius-pill); }
-
-  /*━━━ 编辑器按钮 ━━━*/
-  .qe-btn-save { background: var(--coral) !important; border-radius: var(--radius-pill) !important; }
-  .qe-btn-cancel { border-radius: var(--radius-pill) !important; }
-  .qe-btn-ai { border-radius: var(--radius-pill) !important; }
-
-  /*━━━ 进度条 ━━━*/
-  .track-fill { background: var(--coral); }
-
-  /*━━━ 减少动效 ━━━*/
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
-    [data-reveal] { opacity: 1; translate: 0; }
-  }
+  </style>
 </head>
 <body><div id="js-status" style="background:#f0ad4e;color:#000;padding:8px;font-size:14px;text-align:center;">JS not started yet...</div>
 
 <div id="app">
   <!-- Home -->
   <div id="page-home" class="page padded">
-    <div class="hello" data-reveal>学习伙伴</div>
-    <div class="hello-sub" data-reveal>选择一个科目开始答题</div>
+    <div class="hello">学习伙伴</div>
+    <div class="hello-sub">选择一个科目开始答题</div>
 
-    <div class="stats" id="stats-bar" data-reveal></div>
+    <div class="stats" id="stats-bar"></div>
 
-    <div class="home-actions" data-reveal>
+    <div class="home-actions">
       <div class="home-actions-row">
         <button class="btn btn-out" onclick="showWrongBank()">复习全部错题</button>
         <button class="btn btn-out" onclick="showNotes()">📝 笔记</button>
@@ -847,7 +684,7 @@
       <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)">
     </div>
 
-    <div id="subject-list" data-reveal></div>
+    <div id="subject-list"></div>
   </div>
 
   <!-- Sessions -->
@@ -3653,31 +3490,6 @@ function editCustomQuestion(sid, id) {
 }
 
 loadData();
-
-// ── Scroll reveal ──
-(function(){
-  function observeReveal() {
-    var els = document.querySelectorAll('[data-reveal]:not(.revealed), .card:not([data-reveal]):not(.revealed), .stat-card:not([data-reveal]):not(.revealed), .row:not([data-reveal]):not(.revealed)');
-    if (!els.length) return;
-    if ('IntersectionObserver' in window) {
-      var obs = new IntersectionObserver(function(entries) {
-        entries.forEach(function(e) {
-          if (e.isIntersecting) {
-            e.target.classList.add('revealed');
-            obs.unobserve(e.target);
-          }
-        });
-      }, { rootMargin: '0px 0px -60px 0px', threshold: 0 });
-      els.forEach(function(el) { obs.observe(el); });
-    } else {
-      els.forEach(function(el) { el.classList.add('revealed'); });
-    }
-  }
-  observeReveal();
-  // re-run for dynamically added elements
-  setTimeout(observeReveal, 500);
-  setTimeout(observeReveal, 1500);
-})();
 </script>
 <script src="/study-quiz/lib/leaflet.min.js" defer></script>
 
