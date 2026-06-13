@@ -117,7 +117,7 @@
 
   .card-row { display: flex; align-items: center; gap: 14px; }
   .card { background: var(--surface); border-radius: var(--radius); padding: 16px 18px; border: 1px solid var(--border); cursor: grab; user-select: none; -webkit-user-select: none; transition: transform .25s ease-out; }
-  .card:hover:not(.dragging) { transform: scale(1.03); }
+  .dock-hover:not(.dragging) { transform: scale(1.03); }
   .card.dragging { opacity: .7; box-shadow: 0 8px 25px rgba(0,0,0,.12); transform: scale(1.02); z-index: 10; position: relative; }
   .card.drop-before { transform: translateY(8px); }
   .card.drop-after { transform: translateY(-8px); }
@@ -231,7 +231,7 @@
   .stamp-done { background: var(--green-light); color: var(--green); }
 
   .row { background: var(--surface); border-radius: var(--radius); padding: 15px 18px; cursor: pointer; border: 1px solid var(--border); transition: transform .25s ease-out; display: flex; align-items: center; gap: 12px; }
-  .row:hover { transform: scale(1.03); }
+  .dock-hover { transform: scale(1.03); }
   .row:active { transform: scale(.985); }
   .row-body { flex: 1; min-width: 0; }
   .row-date { font-size: 14px; font-weight: 600; }
@@ -3719,6 +3719,23 @@ function editCustomQuestion(sid, id) {
 
 loadData();
 
+// ── hover 放大（class 驱动，不依赖 CSS :hover）──
+(function() {
+  var app = document.getElementById('app');
+  if (!app) return;
+
+  app.addEventListener('mouseenter', function(e) {
+    var card = e.target.closest('.card, .row');
+    if (!card || card.classList.contains('dragging') || card.classList.contains('drop-before') || card.classList.contains('drop-after')) return;
+    card.classList.add('dock-hover');
+  }, true); // capturing phase
+
+  app.addEventListener('mouseleave', function(e) {
+    var card = e.target.closest('.card, .row');
+    if (!card) return;
+    card.classList.remove('dock-hover');
+  }, true);
+})();
 </script>
 <script src="/study-quiz/lib/leaflet.min.js" defer></script>
 
