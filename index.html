@@ -749,8 +749,24 @@
   /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     鼠标悬停 · 按钮抬升
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
+  /* 去掉所有按钮的选中框 */
+  .btn, .btn-primary, .btn-out, .btn-correct, .btn-wrong, .btn-amber,
+  .nav-btn, .bar-btn, .chat-bubble {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:focus, .btn:focus-visible,
+  .btn-primary:focus, .btn-primary:focus-visible,
+  .nav-btn:focus, .nav-btn:focus-visible,
+  .bar-btn:focus, .bar-btn:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
   /* 主/正确按钮 */
   .btn-primary, .btn-correct {
+    background: var(--ink-blue-light);
+    color: var(--ink);
     transition: transform .25s cubic-bezier(.22,1,.36,1),
                 box-shadow .25s ease, background .2s;
   }
