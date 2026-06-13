@@ -695,21 +695,11 @@
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
   .card, .row, .stat-card, .wb-item, .note-entry {
     background: var(--surface, #f7f1de);
-    transition: transform .5s cubic-bezier(.34,1.56,.64,1) !important;
+    will-change: transform;
   }
   /* 科目卡片间距 */
   #subject-list .card { margin-bottom: 10px; }
   #session-list .row { margin-bottom: 8px; }
-
-  /* 科目卡片 hover：大幅丝滑上移 */
-  .card:hover:not(.dragging) {
-    transform: translateY(-8px) !important;
-  }
-
-  /* 章节行 hover：大幅丝滑上移 */
-  .row:hover {
-    transform: translateY(-6px) !important;
-  }
 
   /* 统计卡 hover */
   .stat-card:hover {
@@ -3732,6 +3722,49 @@ function editCustomQuestion(sid, id) {
 }
 
 loadData();
+
+// ── macOS Dock 放大效果 ──
+(function(){
+  function dockMagnify(containerSelector, itemSelector) {
+    var container = document.querySelector(containerSelector);
+    if (!container) return;
+    var items = function(){ return container.querySelectorAll(itemSelector); };
+
+    container.addEventListener('mousemove', function(e) {
+      var mouseY = e.clientY;
+      var cards = items();
+      cards.forEach(function(card) {
+        var rect = card.getBoundingClientRect();
+        var cardCenter = rect.top + rect.height / 2;
+        var dist = Math.abs(mouseY - cardCenter);
+        var maxDist = 160; // 影响范围
+        if (dist < maxDist) {
+          var t = 1 - dist / maxDist; // 0~1
+          var scale = 1 + t * t * 0.08; // 最大放大 8%
+          card.style.transition = 'transform .15s ease-out';
+          card.style.transform = 'scale(' + scale.toFixed(3) + ')';
+        } else {
+          card.style.transition = 'transform .3s ease-out';
+          card.style.transform = 'scale(1)';
+        }
+      });
+    });
+
+    container.addEventListener('mouseleave', function() {
+      var cards = items();
+      cards.forEach(function(card) {
+        card.style.transition = 'transform .4s ease-out';
+        card.style.transform = 'scale(1)';
+      });
+    });
+  }
+
+  // 等数据渲染后再绑定
+  setTimeout(function() {
+    dockMagnify('#subject-list', '.card');
+    dockMagnify('#session-list', '.row');
+  }, 800);
+})();
 </script>
 <script src="/study-quiz/lib/leaflet.min.js" defer></script>
 
