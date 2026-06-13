@@ -747,81 +747,77 @@
   .nav-btn { font-weight: 500; }
 
   /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    鼠标悬停 · 按钮抬起 + 阴影入深
+    鼠标悬停 · 按钮抬升
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
-  @media (hover: hover) {
-    /* 主按钮：悬停抬起2px + 阴影变深 + 背景微暗 */
-    .btn-primary, .btn-correct {
-      transition: transform .25s cubic-bezier(.22,1,.36,1),
-                  box-shadow .25s ease,
-                  background .2s;
-    }
-    .btn-primary:hover, .btn-correct:hover {
-      transform: translateY(-2px);
-    }
-    .btn-primary:active, .btn-correct:active {
-      transform: translateY(1px) scale(.97);
-      box-shadow: 0 4px 8px -4px rgba(107,76,59,.2);
-    }
-
-    /* 幽灵按钮：抬起 + 边框变深 + 背景微染 */
-    .btn-out {
-      transition: transform .25s cubic-bezier(.22,1,.36,1),
-                  border-color .25s, background .25s;
-    }
-    .btn-out:hover {
-      transform: translateY(-2px);
-      border-color: var(--ink-blue) !important;
-      background: var(--ink-blue-light);
-    }
-    .btn-out:active { transform: translateY(1px) scale(.97); }
-
-    /* 琥珀按钮 */
-    .btn-amber { transition: transform .25s cubic-bezier(.22,1,.36,1); }
-    .btn-amber:hover { transform: translateY(-2px); border-color: var(--amber); }
-    .btn-amber:active { transform: translateY(1px) scale(.97); }
-
-    /* 错误按钮 */
-    .btn-wrong { transition: transform .25s cubic-bezier(.22,1,.36,1); }
-    .btn-wrong:hover { transform: translateY(-2px); }
-    .btn-wrong:active { transform: translateY(1px) scale(.97); }
-
-    /* 导航按钮 */
-    .nav-btn { transition: transform .25s cubic-bezier(.22,1,.36,1), border-color .2s, color .2s; }
-    .nav-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      border-color: var(--ink-blue);
-      color: var(--ink-blue);
-    }
-    .nav-btn:active:not(:disabled) { transform: translateY(1px) scale(.97); }
-
-    /* 顶栏按钮微放大 */
-    .bar-btn { transition: transform .2s cubic-bezier(.22,1,.36,1), background .2s; }
-    .bar-btn:hover { transform: scale(1.1); background: var(--ink-blue-light); }
-    .bar-btn:active { transform: scale(.92); }
-
-    /* 卡片图标 */
-    .card-icon { transition: transform .25s cubic-bezier(.22,1,.36,1); }
-    .card-icon:hover { transform: scale(1.12); }
-
-    /* 相关题目/笔记/错题条目 */
-    #related-area .rq:hover { background: var(--ink-blue-light); border-color: var(--ink-blue); }
-    .note-entry:hover { background: var(--ink-blue-light); border-color: var(--ink-blue); }
-    .wb-item:hover { border-color: var(--ink-blue); }
-    .qm-subj-header:hover { background: var(--ink-blue-light); }
-
-    /* 聊天按钮 */
-    .chat-bubble {
-      transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
-    }
-    .chat-bubble:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(107,76,59,.35); }
-    .chat-bubble:active { transform: translateY(1px) scale(.95); }
-
-    /* TOC 圆点 */
-    .toc-dot { transition: transform .2s cubic-bezier(.22,1,.36,1); }
-    .toc-dot:hover { transform: scale(1.15); }
-    .toc-dot:active { transform: scale(.85); }
+  /* 主/正确按钮 */
+  .btn-primary, .btn-correct {
+    transition: transform .25s cubic-bezier(.22,1,.36,1),
+                box-shadow .25s ease, background .2s;
   }
+  .btn-primary:hover, .btn-correct:hover { transform: translateY(-2px); }
+  .btn-primary:active, .btn-correct:active {
+    transform: translateY(1px) scale(.97);
+    box-shadow: 0 4px 8px -4px rgba(107,76,59,.2);
+  }
+
+  /* 幽灵按钮 */
+  .btn-out {
+    transition: transform .25s cubic-bezier(.22,1,.36,1),
+                border-color .25s, background .25s;
+  }
+  .btn-out:hover {
+    transform: translateY(-2px);
+    border-color: var(--ink-blue) !important;
+    background: var(--ink-blue-light);
+  }
+  .btn-out:active { transform: translateY(1px) scale(.97); }
+
+  /* 琥珀按钮 */
+  .btn-amber { transition: transform .25s cubic-bezier(.22,1,.36,1); }
+  .btn-amber:hover { transform: translateY(-2px); border-color: var(--amber); }
+  .btn-amber:active { transform: translateY(1px) scale(.97); }
+
+  /* 错误按钮 */
+  .btn-wrong { transition: transform .25s cubic-bezier(.22,1,.36,1); }
+  .btn-wrong:hover { transform: translateY(-2px); }
+  .btn-wrong:active { transform: translateY(1px) scale(.97); }
+
+  /* 导航按钮 */
+  .nav-btn {
+    transition: transform .25s cubic-bezier(.22,1,.36,1),
+                border-color .2s, color .2s;
+  }
+  .nav-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: var(--ink-blue);
+    color: var(--ink-blue);
+  }
+  .nav-btn:active:not(:disabled) { transform: translateY(1px) scale(.97); }
+
+  /* 顶栏按钮 */
+  .bar-btn { transition: transform .2s cubic-bezier(.22,1,.36,1), background .2s; }
+  .bar-btn:hover { transform: scale(1.1); background: var(--ink-blue-light); }
+  .bar-btn:active { transform: scale(.92); }
+
+  /* 卡片图标 */
+  .card-icon { transition: transform .25s cubic-bezier(.22,1,.36,1); }
+  .card-icon:hover { transform: scale(1.12); }
+
+  /* 列表条目 */
+  #related-area .rq:hover { background: var(--ink-blue-light); border-color: var(--ink-blue); }
+  .note-entry:hover { background: var(--ink-blue-light); border-color: var(--ink-blue); }
+  .wb-item:hover { border-color: var(--ink-blue); }
+  .qm-subj-header:hover { background: var(--ink-blue-light); }
+
+  /* 聊天 */
+  .chat-bubble { transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s; }
+  .chat-bubble:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(107,76,59,.35); }
+  .chat-bubble:active { transform: translateY(1px) scale(.95); }
+
+  /* TOC 圆点 */
+  .toc-dot { transition: transform .2s cubic-bezier(.22,1,.36,1); }
+  .toc-dot:hover { transform: scale(1.15); }
+  .toc-dot:active { transform: scale(.85); }
 
   /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     UI 细节 · 标签、进度条、图标
