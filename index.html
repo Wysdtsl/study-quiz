@@ -652,25 +652,49 @@
   .ip-confirm:hover { filter: brightness(.95); }
   .ip-confirm:disabled { opacity: .4; cursor: not-allowed; }
 
-  /*━━━ Open Design 风格增强 ━━━*/
+  /*━━━ 羊皮纸质感 ━━━*/
+  /* 噪点纹理直接放在 body 背景上，不用伪元素，不遮挡内容 */
+  body {
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(220, 210, 180, .55) 0, transparent 35%),
+      radial-gradient(circle at 90% 75%, rgba(230, 220, 190, .65) 0, transparent 40%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.12 0 0 0 0 0.12 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: auto, auto, 200px 200px;
+    background-color: var(--bg);
+  }
 
-  /* 顶栏毛玻璃 */
-  .bar { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  /*━━━ 衬线标题 ━━━*/
+  .hello {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+    font-weight: 700; font-style: italic;
+    letter-spacing: -.02em;
+  }
 
-  /* 卡片悬浮上浮 */
+  /*━━━ 顶栏毛玻璃 ━━━*/
+  .bar { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+
+  /*━━━ 卡片悬浮上浮 ━━━*/
+  .card, .row, .stat-card, .wb-item, .note-entry {
+    transition: transform .3s cubic-bezier(.22,1,.36,1),
+                box-shadow .3s ease, border-color .25s;
+  }
   @media (hover: hover) {
-    .card:hover:not(.dragging) { transform: translateY(-3px); box-shadow: 0 20px 50px -24px rgba(21,20,15,.25); border-color: rgba(21,20,15,.28); }
+    .card:hover:not(.dragging) { transform: translateY(-3px); box-shadow: 0 24px 50px -20px rgba(21,20,15,.22); border-color: rgba(21,20,15,.25) !important; }
     .row:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -14px rgba(21,20,15,.15); }
     .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -14px rgba(21,20,15,.15); }
   }
 
-  /* 主按钮珊瑚红投影 */
+  /*━━━ 按钮投影 ━━━*/
   .btn-primary { box-shadow: 0 12px 26px -16px var(--ink-blue); }
-  .btn-primary:active { box-shadow: 0 4px 12px -8px var(--ink-blue); }
+  .btn-primary:active { box-shadow: 0 4px 12px -8px var(--ink-blue); transform: scale(.97); }
 
-  /* 滚动入场动画 */
+  /*━━━ 滚动入场动画 ━━━*/
   [data-reveal] {
-    animation: revealIn .6s cubic-bezier(.22,1,.36,1) both;
+    animation: revealIn .65s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes revealIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
   [data-reveal]:nth-child(1) { animation-delay: .05s; }
   [data-reveal]:nth-child(2) { animation-delay: .12s; }
@@ -678,20 +702,16 @@
   [data-reveal]:nth-child(4) { animation-delay: .26s; }
   [data-reveal]:nth-child(5) { animation-delay: .33s; }
 
-  @keyframes revealIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* 呼吸脉冲 — 用于在线状态 */
+  /*━━━ 呼吸脉冲 ━━━*/
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
 
-  /* 减少动效 */
+  /*━━━ 减少动效 ━━━*/
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }
+    [data-reveal] { animation: none; opacity: 1; }
   }
 
   </style>
