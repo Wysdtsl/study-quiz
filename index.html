@@ -22,11 +22,11 @@
     --ink-muted: #5a5448;
     --ink-lighter: #8b8676;
     --border: rgba(21,20,15,0.16);
-    --ink-blue: #ed6f5c;
-    --ink-blue-light: #f5d6d0;
-    --ink-blue-bright: #ed6f5c;
-    --amber: #e9b94a;
-    --amber-light: #fdf3dc;
+    --ink-blue: #6b4c3b;
+    --ink-blue-light: #e5dbcc;
+    --ink-blue-bright: #7a5c4a;
+    --amber: #b3924a;
+    --amber-light: #f5ecd6;
     --green: #4a7c62;
     --green-light: #e4efe9;
     --red: #b5514a;
@@ -43,10 +43,10 @@
       --ink-muted: #8f8980;
       --ink-lighter: #5f5a52;
       --border: rgba(232,226,218,0.16);
-      --ink-blue: #ed6f5c;
-      --ink-blue-light: #3d2825;
-      --ink-blue-bright: #f08e7c;
-      --amber: #e9b94a;
+      --ink-blue: #a08870;
+      --ink-blue-light: #3a3028;
+      --ink-blue-bright: #b89778;
+      --amber: #b3924a;
       --amber-light: #3a3224;
       --green: #6ca883;
       --green-light: #28382e;
@@ -719,7 +719,7 @@
   }
 
   /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    按钮 · 胶囊形 + 珊瑚红主按钮
+    按钮 · 胶囊形 + 大地棕主按钮
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
   .btn, .btn-primary, .btn-out, .btn-correct, .btn-wrong, .btn-amber,
   .nav-btn, .bar-btn {
@@ -728,14 +728,14 @@
   }
 
   .btn-primary, .btn-correct {
-    box-shadow: 0 14px 28px -16px var(--ink-blue, #ed6f5c);
+    box-shadow: 0 14px 28px -16px var(--ink-blue);
     transition: transform .18s cubic-bezier(.22,1,.36,1),
                 box-shadow .25s ease,
                 background .18s;
   }
   .btn-primary:active, .btn-correct:active {
     transform: scale(.96);
-    box-shadow: 0 4px 10px -8px var(--ink-blue, #ed6f5c);
+    box-shadow: 0 4px 10px -8px var(--ink-blue);
   }
 
   .btn-out {
@@ -747,104 +747,16 @@
   .nav-btn { font-weight: 500; }
 
   /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    动态效果 · 按钮流光 + 卡片光晕呼吸 + 数字跳动
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
-  /* 主按钮流光扫过 */
-  .btn-primary, .btn-correct {
-    position: relative; overflow: hidden;
-  }
-  .btn-primary::after, .btn-correct::after {
-    content: '';
-    position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
-    transform: skewX(-20deg);
-    animation: btnShimmer 2.8s ease-in-out infinite;
-  }
-  @keyframes btnShimmer {
-    0% { left: -100%; }
-    40%, 100% { left: 200%; }
-  }
-
-  /* 卡片边框光晕呼吸 */
-  .card {
-    animation: cardGlow 4s ease-in-out infinite;
-  }
-  @keyframes cardGlow {
-    0%, 100% { box-shadow: 0 1px 0 rgba(21,20,15,.05), 0 0 0 0 rgba(237,111,92,0); }
-    50% { box-shadow: 0 1px 0 rgba(21,20,15,.05), 0 0 0 1px rgba(237,111,92,.12); }
-  }
-  .card:hover { animation: none; }
-
-  /* 统计数字漂浮 */
-  .stat-card .v {
-    animation: statFloat 3s ease-in-out infinite;
-  }
-  @keyframes statFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-  }
-
-  /* 进度条流动光 */
-  .track-fill {
-    background: linear-gradient(90deg, var(--ink-blue, #ed6f5c), #f08e7c, var(--ink-blue, #ed6f5c)) !important;
-    background-size: 200% 100% !important;
-    animation: trackFlow 2s linear infinite;
-  }
-  @keyframes trackFlow {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  /* 首页标题打字机下划线 */
-  .hello {
-    display: inline-block;
-    position: relative;
-  }
-  .hello::after {
-    content: '';
-    position: absolute; left: 0; bottom: -4px; width: 0; height: 2px;
-    background: var(--ink-blue, #ed6f5c);
-    animation: underlineDraw 1.2s .6s cubic-bezier(.22,1,.36,1) forwards;
-  }
-  @keyframes underlineDraw {
-    to { width: 100%; }
-  }
-
-  /* 浮动装饰粒子 (仅桌面端) */
-  @media (min-width: 640px) {
-    .padded::before,
-    .padded::after {
-      content: '';
-      position: fixed;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--ink-blue, #ed6f5c);
-      opacity: .25;
-      pointer-events: none;
-      z-index: 0;
-      animation: particleDrift 8s ease-in-out infinite;
-    }
-    .padded::before { top: 20%; left: 8%; animation-delay: 0s; }
-    .padded::after  { top: 60%; right: 6%; animation-delay: -4s; width: 4px; height: 4px; }
-    @keyframes particleDrift {
-      0%, 100% { transform: translate(0, 0) scale(1); opacity: .25; }
-      25% { transform: translate(30px, -40px) scale(1.8); opacity: .5; }
-      50% { transform: translate(-20px, -80px) scale(.8); opacity: .15; }
-      75% { transform: translate(-40px, -20px) scale(1.5); opacity: .4; }
-    }
-  }
-
-  /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     交互反馈 · 桌面 hover + 手机 tap
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
   /* 按钮 hover 微亮 + 阴影增强 */
   @media (hover: hover) {
     .btn-primary:hover, .btn-correct:hover {
       filter: brightness(1.08);
-      box-shadow: 0 18px 36px -18px var(--ink-blue, #ed6f5c);
+      box-shadow: 0 18px 36px -18px var(--ink-blue);
     }
     .btn-out:hover {
-      border-color: var(--ink-blue, #ed6f5c) !important;
+      border-color: var(--ink-blue) !important;
       background: var(--ink-blue-light, #f5d6d0);
     }
     .btn-amber:hover { border-color: var(--amber, #e9b94a); }
@@ -852,8 +764,8 @@
 
     /* 导航按钮 hover */
     .nav-btn:hover:not(:disabled) {
-      border-color: var(--ink-blue, #ed6f5c);
-      color: var(--ink-blue, #ed6f5c);
+      border-color: var(--ink-blue);
+      color: var(--ink-blue);
     }
 
     /* 卡片图标 hover 微放大 */
@@ -862,22 +774,22 @@
     /* 相关题目 hover */
     #related-area .rq:hover {
       background: var(--ink-blue-light, #f5d6d0);
-      border-color: var(--ink-blue, #ed6f5c);
+      border-color: var(--ink-blue);
     }
 
     /* 笔记条目 hover */
     .note-entry:hover {
       background: var(--ink-blue-light, #f5d6d0);
-      border-color: var(--ink-blue, #ed6f5c);
+      border-color: var(--ink-blue);
     }
 
     /* 错题条目 hover */
-    .wb-item:hover { border-color: var(--ink-blue, #ed6f5c); }
+    .wb-item:hover { border-color: var(--ink-blue); }
 
     /* 聊天浮动按钮 hover */
     .chat-bubble:hover {
       transform: scale(1.08);
-      box-shadow: 0 8px 28px rgba(237,111,92,.45);
+      box-shadow: 0 8px 28px rgba(107,76,59,.35);
     }
   }
 
@@ -902,23 +814,23 @@
   .tag, .quiz-head .tag {
     border-radius: 999px;
     background: var(--ink-blue-light, #f5d6d0);
-    color: var(--ink-blue, #ed6f5c);
+    color: var(--ink-blue);
     padding: 4px 14px;
     font-weight: 600;
   }
 
   /* 进度条 */
-  .track-fill { background: var(--ink-blue, #ed6f5c); }
+  .track-fill { background: var(--ink-blue); }
   .track { border-radius: 999px; }
   .track-fill { border-radius: 999px; }
 
-  /* 图标的珊瑚色 */
+  /* 图标 · 大地棕 */
   .card-icon.blue { background: var(--ink-blue-light, #f5d6d0); }
-  .stat-blue .v { color: var(--ink-blue, #ed6f5c); }
+  .stat-blue .v { color: var(--ink-blue); }
   .stat-amber .v { color: var(--amber, #e9b94a); }
 
   /* 结果数字 */
-  .result .big { color: var(--ink-blue, #ed6f5c); }
+  .result .big { color: var(--ink-blue); }
 
   /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     滚动入场动画
