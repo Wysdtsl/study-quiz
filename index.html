@@ -695,26 +695,17 @@
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
   .card, .row, .stat-card, .wb-item, .note-entry {
     background: var(--surface, #f7f1de);
-    transition: transform .32s cubic-bezier(.22,1,.36,1),
-                box-shadow .32s ease,
-                border-color .25s;
+    transition: transform .35s cubic-bezier(.25,1,.5,1);
   }
-  .card { box-shadow: 0 1px 0 rgba(21,20,15,.05); }
-  .row { box-shadow: 0 1px 0 rgba(21,20,15,.04); }
 
-  /* 科目卡片 hover：抬起 + 投影加深 + 左边棕色条 + 背景微染 */
+  /* 科目卡片 hover：仅位置丝滑上移 */
   .card:hover:not(.dragging) {
     transform: translateY(-4px);
-    box-shadow: 0 28px 56px -20px rgba(21,20,15,.25), inset 4px 0 0 var(--ink-blue);
-    border-color: rgba(21,20,15,.24) !important;
-    background: #fdfaf4;
   }
 
-  /* 章节行 hover：抬起 + 投影 + 左边条 + 背景微染 */
+  /* 章节行 hover：仅位置丝滑上移 */
   .row:hover {
     transform: translateY(-3px);
-    box-shadow: 0 16px 32px -18px rgba(21,20,15,.18), inset 4px 0 0 var(--ink-blue);
-    background: #fdfaf4;
   }
 
   /* 统计卡 hover */
