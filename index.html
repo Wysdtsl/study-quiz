@@ -652,6 +652,48 @@
   .ip-confirm:hover { filter: brightness(.95); }
   .ip-confirm:disabled { opacity: .4; cursor: not-allowed; }
 
+  /*━━━ Open Design 风格增强 ━━━*/
+
+  /* 顶栏毛玻璃 */
+  .bar { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+  /* 卡片悬浮上浮 */
+  @media (hover: hover) {
+    .card:hover:not(.dragging) { transform: translateY(-3px); box-shadow: 0 20px 50px -24px rgba(21,20,15,.25); border-color: rgba(21,20,15,.28); }
+    .row:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -14px rgba(21,20,15,.15); }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -14px rgba(21,20,15,.15); }
+  }
+
+  /* 主按钮珊瑚红投影 */
+  .btn-primary { box-shadow: 0 12px 26px -16px var(--ink-blue); }
+  .btn-primary:active { box-shadow: 0 4px 12px -8px var(--ink-blue); }
+
+  /* 滚动入场动画 */
+  [data-reveal] {
+    animation: revealIn .6s cubic-bezier(.22,1,.36,1) both;
+  }
+  [data-reveal]:nth-child(1) { animation-delay: .05s; }
+  [data-reveal]:nth-child(2) { animation-delay: .12s; }
+  [data-reveal]:nth-child(3) { animation-delay: .19s; }
+  [data-reveal]:nth-child(4) { animation-delay: .26s; }
+  [data-reveal]:nth-child(5) { animation-delay: .33s; }
+
+  @keyframes revealIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 呼吸脉冲 — 用于在线状态 */
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+  /* 减少动效 */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   </style>
 </head>
 <body><div id="js-status" style="background:#f0ad4e;color:#000;padding:8px;font-size:14px;text-align:center;">JS not started yet...</div>
@@ -659,12 +701,12 @@
 <div id="app">
   <!-- Home -->
   <div id="page-home" class="page padded">
-    <div class="hello">学习伙伴</div>
-    <div class="hello-sub">选择一个科目开始答题</div>
+    <div class="hello" data-reveal>学习伙伴</div>
+    <div class="hello-sub" data-reveal>选择一个科目开始答题</div>
 
-    <div class="stats" id="stats-bar"></div>
+    <div class="stats" id="stats-bar" data-reveal></div>
 
-    <div class="home-actions">
+    <div class="home-actions" data-reveal>
       <div class="home-actions-row">
         <button class="btn btn-out" onclick="showWrongBank()">复习全部错题</button>
         <button class="btn btn-out" onclick="showNotes()">📝 笔记</button>
