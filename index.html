@@ -691,7 +691,7 @@
   .bar-title { font-weight: 700; letter-spacing: -.01em; }
 
   /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    卡片 · 骨白底 + 悬浮上浮
+    卡片 · 骨白底 + 悬浮上浮 + 左边条
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
   .card, .row, .stat-card, .wb-item, .note-entry {
     background: var(--surface, #f7f1de);
@@ -702,20 +702,23 @@
   .card { box-shadow: 0 1px 0 rgba(21,20,15,.05); }
   .row { box-shadow: 0 1px 0 rgba(21,20,15,.04); }
 
-  @media (hover: hover) {
-    .card:hover:not(.dragging) {
-      transform: translateY(-3px);
-      box-shadow: 0 24px 50px -18px rgba(21,20,15,.22);
-      border-color: rgba(21,20,15,.28) !important;
-    }
-    .row:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px -16px rgba(21,20,15,.15);
-    }
-    .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px -16px rgba(21,20,15,.15);
-    }
+  /* 卡片 hover：抬起 + 阴影入深 + 左边出现棕色细条 */
+  .card:hover:not(.dragging) {
+    transform: translateY(-3px);
+    box-shadow: 0 24px 50px -18px rgba(21,20,15,.22), inset 3px 0 0 var(--ink-blue);
+    border-color: rgba(21,20,15,.20) !important;
+  }
+
+  /* 章节行 hover：抬起 + 阴影 + 左边细条 */
+  .row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -16px rgba(21,20,15,.15), inset 3px 0 0 var(--ink-blue);
+  }
+
+  /* 统计卡 hover */
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -16px rgba(21,20,15,.15);
   }
 
   /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
