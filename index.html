@@ -755,17 +755,23 @@
     outline: none !important;
     -webkit-tap-highlight-color: transparent;
   }
-  .btn:focus, .btn:focus-visible,
+  .btn:focus, .btn:focus-visible, .btn:focus-within,
   .btn-primary:focus, .btn-primary:focus-visible,
+  .btn-out:focus, .btn-out:focus-visible,
+  .btn-correct:focus, .btn-correct:focus-visible,
+  .btn-wrong:focus, .btn-wrong:focus-visible,
+  .btn-amber:focus, .btn-amber:focus-visible,
   .nav-btn:focus, .nav-btn:focus-visible,
-  .bar-btn:focus, .bar-btn:focus-visible {
+  .bar-btn:focus, .bar-btn:focus-visible,
+  .chat-bubble:focus, .chat-bubble:focus-visible {
     outline: none !important;
     box-shadow: none !important;
+    -webkit-appearance: none;
   }
 
   /* 主/正确按钮 */
   .btn-primary, .btn-correct {
-    background: var(--ink-blue-light);
+    background: #c4b198;
     color: var(--ink);
     transition: transform .25s cubic-bezier(.22,1,.36,1),
                 box-shadow .25s ease, background .2s;
