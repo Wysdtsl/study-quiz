@@ -695,17 +695,20 @@
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
   .card, .row, .stat-card, .wb-item, .note-entry {
     background: var(--surface, #f7f1de);
-    transition: transform .35s cubic-bezier(.25,1,.5,1) !important;
+    transition: transform .5s cubic-bezier(.34,1.56,.64,1) !important;
   }
+  /* 科目卡片间距 */
+  #subject-list .card { margin-bottom: 10px; }
+  #session-list .row { margin-bottom: 8px; }
 
-  /* 科目卡片 hover：仅位置丝滑上移 */
+  /* 科目卡片 hover：大幅丝滑上移 */
   .card:hover:not(.dragging) {
-    transform: translateY(-4px) !important;
+    transform: translateY(-8px) !important;
   }
 
-  /* 章节行 hover：仅位置丝滑上移 */
+  /* 章节行 hover：大幅丝滑上移 */
   .row:hover {
-    transform: translateY(-3px) !important;
+    transform: translateY(-6px) !important;
   }
 
   /* 统计卡 hover */
