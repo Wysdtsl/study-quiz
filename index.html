@@ -784,12 +784,13 @@
 
   /* 幽灵按钮 */
   .btn-out {
-    transition: transform .25s cubic-bezier(.22,1,.36,1),
-                border-color .25s, background .25s;
+    border: none !important;
+    background: var(--surface2);
+    color: var(--ink-soft);
+    transition: transform .25s cubic-bezier(.22,1,.36,1), background .25s;
   }
   .btn-out:hover {
     transform: translateY(-2px);
-    border-color: var(--ink-blue) !important;
     background: var(--ink-blue-light);
   }
   .btn-out:active { transform: translateY(1px) scale(.97); }
