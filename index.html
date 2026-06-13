@@ -693,13 +693,25 @@
   /*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     卡片 · 骨白底 + 悬浮上浮 + 左边条
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
-  .card, .row, .stat-card, .wb-item, .note-entry {
+  .card, .row, .stat-card {
     background: var(--surface, #f7f1de);
-    will-change: transform;
+    transition: transform .2s ease-out;
   }
   /* 科目卡片间距 */
   #subject-list .card { margin-bottom: 10px; }
   #session-list .row { margin-bottom: 8px; }
+
+  /* 卡片 hover 放大 */
+  .card:hover:not(.dragging) {
+    transform: scale(1.03);
+  }
+  /* 章节行 hover 放大 */
+  .row:hover {
+    transform: scale(1.03);
+  }
+  /* 手机 tap 缩小反馈 */
+  .card:active:not(.dragging) { transform: scale(.97); }
+  .row:active { transform: scale(.97); }
 
   /* 统计卡 hover */
   .stat-card:hover {
@@ -858,11 +870,11 @@
     滚动入场动画
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*/
   [data-reveal] {
-    animation: revealIn .65s cubic-bezier(.22,1,.36,1) both;
+    animation: revealIn .65s cubic-bezier(.22,1,.36,1) forwards;
   }
   @keyframes revealIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
   [data-reveal]:nth-child(1) { animation-delay: .05s; }
   [data-reveal]:nth-child(2) { animation-delay: .12s; }
@@ -3723,60 +3735,6 @@ function editCustomQuestion(sid, id) {
 
 loadData();
 
-// ── 清除入场动画的 transform 残余，让后续动效生效 ──
-(function cleanReveal() {
-  var els = document.querySelectorAll('[data-reveal]');
-  if (!els.length) { setTimeout(cleanReveal, 500); return; }
-  var maxDelay = 0;
-  els.forEach(function(el) {
-    var delay = parseFloat(getComputedStyle(el).animationDelay) || 0;
-    var dur = parseFloat(getComputedStyle(el).animationDuration) || 0.65;
-    var t = (delay + dur) * 1000 + 100;
-    if (t > maxDelay) maxDelay = t;
-  });
-  setTimeout(function() {
-    els.forEach(function(el) {
-      el.style.animation = 'none';
-      el.style.opacity = '1';
-      el.style.transform = 'none';
-    });
-  }, maxDelay);
-})();
-
-// ── macOS Dock 放大效果 ──
-document.addEventListener('mousemove', function(e) {
-  var page = document.querySelector('#page-home.active, #page-sessions.active');
-  if (!page) return;
-  var items = page.querySelectorAll('.card, .row');
-  if (!items.length) return;
-
-  var mouseY = e.clientY;
-  var range = 180;
-  items.forEach(function(el) {
-    var rect = el.getBoundingClientRect();
-    var center = rect.top + rect.height / 2;
-    var dist = Math.abs(mouseY - center);
-    if (dist < range) {
-      var t = 1 - dist / range;
-      var s = 1 + t * t * 0.1;
-      el.style.transition = 'transform .12s ease-out';
-      el.style.transform = 'scale(' + s.toFixed(3) + ')';
-    } else {
-      el.style.transition = 'transform .35s ease-out';
-      el.style.transform = 'scale(1)';
-    }
-  });
-});
-
-// 鼠标离开重置
-document.addEventListener('mouseout', function(e) {
-  if (!e.relatedTarget || e.relatedTarget.nodeName === 'HTML') {
-    document.querySelectorAll('.card, .row').forEach(function(el) {
-      el.style.transition = 'transform .35s ease-out';
-      el.style.transform = 'scale(1)';
-    });
-  }
-});
 </script>
 <script src="/study-quiz/lib/leaflet.min.js" defer></script>
 
