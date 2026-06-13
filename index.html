@@ -694,9 +694,10 @@
   #subject-list .card { margin-bottom: 10px; }
   #session-list .row { margin-bottom: 8px; }
 
-  /* ── 卡片/章节 hover 放大（和测试页完全一样）── */
+  /* ── 卡片/章节 hover 放大 ── */
   .card, .row {
-    transition: transform .25s ease-out !important;
+    transition: transform .3s cubic-bezier(.25,.8,.25,1) !important;
+    will-change: transform;
   }
   .card:hover:not(.dragging):not(.drop-before):not(.drop-after),
   .row:hover {
